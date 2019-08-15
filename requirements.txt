@@ -1,0 +1,9 @@
+black
+mypy
+tensorflow==2.0.0-beta1
+flake8
+flake8-blind-except
+flake8-bugbear
+flake8-docstrings
+flake8-rst-docstrings
+pydocstyle==3.0.0  # freezing because incompatibility with flake8-docstrings
