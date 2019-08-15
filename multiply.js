@@ -97,6 +97,19 @@ function dot(A, B) {
     return result;
 }
 
+function addBias(matrix, biasVector) {
+    assert(matrix.rows == biasVector.length);
+    const result = new Matrix2D(matrix.rows, matrix.columns);
+    let address = 0;
+
+    for (let column = 0; column < matrix.columns; column++) {
+        for (const biasValue of biasVector) {
+            result.buffer[address] = matrix.buffer[address] + biasValue;
+            address++;
+        }
+    }
+    return result;
+}
 
 const a = new Matrix2D(2, 3);
 a.set([[2, 3, 4], [5, 6, 7]]);
@@ -106,3 +119,6 @@ b.set([[1, 4], [2, 5], [3, 6]]);
 
 const c = dot(a, b);
 console.log(c.toString());
+
+const d = addBias(c, [0.1, 0.2])
+console.log(d.toString());
