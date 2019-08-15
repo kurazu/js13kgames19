@@ -31,6 +31,7 @@ function sum(sequence) {
 class Matrix2D {
     constructor(rows, columns) {
         const length = rows * columns;
+        this.length = length;
         this.buffer = new Float32Array(length);
         this.rows = rows;
         this.columns = columns;
@@ -48,7 +49,7 @@ class Matrix2D {
     }
 
     setRow(row, values) {
-        assert(values.length == this.rows);
+        assert(values.length == this.columns);
         const address = this.getAddress(row, 0);
         for (const [offset, value] of values.entries()) {
             this.buffer[address + offset] = value;
@@ -86,7 +87,7 @@ class Matrix2D {
 }
 
 function dot(A, B) {
-    assert(A.columns == B.rows);
+    assert(A.columns == B.rows, `${A.columns} != ${B.rows}`);
     const result = new Matrix2D(A.rows, B.columns);
     for (let row = 0; row < A.rows; row++) {
         for (let column = 0; column < B.columns; column++) {
@@ -98,7 +99,7 @@ function dot(A, B) {
 }
 
 function addBias(matrix, biasVector) {
-    assert(matrix.rows == biasVector.length);
+    assert(matrix.columns == biasVector.length);
     const result = new Matrix2D(matrix.rows, matrix.columns);
     let address = 0;
 
@@ -108,6 +109,30 @@ function addBias(matrix, biasVector) {
             address++;
         }
     }
+    return result;
+}
+
+function relu(matrix) {
+    const result = new Matrix2D(matrix.rows, matrix.columns);
+    for (let address = 0; address < result.length; address++) {
+        result.buffer[address] = matrix.buffer[address] > 0 ? matrix.buffer[address] : 0;
+    }
+    return result;
+}
+
+function softmaxArray(array) {
+    const exponents = array.map(item => Math.exp(item));
+    const sum = exponents.reduce((acc, item) => acc + item);
+    return exponents.map(exponent => exponent / sum);
+}
+
+function softmax(matrix) {
+    const result = new Matrix2D(matrix.rows, matrix.columns);
+    range(matrix.rows).forEach(rowIdx => {
+        const row = matrix.getRow(rowIdx);
+        const value = softmaxArray(row);
+        result.setRow(rowIdx, value);
+    })
     return result;
 }
 
@@ -122,3 +147,11 @@ console.log(c.toString());
 
 const d = addBias(c, [0.1, 0.2])
 console.log(d.toString());
+
+module.exports = {
+    Matrix2D,
+    dot,
+    addBias,
+    relu,
+    softmax
+};

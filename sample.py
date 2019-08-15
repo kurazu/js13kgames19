@@ -56,7 +56,9 @@ def main():
     store_weights(hidden_layer, "hidden.json")
     store_weights(output_layer, "output.json")
 
-    prediction = model.predict(x_test[:1])[0].tolist()
+    input_ = x_test[:1]
+    store_json(input_.tolist(), "input.json")
+    prediction = model.predict(input_)[0].tolist()
     store_json(prediction, "prediction.json")
 
 
