@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 import io
 import json
@@ -20,9 +21,18 @@ def store_json(what, filename):
         json.dump(what, f, indent=2)
 
 
+def store_binary(what: bytes, filename: str) -> None:
+    with io.open(filename, "wb") as f:
+        f.write(what)
+
+
 def store_weights(layer, filename):
-    serialized = serialize_layer(layer)
-    store_json(serialized, filename)
+    kernel_weights = layer.kernel.numpy().astype(np.float32)
+    bias_weights = layer.bias.numpy().astype(np.float32)
+    print(filename, "kernel", kernel_weights)
+    print(filename, "bias", bias_weights)
+    store_binary(kernel_weights.tobytes(), f"{filename}.kernel.bin")
+    store_binary(bias_weights.tobytes(), f"{filename}.bias.bin")
 
 
 def main():
@@ -53,8 +63,8 @@ def main():
 
     model.evaluate(x_test, y_test)
 
-    store_weights(hidden_layer, "hidden.json")
-    store_weights(output_layer, "output.json")
+    store_weights(hidden_layer, "hidden")
+    store_weights(output_layer, "output")
 
     input_ = x_test[:1]
     store_json(input_.tolist(), "input.json")
