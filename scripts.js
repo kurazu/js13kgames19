@@ -1,4 +1,5 @@
 import Box from './box';
+import Vector from './vector';
 import { areColliding } from './collision';
 
 const WIDTH = 640 / 2;
@@ -13,11 +14,11 @@ function getColor() {
 
 function drawBox(ctx, box, color) {
     ctx.fillStyle = color;
-    ctx.fillRect(box.left, HEIGHT - box.top, box.width, box.height);
+    ctx.fillRect(box.left, HEIGHT - box.top, box.size.x, box.size.y);
 }
 
-const staticBox = new Box(100, 100, 50, 50);
-const flyingBox = new Box(100, 100, 150, 100);
+const staticBox = new Box(new Vector(100, 100), new Vector(50, 50));
+const flyingBox = new Box(new Vector(100, 100), new Vector(150, 100));
 
 function gameLoop() {
     const canvas = document.getElementById('canvas');
@@ -27,7 +28,7 @@ function gameLoop() {
     drawBox(ctx, staticBox, '#0000ff');
     drawBox(ctx, flyingBox, areColliding(staticBox, flyingBox) ? '#ff0000' : '#00ff00');
 
-    console.log(flyingBox.x, flyingBox.y);
+    console.log(flyingBox.position.x, flyingBox.position.y, flyingBox.left, flyingBox.right, flyingBox.top, flyingBox.bottom);
 
     requestAnimationFrame(gameLoop);
 }
@@ -37,13 +38,13 @@ function onKeyPress (evt) {
     const key = event.key || event.keyCode;
     console.log('KEY', key);
     if (key === 'ArrowRight') {
-        flyingBox.x += INCREMENT;
+        flyingBox.position.x += INCREMENT;
     } else if (key === 'ArrowLeft') {
-        flyingBox.x -= INCREMENT;
+        flyingBox.position.x -= INCREMENT;
     } else if (key === 'ArrowUp') {
-        flyingBox.y += INCREMENT;
+        flyingBox.position.y += INCREMENT;
     } else if (key === 'ArrowDown') {
-        flyingBox.y -= INCREMENT;
+        flyingBox.position.y -= INCREMENT;
     } else {
         return;
     }

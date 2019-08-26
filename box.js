@@ -1,34 +1,37 @@
 import Vector from './vector';
 
-export default class Box extends Vector {
-    constructor(x, y, width, height) {
-        super(x, y);
-        this.width = width;
-        this.height = height;
+export default class Box {
+    constructor(position, size) {
+        this.position = position;
+        this.size = size;
+    }
+
+    get halfSize () {
+        return this.size.multitplyByScalar(0.5);
     }
 
     get halfWidth () {
-        return this.width / 2;
+        return this.halfSize.x;
     }
 
     get halfHeight () {
-        return this.height / 2;
+        return this.halfSize.y;
     }
 
     get left () {
-        return this.x - this.halfWidth;
+        return this.position.x - this.halfWidth;
     }
 
     get right () {
-        return this.x + this.halfWidth;
+        return this.position.x + this.halfWidth;
     }
 
     get top () {
-        return this.y + this.halfHeight;
+        return this.position.y + this.halfHeight;
     }
 
     get bottom() {
-        return this.y - this.halfHeight;
+        return this.position.y - this.halfHeight;
     }
 
     get topLeft() {
@@ -45,9 +48,5 @@ export default class Box extends Vector {
 
     get bottomRight () {
         return new Vector(this.right, this.bottom);
-    }
-
-    contains (vector) {
-        return (this.left <= vector.x && vector.x <= this.right) && (this.bottom <= vector.y && vector.y <= this.top);
     }
 }
