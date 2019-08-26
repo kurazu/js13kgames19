@@ -1,22 +1,21 @@
-function onFileLoad(evt) {
-    const array = new Float32Array(this.result);
-    console.log(array);
+const WIDTH = 640 / 2;
+const HEIGH = 480 / 2;
+
+function onLoad() {
+    const canvas = document.getElementById('canvas');
+    canvas.width = WIDTH;
+    canvas.height = HEIGH;
+
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(0, 0, WIDTH / 2, HEIGH / 2);
+    ctx.fillStyle = '#0000ff';
+    ctx.fillRect(WIDTH / 2, HEIGH / 2, WIDTH / 2, HEIGH / 2);
 }
 
-function onDrop(evt) {
-    evt.preventDefault();
-    const files = evt.dataTransfer.files;
-    for (const file of files) {
-        const reader = new FileReader();
-        reader.addEventListener('load', onFileLoad);
-        reader.readAsArrayBuffer(file);
-        }
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', onLoad, false)
+} else {
+  onLoad()
 }
-
-
-function onDragOver(evt) {
-    evt.preventDefault();
-}
-
-document.body.addEventListener('drop', onDrop, false);
-document.body.addEventListener('dragover', onDragOver, false);
