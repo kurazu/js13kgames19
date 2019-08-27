@@ -1,64 +1,69 @@
 import Box from './box';
 import Vector from './vector';
 import { areColliding } from './collision';
+import Keyboard from './keyboard';
 
 const WIDTH = 640 / 2;
 const HEIGHT = 480 / 2;
 
-const COLORS = ['#ff0000', '#0000ff', '#ffff00', '#00ff00'];
-let colorIdx = 0;
+class Game {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = this.canvas.getContext('2d');
+        this.keyboard = new Keyboard();
+        this.loop = this.loop.bind(this);
 
-function getColor() {
-    return COLORS[~~(colorIdx++ / 15) % COLORS.length];
-}
-
-function drawBox(ctx, box, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(box.left, HEIGHT - box.top, box.size.x, box.size.y);
-}
-
-const staticBox = new Box(new Vector(100, 100), new Vector(50, 50));
-const flyingBox = new Box(new Vector(100, 100), new Vector(150, 100));
-
-function gameLoop() {
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, WIDTH, HEIGHT);
-
-    drawBox(ctx, staticBox, '#0000ff');
-    drawBox(ctx, flyingBox, areColliding(staticBox, flyingBox) ? '#ff0000' : '#00ff00');
-
-    console.log(flyingBox.position.x, flyingBox.position.y, flyingBox.left, flyingBox.right, flyingBox.top, flyingBox.bottom);
-
-    requestAnimationFrame(gameLoop);
-}
-
-const INCREMENT = 10;
-function onKeyPress (evt) {
-    const key = event.key || event.keyCode;
-    console.log('KEY', key);
-    if (key === 'ArrowRight') {
-        flyingBox.position.x += INCREMENT;
-    } else if (key === 'ArrowLeft') {
-        flyingBox.position.x -= INCREMENT;
-    } else if (key === 'ArrowUp') {
-        flyingBox.position.y += INCREMENT;
-    } else if (key === 'ArrowDown') {
-        flyingBox.position.y -= INCREMENT;
-    } else {
-        return;
+        this.staticBox = new Box(new Vector(100, 100), new Vector(50, 50));
+        this.flyingBox = new Box(new Vector(100, 100), new Vector(150, 100));
     }
-    evt.preventDefault();
+
+    loop () {
+        this.update();
+        this.render();
+
+        requestAnimationFrame(this.loop);
+    }
+
+    render() {
+        this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        this.drawBox(this.staticBox, '#0000ff');
+        this.drawBox(this.flyingBox, areColliding(this.staticBox, this.flyingBox) ? '#ff0000' : '#00ff00');
+    }
+
+    update() {
+        const SPEED = 50 /* px */ / 1000 /* ms */;
+        const DT = 1000 /* ms */ / 60 /* FPS */;
+        const INCREMENT = SPEED * DT;
+        if (this.keyboard.isPressed('ArrowRight')) {
+            this.flyingBox.position.x += INCREMENT;
+        } else if (this.keyboard.isPressed('ArrowLeft')) {
+            this.flyingBox.position.x -= INCREMENT;
+        } else if (this.keyboard.isPressed('ArrowUp')) {
+            this.flyingBox.position.y += INCREMENT;
+        } else if (this.keyboard.isPressed('ArrowDown')) {
+            this.flyingBox.position.y -= INCREMENT;
+        } else {
+            return;
+        }
+    }
+
+    start() {
+        this.canvas.width = WIDTH;
+        this.canvas.height = HEIGHT;
+        this.keyboard.start();
+        requestAnimationFrame(this.loop);
+    }
+
+    drawBox(box, color) {
+        this.ctx.fillStyle = color;
+        this.ctx.fillRect(box.left, HEIGHT - box.top, box.size.x, box.size.y);
+    }
 }
 
 function onLoad() {
     const canvas = document.getElementById('canvas');
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
-
-    document.addEventListener('keyup', onKeyPress);
-
-    requestAnimationFrame(gameLoop);
+    const game = new Game(canvas);
+    game.start();
 }
 
 
