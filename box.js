@@ -7,7 +7,7 @@ export default class Box {
     }
 
     get halfSize () {
-        return this.size.multitplyByScalar(0.5);
+        return this.size.multiplyByScalar(0.5);
     }
 
     get halfWidth () {

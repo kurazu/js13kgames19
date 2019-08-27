@@ -2,9 +2,14 @@ import Box from './box';
 import Vector from './vector';
 import { areColliding } from './collision';
 import Keyboard from './keyboard';
+import World from './world';
+import PlayerShip from './player_ship';
+import { BLOCK_SIZE } from './constants';
 
 const WIDTH = 640 / 2;
 const HEIGHT = 480 / 2;
+const COLUMNS = WIDTH / BLOCK_SIZE;
+const ROWS = HEIGHT / BLOCK_SIZE;
 
 class Game {
     constructor(canvas) {
@@ -12,13 +17,17 @@ class Game {
         this.ctx = this.canvas.getContext('2d');
         this.keyboard = new Keyboard();
         this.loop = this.loop.bind(this);
+        this.world = new World();
+        this.world.addBox(0, 0);
+        this.world.addBox(2, 0);
+        this.world.addBox(4, 0);
 
-        this.staticBox = new Box(new Vector(100, 100), new Vector(50, 50));
-        this.flyingBox = new Box(new Vector(100, 100), new Vector(150, 100));
+        const player = new PlayerShip(new Vector(BLOCK_SIZE * COLUMNS / 2, BLOCK_SIZE * (ROWS - 1)), this.keyboard);
+        this.world.addShip(player);
     }
 
     loop () {
-        this.update();
+        this.world.update();
         this.render();
 
         requestAnimationFrame(this.loop);
@@ -26,8 +35,12 @@ class Game {
 
     render() {
         this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        this.drawBox(this.staticBox, '#0000ff');
-        this.drawBox(this.flyingBox, areColliding(this.staticBox, this.flyingBox) ? '#ff0000' : '#00ff00');
+        for (const box of this.world.boxes) {
+            this.drawBox(box, '#0000ff');
+        }
+        for (const ship of this.world.ships) {
+            this.drawBox(ship, '#ff0000');
+        }
     }
 
     update() {
