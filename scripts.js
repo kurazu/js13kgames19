@@ -4,7 +4,7 @@ import { areColliding } from './collision';
 import Keyboard from './keyboard';
 import World from './world';
 import PlayerShip from './player_ship';
-import { BLOCK_SIZE } from './constants';
+import { BLOCK_SIZE, MAX_VELOCITY } from './constants';
 
 const WIDTH = 640;
 const HEIGHT = 480;
@@ -56,7 +56,14 @@ class Game {
             this.drawBox(box, '#0000ff');
         }
         for (const ship of this.world.ships) {
-            this.drawBox(ship, ship.touching ? '#ff0000' : '#00ff00');
+            const intensity = ~~(255 * ship.velocity.length() / MAX_VELOCITY);
+            let r = 0, g = 0, b = intensity;
+            if (ship.touching) {
+                r = 255;
+            } else {
+                g = 255;
+            }
+            this.drawBox(ship, `rgb(${r}, ${g}, ${b}`);
         }
     }
 
