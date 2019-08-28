@@ -37,33 +37,37 @@ export default class World {
         this.ships.push(ship);
     }
 
+    updateShip(ship) {
+        const {up, left, right} = ship.getControls();
+        const accelerations = [GRAVITY_ACCELERATION];
+        if (up) {
+            accelerations.push(UPWARD_THRUST_ACCELERATION);
+        }
+        if (left) {
+            accelerations.push(LEFT_THRUST_ACCELERATION);
+        }
+        if (right) {
+            accelerations.push(RIGHT_THRUST_ACCELERATION);
+        }
+        const acceleration = Vector.add(accelerations);
+        const velocityChange = acceleration.multiplyByScalar(TIME_DELTA);
+        ship.velocity.addInplace(velocityChange);
+        ship.velocity.trim(MAX_VELOCITY);
+        const desiredPositionChange = ship.velocity.multiplyByScalar(TIME_DELTA);
+        const desiredPosition = ship.position.add(desiredPositionChange);
+        const movedShip = movedBox(ship, desiredPosition);
+        if (this.checkCollisions(movedShip)) {
+            /* we cannot make a full move */
+            ship.velocity.muliplyByScalarInplace(0);
+        } else {
+            /* full move is possible */
+            ship.position = desiredPosition;
+        }
+    }
+
     update() {
         for (const ship of this.ships) {
-            const {up, left, right} = ship.getControls();
-            const accelerations = [GRAVITY_ACCELERATION];
-            if (up) {
-                accelerations.push(UPWARD_THRUST_ACCELERATION);
-            }
-            if (left) {
-                accelerations.push(LEFT_THRUST_ACCELERATION);
-            }
-            if (right) {
-                accelerations.push(RIGHT_THRUST_ACCELERATION);
-            }
-            const acceleration = Vector.add(accelerations);
-            const velocityChange = acceleration.multiplyByScalar(TIME_DELTA);
-            ship.velocity.addInplace(velocityChange);
-            ship.velocity.trim(MAX_VELOCITY);
-            const desiredPositionChange = ship.velocity.multiplyByScalar(TIME_DELTA);
-            const desiredPosition = ship.position.add(desiredPositionChange);
-            const movedShip = movedBox(ship, desiredPosition);
-            if (this.checkCollisions(movedShip)) {
-                /* we cannot make a full move */
-                ship.velocity.muliplyByScalarInplace(0);
-            } else {
-                /* full move is possible */
-                ship.position = desiredPosition;
-            }
+            this.updateShip(ship);
         }
     }
 

@@ -6,10 +6,14 @@ import World from './world';
 import PlayerShip from './player_ship';
 import { BLOCK_SIZE } from './constants';
 
-const WIDTH = 640 / 2;
-const HEIGHT = 480 / 2;
+const WIDTH = 640;
+const HEIGHT = 480;
 const COLUMNS = WIDTH / BLOCK_SIZE;
 const ROWS = HEIGHT / BLOCK_SIZE;
+
+function range(n) {
+    return [...Array(n).keys()];
+}
 
 class Game {
     constructor(canvas) {
@@ -18,11 +22,21 @@ class Game {
         this.keyboard = new Keyboard();
         this.loop = this.loop.bind(this);
         this.world = new World();
+        for (const column of range(COLUMNS)) {
+            this.world.addBox(column, 0);
+            this.world.addBox(column, ROWS - 1);
+        }
+        for (const row of range(ROWS)) {
+            this.world.addBox(0, row);
+            this.world.addBox(COLUMNS - 1, row);
+        }
         this.world.addBox(0, 0);
         this.world.addBox(2, 0);
         this.world.addBox(4, 0);
+        this.world.addBox(0, 1);
 
-        const player = new PlayerShip(new Vector(BLOCK_SIZE * COLUMNS / 2, BLOCK_SIZE * (ROWS - 1)), this.keyboard);
+
+        const player = new PlayerShip(new Vector(BLOCK_SIZE * COLUMNS / 2, BLOCK_SIZE * (ROWS - 2)), this.keyboard);
         this.world.addShip(player);
     }
 
