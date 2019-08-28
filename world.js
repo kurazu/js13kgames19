@@ -57,18 +57,21 @@ export default class World {
         const desiredPositionChange = ship.velocity.multiplyByScalar(TIME_DELTA);
         const desiredPosition = ship.position.add(desiredPositionChange);
         const movedShip = movedBox(ship, desiredPosition);
-        if (this.checkCollisions(movedShip)) {
+        const collidingBoxes = this.checkCollisions(movedShip);
+        if (collidingBoxes.length) {
             /* we cannot make a full move */
             /* check if we can make a vertical move */
-            if (this.checkCollisions(movedBox(ship, new Vector(ship.position.x, desiredPosition.y)))) {
+            const verticallyCollidingBoxes = this.checkCollisions(movedBox(ship, new Vector(ship.position.x, desiredPosition.y)), collidingBoxes);
+            if (verticallyCollidingBoxes.length) {
                 /* we can't, let's clear velocity along this axis. */
                 ship.velocity.y = 0;
             } else {
                 /* we can, let's move along the vertical axis. */
                 ship.position.y = desiredPosition.y;
             }
+            const horizontallyCollidingBoxes = this.checkCollisions(movedBox(ship, new Vector(desiredPosition.x, ship.position.y)), collidingBoxes);
             /* check if we can make a horizontal move */
-            if (this.checkCollisions(movedBox(ship, new Vector(desiredPosition.x, ship.position.y)))) {
+            if (horizontallyCollidingBoxes.length) {
                 /* we can't, let's clear velocity along this axis. */
                 ship.velocity.x = 0;
             } else {
@@ -89,7 +92,7 @@ export default class World {
         }
     }
 
-    checkCollisions(ship) {
-        return this.boxes.some(box => areColliding(box, ship));
+    checkCollisions(ship, boxes = this.boxes) {
+        return boxes.filter(box => areColliding(box, ship));
     }
 }
