@@ -49,5 +49,9 @@ export default class Vector {
             this.multiplyByScalarInplace(factor);
         }
     }
+
+    clone() {
+        return new Vector(this.x, this.y);
+    }
 }
 

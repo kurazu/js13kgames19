@@ -22,6 +22,19 @@ function movedBox(box, newPosition) {
     return movedObject;
 }
 
+function minBy(items, measureCallback) {
+    const first = items[0];
+    const firstMeasure = measureCallback(first);
+    return items.slice(1).reduce(([bestItem, bestMeasure], item) => {
+        const measure = measureCallback(item);
+        if (measure < bestMeasure) {
+            return [item, measure];
+        } else {
+            return [bestItem, bestMeasure];
+        }
+    }, [first, firstMeasure]);
+}
+
 export default class World {
     constructor() {
         this.boxes = [];
@@ -60,19 +73,35 @@ export default class World {
         const collidingBoxes = this.checkCollisions(movedShip);
         if (collidingBoxes.length) {
             /* we cannot make a full move */
-            /* check if we can make a vertical move */
-            const verticallyCollidingBoxes = this.checkCollisions(movedBox(ship, new Vector(ship.position.x, desiredPosition.y)), collidingBoxes);
+            /* check if we can make a full vertical move */
+            const oldPosition = ship.position.clone();
+            const oldShip = movedBox(ship, oldPosition);
+            const verticallyCollidingBoxes = this.checkCollisions(movedBox(oldShip, new Vector(ship.position.x, desiredPosition.y)), collidingBoxes);
             if (verticallyCollidingBoxes.length) {
-                /* we can't, let's clear velocity along this axis. */
+                /* we can't, let's try to come as close as possible to the nearest box. */
+                const [nearestBox, distance] = minBy(verticallyCollidingBoxes, box => Math.abs(box.position.y - ship.position.y));
+                if (ship.position.y < nearestBox.position.y) {
+                    ship.top = nearestBox.bottom;
+                } else {
+                    ship.bottom = nearestBox.top;
+                }
+                /* let's clear velocity along this axis. */
                 ship.velocity.y = 0;
             } else {
                 /* we can, let's move along the vertical axis. */
                 ship.position.y = desiredPosition.y;
             }
-            const horizontallyCollidingBoxes = this.checkCollisions(movedBox(ship, new Vector(desiredPosition.x, ship.position.y)), collidingBoxes);
-            /* check if we can make a horizontal move */
+            const horizontallyCollidingBoxes = this.checkCollisions(movedBox(oldShip, new Vector(desiredPosition.x, ship.position.y)), collidingBoxes);
+            /* check if we can make a full horizontal move */
             if (horizontallyCollidingBoxes.length) {
-                /* we can't, let's clear velocity along this axis. */
+                /* we can't. let's come as close as possible to the nearest box. */
+                const [nearestBox, distance] = minBy(horizontallyCollidingBoxes, box => Math.abs(box.position.x - ship.position.x));
+                if (ship.position.x < nearestBox.position.x) {
+                    ship.right = nearestBox.left;
+                } else {
+                    ship.left = nearestBox.right;
+                }
+                /* let's clear velocity along this axis. */
                 ship.velocity.x = 0;
             } else {
                 /* we can, let's move along the vertical axis. */
