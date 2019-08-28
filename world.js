@@ -9,8 +9,17 @@ import {
     TIME_DELTA,
     MAX_VELOCITY
 } from './constants';
+import { areColliding } from './collision';
 
 const BOX_SIZE = new Vector(BLOCK_SIZE, BLOCK_SIZE);
+
+const COLLISION_STEPS = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0];
+
+function movedBox(box, newPosition) {
+    const movedObject = Object.create(box);
+    movedObject.position = newPosition;
+    return movedObject;
+}
 
 export default class World {
     constructor() {
@@ -45,8 +54,20 @@ export default class World {
             const velocityChange = acceleration.multiplyByScalar(TIME_DELTA);
             ship.velocity.addInplace(velocityChange);
             ship.velocity.trim(MAX_VELOCITY);
-            const positionChange = ship.velocity.multiplyByScalar(TIME_DELTA);
-            ship.position.addInplace(positionChange);
+            const desiredPositionChange = ship.velocity.multiplyByScalar(TIME_DELTA);
+            const desiredPosition = ship.position.add(desiredPositionChange);
+            const movedShip = movedBox(ship, desiredPosition);
+            if (this.checkCollisions(movedShip)) {
+                /* we cannot make a full move */
+                ship.velocity.muliplyByScalarInplace(0);
+            } else {
+                /* full move is possible */
+                ship.position = desiredPosition;
+            }
         }
+    }
+
+    checkCollisions(ship) {
+        return this.boxes.some(box => areColliding(box, ship));
     }
 }
