@@ -18,3 +18,4 @@ export default class PlayerShip extends Body {
         }
     }
 }
+PlayerShip.prototype.touching = false;

@@ -71,6 +71,7 @@ export default class World {
         const desiredPosition = ship.position.add(desiredPositionChange);
         const movedShip = movedBox(ship, desiredPosition);
         const collidingBoxes = this.checkCollisions(movedShip);
+        delete ship.touching;
         if (collidingBoxes.length) {
             /* we cannot make a full move */
             /* check if we can make a full vertical move */
@@ -109,6 +110,7 @@ export default class World {
             }
             /* and let's apply friction */
             ship.velocity.multiplyByScalarInplace(FRICTION);
+            ship.touching = true;
         } else {
             /* full move is possible */
             ship.position = desiredPosition;

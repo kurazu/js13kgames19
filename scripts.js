@@ -35,6 +35,9 @@ class Game {
         this.world.addBox(COLUMNS / 2 + 1, ROWS / 2);
         this.world.addBox(COLUMNS / 2, ROWS / 2 + 1);
         this.world.addBox(COLUMNS / 2, ROWS / 2 - 1);
+        for (const column of range(5)) {
+            this.world.addBox(COLUMNS / 2 - 2 + column, ROWS / 2 - 3);
+        }
 
         const player = new PlayerShip(new Vector(BLOCK_SIZE * COLUMNS / 2, BLOCK_SIZE * (ROWS - 2)), this.keyboard);
         this.world.addShip(player);
@@ -53,7 +56,7 @@ class Game {
             this.drawBox(box, '#0000ff');
         }
         for (const ship of this.world.ships) {
-            this.drawBox(ship, '#ff0000');
+            this.drawBox(ship, ship.touching ? '#ff0000' : '#00ff00');
         }
     }
 
