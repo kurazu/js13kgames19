@@ -7,7 +7,8 @@ import {
     LEFT_THRUST_ACCELERATION,
     RIGHT_THRUST_ACCELERATION,
     TIME_DELTA,
-    MAX_VELOCITY
+    MAX_VELOCITY,
+    FRICTION
 } from './constants';
 import { areColliding } from './collision';
 
@@ -58,7 +59,24 @@ export default class World {
         const movedShip = movedBox(ship, desiredPosition);
         if (this.checkCollisions(movedShip)) {
             /* we cannot make a full move */
-            ship.velocity.muliplyByScalarInplace(0);
+            /* check if we can make a vertical move */
+            if (this.checkCollisions(movedBox(ship, new Vector(ship.position.x, desiredPosition.y)))) {
+                /* we can't, let's clear velocity along this axis. */
+                ship.velocity.y = 0;
+            } else {
+                /* we can, let's move along the vertical axis. */
+                ship.position.y = desiredPosition.y;
+            }
+            /* check if we can make a horizontal move */
+            if (this.checkCollisions(movedBox(ship, new Vector(desiredPosition.x, ship.position.y)))) {
+                /* we can't, let's clear velocity along this axis. */
+                ship.velocity.x = 0;
+            } else {
+                /* we can, let's move along the vertical axis. */
+                ship.position.x = desiredPosition.x;
+            }
+            /* and let's apply friction */
+            ship.velocity.multiplyByScalarInplace(FRICTION);
         } else {
             /* full move is possible */
             ship.position = desiredPosition;

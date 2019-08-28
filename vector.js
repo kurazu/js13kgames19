@@ -21,9 +21,13 @@ export default class Vector {
         return new Vector(this.x * factor, this.y * factor);
     }
 
-    muliplyByScalarInplace(factor) {
+    multiplyByScalarInplace(factor) {
         this.x *= factor;
         this.y *= factor;
+    }
+
+    multiply(other) {
+        return new Vector(this.x * other.x, this.y * other.y);
     }
 
     static add(vectors) {
@@ -42,7 +46,7 @@ export default class Vector {
         const length = this.length();
         if (length > maxLength) {
             const factor = maxLength / length;
-            this.muliplyByScalarInplace(factor);
+            this.multiplyByScalarInplace(factor);
         }
     }
 }

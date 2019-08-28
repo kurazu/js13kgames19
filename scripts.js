@@ -30,11 +30,7 @@ class Game {
             this.world.addBox(0, row);
             this.world.addBox(COLUMNS - 1, row);
         }
-        this.world.addBox(0, 0);
-        this.world.addBox(2, 0);
-        this.world.addBox(4, 0);
-        this.world.addBox(0, 1);
-
+        this.world.addBox(COLUMNS / 2, ROWS / 2);
 
         const player = new PlayerShip(new Vector(BLOCK_SIZE * COLUMNS / 2, BLOCK_SIZE * (ROWS - 2)), this.keyboard);
         this.world.addShip(player);
