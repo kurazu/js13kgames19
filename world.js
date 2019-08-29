@@ -36,9 +36,10 @@ function minBy(items, measureCallback) {
 }
 
 export default class World {
-    constructor() {
+    constructor(levelLength) {
         this.boxes = {};
         this.ships = [];
+        this.length = levelLength * BLOCK_SIZE;
     }
 
     addBox(x, y) {
