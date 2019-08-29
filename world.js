@@ -37,14 +37,30 @@ function minBy(items, measureCallback) {
 
 export default class World {
     constructor() {
-        this.boxes = [];
+        this.boxes = {};
         this.ships = [];
     }
 
     addBox(x, y) {
         const position = new Vector((x + 0.5) * BLOCK_SIZE, (y + 0.5) * BLOCK_SIZE);
         const box = new Box(position, BOX_SIZE);
-        this.boxes.push(box);
+        if (!this.boxes.hasOwnProperty(x)) {
+            this.boxes[x] = [];
+        }
+        this.boxes[x].push(box);
+    }
+
+    getBoxes (minX, maxX) {
+        const result = [];
+        const minXIndex = ~~(minX / BLOCK_SIZE) - 1;
+        const maxXIndex = ~~(maxX / BLOCK_SIZE) + 1;
+        for (let idx = minXIndex; idx < maxXIndex; idx++) {
+            const columnBoxes = this.boxes[idx] || [];
+            for (const box of columnBoxes) {
+                result.push(box);
+            }
+        }
+        return result;
     }
 
     addShip(ship) {
@@ -123,7 +139,7 @@ export default class World {
         }
     }
 
-    checkCollisions(ship, boxes = this.boxes) {
+    checkCollisions(ship, boxes = this.getBoxes(ship.left, ship.right)) {
         return boxes.filter(box => areColliding(box, ship));
     }
 }

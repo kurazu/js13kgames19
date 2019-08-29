@@ -1,7 +1,7 @@
 import { WIDTH, HEIGHT, MAX_VELOCITY } from './constants';
 import Vector from './vector';
 
-const PLAYER_X_AT = WIDTH / 3;
+const PLAYER_X_AT = 1 / 3;
 
 class Camera {
     constructor(trackedShip) {
@@ -11,7 +11,7 @@ class Camera {
     getScreenPosition(box) {
         const {left, top} = box;
         const trackedShipX = this.trackedShip.position.x;
-        return new Vector(PLAYER_X_AT + left - trackedShipX, HEIGHT - top);
+        return new Vector(PLAYER_X_AT * WIDTH + left - trackedShipX, HEIGHT - top);
     }
 }
 
@@ -29,7 +29,9 @@ export default class Renderer {
 
     render(world) {
         this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        for (const box of world.boxes) {
+        const screenLeft = this.camera.trackedShip.position.x - PLAYER_X_AT * WIDTH;
+        const screenRight = this.camera.trackedShip.position.x + (1 - PLAYER_X_AT) * WIDTH;
+        for (const box of world.getBoxes(screenLeft, screenRight)) {
             this.drawBox(box, '#0000ff');
         }
         for (const ship of world.ships) {
