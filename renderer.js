@@ -9,10 +9,28 @@ class Camera {
         this.levelLength = levelLength;
     }
 
+    getScreenX(physicsX) {
+        return PLAYER_X_AT * WIDTH + physicsX - this.trackedShip.position.x;
+    }
+
+    getScreenY(physicsY) {
+        return HEIGHT - physicsY;
+    }
+
     getScreenPosition(box) {
         const {left, top} = box;
-        const trackedShipX = this.trackedShip.position.x;
-        return new Vector(PLAYER_X_AT * WIDTH + left - trackedShipX, HEIGHT - top);
+        return new Vector(
+            this.getScreenX(left),
+            this.getScreenY(top)
+        );
+    }
+
+    getScreenLeft() {
+        return this.trackedShip.position.x - PLAYER_X_AT * WIDTH;
+    }
+
+    getScreenRight() {
+        return this.trackedShip.position.x + (1 - PLAYER_X_AT) * WIDTH;
     }
 }
 
@@ -30,8 +48,8 @@ export default class Renderer {
 
     render(world) {
         this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        const screenLeft = this.camera.trackedShip.position.x - PLAYER_X_AT * WIDTH;
-        const screenRight = this.camera.trackedShip.position.x + (1 - PLAYER_X_AT) * WIDTH;
+        const screenLeft = this.camera.getScreenLeft();
+        const screenRight = this.camera.getScreenRight();
         for (const box of world.getBoxes(screenLeft, screenRight)) {
             this.drawBox(box, '#0000ff');
         }
