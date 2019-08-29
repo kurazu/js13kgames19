@@ -22,7 +22,7 @@ class Game {
         const player = new PlayerShip(new Vector(BLOCK_SIZE * COLUMNS / 2, BLOCK_SIZE * (ROWS - 2)), this.keyboard);
         this.world.addShip(player);
 
-        this.renderer = new Renderer(canvas, player);
+        this.renderer = new Renderer(canvas, player, DEFAULT_LEVEL_LENGTH);
     }
 
     loop () {

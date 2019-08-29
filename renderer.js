@@ -4,8 +4,9 @@ import Vector from './vector';
 const PLAYER_X_AT = 1 / 3;
 
 class Camera {
-    constructor(trackedShip) {
+    constructor(trackedShip, levelLength) {
         this.trackedShip = trackedShip;
+        this.levelLength = levelLength;
     }
 
     getScreenPosition(box) {
@@ -16,10 +17,10 @@ class Camera {
 }
 
 export default class Renderer {
-    constructor(canvas, trackedShip) {
+    constructor(canvas, trackedShip, levelLength) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d');
-        this.camera = new Camera(trackedShip);
+        this.camera = new Camera(trackedShip, levelLength);
     }
 
     start() {
