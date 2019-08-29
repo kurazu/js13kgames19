@@ -1,9 +1,25 @@
 import { WIDTH, HEIGHT, MAX_VELOCITY } from './constants';
+import Vector from './vector';
+
+const PLAYER_X_AT = WIDTH / 3;
+
+class Camera {
+    constructor(trackedShip) {
+        this.trackedShip = trackedShip;
+    }
+
+    getScreenPosition(box) {
+        const {left, top} = box;
+        const trackedShipX = this.trackedShip.position.x;
+        return new Vector(PLAYER_X_AT + left - trackedShipX, HEIGHT - top);
+    }
+}
 
 export default class Renderer {
-    constructor(canvas) {
+    constructor(canvas, trackedShip) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d');
+        this.camera = new Camera(trackedShip);
     }
 
     start() {
@@ -30,6 +46,6 @@ export default class Renderer {
 
     drawBox(box, color) {
         this.ctx.fillStyle = color;
-        this.ctx.fillRect(box.left, HEIGHT - box.top, box.size.x, box.size.y);
+        this.ctx.fillRect(...this.camera.getScreenPosition(box), ...box.size);
     }
 }

@@ -13,17 +13,16 @@ function range(n) {
 
 class Game {
     constructor(canvas) {
-        this.renderer = new Renderer(canvas);
         this.keyboard = new Keyboard();
         this.loop = this.loop.bind(this);
         this.world = new World();
-        for (const column of range(COLUMNS)) {
+        for (const column of range(COLUMNS * 2)) {
             this.world.addBox(column, 0);
             this.world.addBox(column, ROWS - 1);
         }
         for (const row of range(ROWS)) {
             this.world.addBox(0, row);
-            this.world.addBox(COLUMNS - 1, row);
+            this.world.addBox(COLUMNS * 2 - 1, row);
         }
         this.world.addBox(COLUMNS / 2, ROWS / 2);
         this.world.addBox(COLUMNS / 2 - 1, ROWS / 2);
@@ -36,6 +35,8 @@ class Game {
 
         const player = new PlayerShip(new Vector(BLOCK_SIZE * COLUMNS / 2, BLOCK_SIZE * (ROWS - 2)), this.keyboard);
         this.world.addShip(player);
+
+        this.renderer = new Renderer(canvas, player);
     }
 
     loop () {
