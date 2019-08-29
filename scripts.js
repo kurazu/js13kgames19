@@ -6,31 +6,17 @@ import World from './world';
 import PlayerShip from './player_ship';
 import { BLOCK_SIZE, MAX_VELOCITY, COLUMNS, ROWS } from './constants';
 import Renderer from './renderer';
+import generateLevel from './level_generator';
+import { range } from './utils';
 
-function range(n) {
-    return [...Array(n).keys()];
-}
 
 class Game {
     constructor(canvas) {
         this.keyboard = new Keyboard();
         this.loop = this.loop.bind(this);
         this.world = new World();
-        for (const column of range(COLUMNS * 2)) {
-            this.world.addBox(column, 0);
-            this.world.addBox(column, ROWS - 1);
-        }
-        for (const row of range(ROWS)) {
-            this.world.addBox(0, row);
-            this.world.addBox(COLUMNS * 2 - 1, row);
-        }
-        this.world.addBox(COLUMNS / 2, ROWS / 2);
-        this.world.addBox(COLUMNS / 2 - 1, ROWS / 2);
-        this.world.addBox(COLUMNS / 2 + 1, ROWS / 2);
-        this.world.addBox(COLUMNS / 2, ROWS / 2 + 1);
-        this.world.addBox(COLUMNS / 2, ROWS / 2 - 1);
-        for (const column of range(5)) {
-            this.world.addBox(COLUMNS / 2 - 2 + column, ROWS / 2 - 3);
+        for (const [column, row] of generateLevel()) {
+            this.world.addBox(column, row)
         }
 
         const player = new PlayerShip(new Vector(BLOCK_SIZE * COLUMNS / 2, BLOCK_SIZE * (ROWS - 2)), this.keyboard);

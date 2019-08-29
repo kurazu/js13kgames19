@@ -15,3 +15,4 @@ export const WIDTH = 640;
 export const HEIGHT = 480;
 export const COLUMNS = WIDTH / BLOCK_SIZE;
 export const ROWS = HEIGHT / BLOCK_SIZE;
+export const DEFAULT_LEVEL_LENGTH = COLUMNS * 10;

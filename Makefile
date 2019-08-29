@@ -1,4 +1,4 @@
-SOURCES =  body.js box.js collision.js constants.js keyboard.js player_ship.js renderer.js vector.js world.js
+SOURCES =  body.js box.js collision.js constants.js keyboard.js player_ship.js renderer.js utils.js vector.js world.js level_generator.js
 COMPILER = java -jar ~/Downloads/compiler-latest/closure-compiler-v20190819.jar
 COMPILER_FLAGS = -O BUNDLE --dependency_mode SORT_ONLY
 bundle.js: $(SOURCES) scripts.js
