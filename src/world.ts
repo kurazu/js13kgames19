@@ -12,6 +12,7 @@ import {
 } from './constants';
 import { areColliding } from './collision';
 import Ship from './ship';
+import { minBy } from './utils';
 
 const BOX_SIZE = new Vector(BLOCK_SIZE, BLOCK_SIZE);
 
@@ -21,19 +22,6 @@ function movedBox(box: Box, newPosition: Vector) {
     const movedObject = Object.create(box);
     movedObject.position = newPosition;
     return movedObject;
-}
-
-function minBy<T>(items: T[], measureCallback: (item: T) => number): [T, number] {
-    const first = items[0];
-    const firstMeasure = measureCallback(first);
-    return items.slice(1).reduce(([bestItem, bestMeasure], item) => {
-        const measure = measureCallback(item);
-        if (measure < bestMeasure) {
-            return [item, measure];
-        } else {
-            return [bestItem, bestMeasure];
-        }
-    }, [first, firstMeasure]);
 }
 
 export default class World {
