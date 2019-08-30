@@ -1,17 +1,18 @@
-SOURCES =  body.js box.js collision.js constants.js keyboard.js player_ship.js renderer.js utils.js vector.js world.js level_generator.js
+TS_SOURCES = src/body.ts src/box.ts src/collision.ts src/constants.ts src/keyboard.ts src/player_ship.ts src/renderer.ts src/utils.ts src/vector.ts src/world.ts src/level_generator.ts
+JS_SOURCES =
 COMPILER = java -jar ~/Downloads/compiler-latest/closure-compiler-v20190819.jar
-COMPILER_FLAGS = -O BUNDLE --dependency_mode SORT_ONLY
-bundle.js: $(SOURCES) scripts.js
-	 $(COMPILER) $(COMPILER_FLAGS) --js_output_file=bundle.js $(SOURCES) scripts.js
+COMPILER_FLAGS = -O BUNDLE --dependency_mode SORT_ONLY --language_out ECMASCRIPT_2019
 
-main.js: $(SOURCES) sim.js
-	$(COMPILER) -O BUNDLE --js_output_file=main.js $(SOURCES) sim.js
+all: build/bundle.js
 
-run: main.js
-	node main.js
+build: src/*.ts
+	npm run tsc
+
+build/bundle.js: build
+	 $(COMPILER) $(COMPILER_FLAGS) --js_output_file=build/bundle.js build/*.js
 
 clean:
-	rm bundle.js
+	rm build/*.js
 
 compile:
 	npm run tsc
