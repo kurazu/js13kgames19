@@ -1,22 +1,13 @@
-import Body from './body';
-import { BLOCK_SIZE } from './constants';
 import Vector from './vector';
 import Keyboard from './keyboard';
+import Controls from './controls';
+import Ship from './ship';
 
-const SHIP_SIZE = new Vector(BLOCK_SIZE * 2, BLOCK_SIZE);
-
-export interface Controls {
-    right: boolean;
-    left: boolean;
-    up: boolean;
-}
-
-export default class PlayerShip extends Body {
+export default class PlayerShip extends Ship {
     private keyboard: Keyboard;
-    public touching: boolean = false;
 
     constructor(position: Vector, keyboard: Keyboard) {
-        super(position, SHIP_SIZE);
+        super(position);
         this.keyboard = keyboard;
     }
 

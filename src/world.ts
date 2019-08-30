@@ -11,7 +11,7 @@ import {
     FRICTION
 } from './constants';
 import { areColliding } from './collision';
-import PlayerShip from './player_ship';
+import Ship from './ship';
 
 const BOX_SIZE = new Vector(BLOCK_SIZE, BLOCK_SIZE);
 
@@ -38,7 +38,7 @@ function minBy<T>(items: T[], measureCallback: (item: T) => number): [T, number]
 
 export default class World {
     private boxes: { [key: number]: Box[]; }
-    public ships: PlayerShip[];
+    public ships: Ship[];
     private levelLength: number;
 
     public constructor(levelLength: number) {
@@ -70,11 +70,11 @@ export default class World {
         return result;
     }
 
-    public addShip(ship: PlayerShip): void {
+    public addShip(ship: Ship): void {
         this.ships.push(ship);
     }
 
-    private updateShip(ship: PlayerShip) {
+    private updateShip(ship: Ship) {
         const {up, left, right} = ship.getControls();
         const accelerations = [GRAVITY_ACCELERATION];
         if (up) {
@@ -146,7 +146,7 @@ export default class World {
         }
     }
 
-    private checkCollisions(ship: PlayerShip, boxes: Box[] = this.getBoxes(ship.left, ship.right)): Box[] {
+    private checkCollisions(ship: Ship, boxes: Box[] = this.getBoxes(ship.left, ship.right)): Box[] {
         return boxes.filter(box => areColliding(box, ship));
     }
 }

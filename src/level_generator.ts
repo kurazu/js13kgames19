@@ -12,7 +12,7 @@ function* generateLevelContent(levelLength: number): Iterable<[number, number]> 
         yield [column + 1, 0];
         yield [column + 1, ROWS - 1];
 
-        if (column % 3 == 0) {
+        if (column % 4 == 0) {
             const centerY = randRange(ROWS - 2) + 1;
             yield [column, centerY];
             yield [column - 1, centerY];
