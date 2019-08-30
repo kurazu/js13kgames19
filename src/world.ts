@@ -24,6 +24,8 @@ function movedBox(box: Box, newPosition: Vector) {
     return movedObject;
 }
 
+export type ShipAndPosition = [Ship, number];
+
 export default class World {
     private boxes: { [key: number]: Box[]; }
     public ships: Ship[];
@@ -128,9 +130,17 @@ export default class World {
         }
     }
 
-    public update(): void {
+    public update(): ShipAndPosition[] | null {
         for (const ship of this.ships) {
             this.updateShip(ship);
+        }
+
+        const shipsWithPositions: ShipAndPosition[] = this.ships.map(ship => [ship, ship.position.x]);
+        shipsWithPositions.sort(([shipA, positionA]: ShipAndPosition, [shipB, positionB]: ShipAndPosition) => positionB - positionA);
+        if (shipsWithPositions.some(([ship, position]: ShipAndPosition) => position > this.levelLength)) {
+            return shipsWithPositions;
+        } else {
+            return null;
         }
     }
 
