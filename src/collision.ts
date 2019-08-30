@@ -1,4 +1,6 @@
-export function areColliding(boxA, boxB) {
+import Box from './box';
+
+export function areColliding(boxA: Box, boxB: Box): boolean {
     return (
         boxA.left < boxB.right &&
         boxA.right > boxB.left &&

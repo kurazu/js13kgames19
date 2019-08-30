@@ -1,16 +1,26 @@
 import Body from './body';
 import { BLOCK_SIZE } from './constants';
 import Vector from './vector';
+import Keyboard from './keyboard';
 
 const SHIP_SIZE = new Vector(BLOCK_SIZE * 2, BLOCK_SIZE);
 
+export interface Controls {
+    right: boolean;
+    left: boolean;
+    up: boolean;
+}
+
 export default class PlayerShip extends Body {
-    constructor(position, keyboard) {
+    private keyboard: Keyboard;
+    public touching: boolean = false;
+
+    constructor(position: Vector, keyboard: Keyboard) {
         super(position, SHIP_SIZE);
         this.keyboard = keyboard;
     }
 
-    getControls() {
+    getControls(): Controls {
         return {
             right: this.keyboard.isPressed('ArrowRight'),
             left: this.keyboard.isPressed('ArrowLeft'),
@@ -18,4 +28,3 @@ export default class PlayerShip extends Body {
         }
     }
 }
-PlayerShip.prototype.touching = false;

@@ -1,23 +1,28 @@
 import { WIDTH, HEIGHT, MAX_VELOCITY } from './constants';
 import Vector from './vector';
+import Box from './box';
+import World from './world';
 
 const PLAYER_X_AT = 1 / 3;
 
 class Camera {
-    constructor(trackedShip, levelLength) {
+    public trackedShip: Box;
+    private levelLength: number;
+
+    public constructor(trackedShip: Box, levelLength: number) {
         this.trackedShip = trackedShip;
         this.levelLength = levelLength;
     }
 
-    getScreenX(physicsX) {
+    private getScreenX(physicsX: number): number {
         return PLAYER_X_AT * WIDTH + physicsX - this.trackedShip.position.x;
     }
 
-    getScreenY(physicsY) {
+    private getScreenY(physicsY: number): number {
         return HEIGHT - physicsY;
     }
 
-    getScreenPosition(box) {
+    public getScreenPosition(box: Box): Vector {
         const {left, top} = box;
         return new Vector(
             this.getScreenX(left),
@@ -25,28 +30,36 @@ class Camera {
         );
     }
 
-    getScreenLeft() {
+    public getScreenLeft(): number {
         return this.trackedShip.position.x - PLAYER_X_AT * WIDTH;
     }
 
-    getScreenRight() {
+    public getScreenRight(): number {
         return this.trackedShip.position.x + (1 - PLAYER_X_AT) * WIDTH;
     }
 }
 
 export default class Renderer {
-    constructor(canvas, trackedShip, levelLength) {
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+    private camera: Camera;
+
+    public constructor(canvas: HTMLCanvasElement, trackedShip: Box, levelLength: number) {
         this.canvas = canvas;
-        this.ctx = this.canvas.getContext('2d');
+        const ctx = this.canvas.getContext('2d');
+        if (!ctx) {
+            throw new Error('Canvas context not initialized');
+        }
+        this.ctx = ctx;
         this.camera = new Camera(trackedShip, levelLength);
     }
 
-    start() {
+    public start(): void {
         this.canvas.width = WIDTH;
         this.canvas.height = HEIGHT;
     }
 
-    render(world) {
+    render(world: World): void {
         this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
         const screenLeft = this.camera.getScreenLeft();
         const screenRight = this.camera.getScreenRight();
@@ -65,8 +78,10 @@ export default class Renderer {
         }
     }
 
-    drawBox(box, color) {
+    drawBox(box: Box, color: string): void {
         this.ctx.fillStyle = color;
-        this.ctx.fillRect(...this.camera.getScreenPosition(box), ...box.size);
+        const {x, y} = this.camera.getScreenPosition(box);
+        const {x: w, y: h} = box.size;
+        this.ctx.fillRect(x, y, w, h);
     }
 }

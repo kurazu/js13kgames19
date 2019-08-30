@@ -1,5 +1,8 @@
 export default class Vector {
-    constructor(x = 0, y = 0) {
+    public x: number;
+    public y: number;
+
+    public constructor(x: number = 0, y: number = 0) {
         this.x = x;
         this.y = y;
     }
@@ -8,33 +11,33 @@ export default class Vector {
         return [this.x, this.y][Symbol.iterator]()
     }
 
-    add(other) {
+    public add(other: Vector): Vector {
         return new Vector(this.x + other.x, this.y + other.y);
     }
 
-    addInplace(other) {
+    public addInplace(other: Vector): void {
         this.x += other.x;
         this.y += other.y;
     }
 
-    subtract(other) {
+    public subtract(other: Vector): Vector {
         return new Vector(this.x - other.x, this.y - other.y);
     }
 
-    multiplyByScalar(factor) {
+    public multiplyByScalar(factor: number): Vector {
         return new Vector(this.x * factor, this.y * factor);
     }
 
-    multiplyByScalarInplace(factor) {
+    public multiplyByScalarInplace(factor: number): void {
         this.x *= factor;
         this.y *= factor;
     }
 
-    multiply(other) {
+    public multiply(other: Vector): Vector {
         return new Vector(this.x * other.x, this.y * other.y);
     }
 
-    static add(vectors) {
+    public static add(vectors: Iterable<Vector>): Vector {
         const result = new Vector();
         for (const vector of vectors) {
             result.addInplace(vector);
@@ -42,11 +45,11 @@ export default class Vector {
         return result;
     }
 
-    length() {
+    public length(): number {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
 
-    trim (maxLength) {
+    public trim (maxLength: number): void {
         const length = this.length();
         if (length > maxLength) {
             const factor = maxLength / length;
@@ -54,7 +57,7 @@ export default class Vector {
         }
     }
 
-    clone() {
+    public clone(): Vector {
         return new Vector(this.x, this.y);
     }
 }

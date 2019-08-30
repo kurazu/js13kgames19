@@ -1,0 +1,23 @@
+{
+  "name": "js13kgames19",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sim.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kurazu/js13kgames19.git"
+  },
+  "author": "Tomasz Maćkowiak",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kurazu/js13kgames19/issues"
+  },
+  "homepage": "https://github.com/kurazu/js13kgames19#readme",
+  "dependencies": {
+    "typescript": "^3.6.2"
+  }
+}

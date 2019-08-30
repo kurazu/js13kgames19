@@ -12,3 +12,6 @@ run: main.js
 
 clean:
 	rm bundle.js
+
+compile:
+	npm run tsc

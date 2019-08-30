@@ -11,7 +11,11 @@ import { range } from './utils';
 
 
 class Game {
-    constructor(canvas) {
+    private keyboard: Keyboard;
+    private world: World;
+    private renderer: Renderer;
+
+    public constructor(canvas: HTMLCanvasElement) {
         this.keyboard = new Keyboard();
         this.loop = this.loop.bind(this);
         this.world = new World(DEFAULT_LEVEL_LENGTH);
@@ -25,22 +29,25 @@ class Game {
         this.renderer = new Renderer(canvas, player, DEFAULT_LEVEL_LENGTH);
     }
 
-    loop () {
+    loop(): void {
         this.world.update();
         this.renderer.render(this.world);
 
         requestAnimationFrame(this.loop);
     }
 
-    start() {
+    start(): void {
         this.renderer.start();
         this.keyboard.start();
         requestAnimationFrame(this.loop);
     }
 }
 
-function onLoad() {
-    const canvas = document.getElementById('canvas');
+function onLoad(): void {
+    const canvas = document.querySelector<HTMLCanvasElement>('canvas');
+    if (!canvas) {
+        throw new Error("Canvas not found");
+    }
     const game = new Game(canvas);
     game.start();
 }

@@ -1,68 +1,70 @@
 import Vector from './vector';
 
 export default class Box {
-    constructor(position, size) {
+    public position: Vector;
+    public size: Vector;
+    public constructor(position: Vector, size: Vector) {
         this.position = position;
         this.size = size;
     }
 
-    get halfSize() {
+    public get halfSize(): Vector {
         return this.size.multiplyByScalar(0.5);
     }
 
-    get halfWidth() {
+    public get halfWidth(): number {
         return this.halfSize.x;
     }
 
-    get halfHeight() {
+    public get halfHeight(): number {
         return this.halfSize.y;
     }
 
-    get left() {
+    public get left(): number {
         return this.position.x - this.halfWidth;
     }
 
-    set left(value) {
+    public set left(value: number) {
         this.position.x = value + this.halfWidth;
     }
 
-    get right() {
+    public get right(): number {
         return this.position.x + this.halfWidth;
     }
 
-    set right(value) {
+    public set right(value: number) {
         this.position.x = value - this.halfWidth;
     }
 
-    get top() {
+    public get top(): number {
         return this.position.y + this.halfHeight;
     }
 
-    set top(value) {
+    public set top(value: number) {
         this.position.y = value - this.halfHeight;
     }
 
-    get bottom() {
+    public get bottom(): number {
         return this.position.y - this.halfHeight;
     }
 
-    set bottom(value) {
+    public set bottom(value: number) {
         this.position.y = value + this.halfHeight;
     }
 
-    get topLeft() {
+    public get topLeft(): Vector {
         return new Vector(this.left, this.top);
     }
 
-    get topRight() {
+    public get topRight(): Vector {
         return new Vector(this.right, this.top);
     }
 
-    get bottomLeft () {
+    public get bottomLeft(): Vector {
         return new Vector(this.left, this.bottom);
     }
 
-    get bottomRight () {
+    public get bottomRight(): Vector {
         return new Vector(this.right, this.bottom);
     }
 }

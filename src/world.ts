@@ -11,18 +11,19 @@ import {
     FRICTION
 } from './constants';
 import { areColliding } from './collision';
+import PlayerShip from './player_ship';
 
 const BOX_SIZE = new Vector(BLOCK_SIZE, BLOCK_SIZE);
 
 const COLLISION_STEPS = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0];
 
-function movedBox(box, newPosition) {
+function movedBox(box: Box, newPosition: Vector) {
     const movedObject = Object.create(box);
     movedObject.position = newPosition;
     return movedObject;
 }
 
-function minBy(items, measureCallback) {
+function minBy<T>(items: T[], measureCallback: (item: T) => number): [T, number] {
     const first = items[0];
     const firstMeasure = measureCallback(first);
     return items.slice(1).reduce(([bestItem, bestMeasure], item) => {
@@ -36,22 +37,27 @@ function minBy(items, measureCallback) {
 }
 
 export default class World {
-    constructor(levelLength) {
+    private boxes: { [key: number]: Box[]; }
+    public ships: PlayerShip[];
+    private levelLength: number;
+
+    public constructor(levelLength: number) {
         this.boxes = {};
         this.ships = [];
-        this.length = levelLength * BLOCK_SIZE;
+        this.levelLength = levelLength * BLOCK_SIZE;
     }
 
-    addBox(x, y) {
+    public addBox(x: number, y: number): Box {
         const position = new Vector((x + 0.5) * BLOCK_SIZE, (y + 0.5) * BLOCK_SIZE);
         const box = new Box(position, BOX_SIZE);
         if (!this.boxes.hasOwnProperty(x)) {
             this.boxes[x] = [];
         }
         this.boxes[x].push(box);
+        return box;
     }
 
-    getBoxes (minX, maxX) {
+    public getBoxes (minX: number, maxX: number): Box[] {
         const result = [];
         const minXIndex = ~~(minX / BLOCK_SIZE) - 1;
         const maxXIndex = ~~(maxX / BLOCK_SIZE) + 1;
@@ -64,11 +70,11 @@ export default class World {
         return result;
     }
 
-    addShip(ship) {
+    public addShip(ship: PlayerShip): void {
         this.ships.push(ship);
     }
 
-    updateShip(ship) {
+    private updateShip(ship: PlayerShip) {
         const {up, left, right} = ship.getControls();
         const accelerations = [GRAVITY_ACCELERATION];
         if (up) {
@@ -134,13 +140,13 @@ export default class World {
         }
     }
 
-    update() {
+    public update(): void {
         for (const ship of this.ships) {
             this.updateShip(ship);
         }
     }
 
-    checkCollisions(ship, boxes = this.getBoxes(ship.left, ship.right)) {
+    private checkCollisions(ship: PlayerShip, boxes: Box[] = this.getBoxes(ship.left, ship.right)): Box[] {
         return boxes.filter(box => areColliding(box, ship));
     }
 }
