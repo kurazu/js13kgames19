@@ -18,3 +18,21 @@ export function minBy<T>(items: T[], measureCallback: (item: T) => number): [T, 
         }
     }, [first, firstMeasure]);
 }
+
+export function assert(condition: boolean, msg: string = ''): void {
+    if (!condition) {
+        throw new Error(msg);
+    }
+}
+
+export function zip(...sequences: any[][]) {
+    const first = sequences[0];
+    for (const sequence of sequences) {
+        assert(sequence.length === first.length);
+    }
+    return first.map((_, idx) => sequences.map(sequence => sequence[idx]));
+}
+
+export function sum(sequence: number[]): number {
+    return sequence.reduce((acc, item) => acc + item, 0);
+}
