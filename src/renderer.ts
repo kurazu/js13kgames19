@@ -76,17 +76,21 @@ export default class Renderer {
                 g = 255;
             }
             this.drawBox(ship, `rgb(${r}, ${g}, ${b}`);
-            this.drawMarker(ship, world);
+            this.drawMarkers(ship, world);
         }
     }
 
-    private drawMarker(ship: Ship, world: World): void {
-        const markerPosition = ship.position.add(new Vector(32 * 2, 0));
-        const collides: boolean = world.getBox(markerPosition) !== undefined;
-        this.ctx.fillStyle = collides ? 'red' : 'green';
-        this.ctx.beginPath();
-        this.ctx.arc(this.camera.getScreenX(markerPosition.x), this.camera.getScreenY(markerPosition.y), 2, 0, Math.PI * 2);
-        this.ctx.fill();
+    private drawMarkers(ship: Ship, world: World): void {
+        for (const sensors of world.sensors) {
+            for (const sensor of sensors) {
+                const markerPosition = sensor.getCurrentPosition(ship);
+                const collides = world.getBox(markerPosition) !== undefined;
+                this.ctx.fillStyle = collides ? 'red' : 'green';
+                this.ctx.beginPath();
+                this.ctx.arc(this.camera.getScreenX(markerPosition.x), this.camera.getScreenY(markerPosition.y), 2, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        }
     }
 
     private drawBox(box: Box, color: string): void {

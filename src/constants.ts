@@ -16,3 +16,6 @@ export const HEIGHT = 480;
 export const COLUMNS = WIDTH / BLOCK_SIZE;
 export const ROWS = HEIGHT / BLOCK_SIZE;
 export const DEFAULT_LEVEL_LENGTH = COLUMNS * 10;
+
+export const SENSORS_COUNT = 20;
+export const SENSORS_RANGE = 12;

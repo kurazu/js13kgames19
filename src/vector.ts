@@ -60,5 +60,11 @@ export default class Vector {
     public clone(): Vector {
         return new Vector(this.x, this.y);
     }
+
+    static fromAngleAndLength(angle: number, length: number): Vector {
+        const x = Math.cos(angle) * length;
+        const y = Math.sin(angle) * length;
+        return new Vector(x, y);
+    }
 }
 

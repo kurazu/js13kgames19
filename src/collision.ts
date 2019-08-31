@@ -8,3 +8,5 @@ export function areColliding(boxA: Box, boxB: Box): boolean {
         boxA.top > boxB.bottom
     );
 }
+
+export type SensorsState = (number | null)[];

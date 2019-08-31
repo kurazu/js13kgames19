@@ -8,11 +8,14 @@ import {
     RIGHT_THRUST_ACCELERATION,
     TIME_DELTA,
     MAX_VELOCITY,
-    FRICTION
+    FRICTION,
+    SENSORS_COUNT,
+    SENSORS_RANGE
 } from './constants';
-import { areColliding } from './collision';
+import { areColliding, SensorsState } from './collision';
 import Ship from './ship';
 import { minBy } from './utils';
+import { getSensors, Sensor } from './sensors';
 
 const BOX_SIZE = new Vector(BLOCK_SIZE, BLOCK_SIZE);
 
@@ -32,9 +35,11 @@ const EMPTY_MAP: BoxColumn = new Map();
 export default class World {
     private boxes: Map<number, BoxColumn>;
     public ships: Ship[];
+    public sensors: Sensor[][];
     private finishX: number;
 
     public constructor(levelLength: number) {
+        this.sensors = getSensors(SENSORS_COUNT, SENSORS_RANGE);
         this.boxes = new Map();
         this.ships = [];
         this.finishX = levelLength * BLOCK_SIZE;
@@ -79,8 +84,17 @@ export default class World {
         this.ships.push(ship);
     }
 
+    private getState(ship: Ship): SensorsState {
+        return this.sensors.map(
+            sensors => sensors.findIndex(sensor => this.getBox(sensor.getCurrentPosition(ship)))
+        ).map(
+            index => index === -1 ? null : index
+        );
+    }
+
     private updateShip(ship: Ship) {
-        const {up, left, right} = ship.getControls();
+        const state = this.getState(ship);
+        const {up, left, right} = ship.getControls(state);
         const accelerations = [GRAVITY_ACCELERATION];
         if (up) {
             accelerations.push(UPWARD_THRUST_ACCELERATION);
