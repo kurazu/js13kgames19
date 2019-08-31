@@ -2,6 +2,7 @@ import { WIDTH, HEIGHT, MAX_VELOCITY } from './constants';
 import Vector from './vector';
 import Box from './box';
 import World from './world';
+import Ship from './ship';
 
 const PLAYER_X_AT = 1 / 3;
 
@@ -14,11 +15,11 @@ class Camera {
         this.levelLength = levelLength;
     }
 
-    private getScreenX(physicsX: number): number {
+    public getScreenX(physicsX: number): number {
         return PLAYER_X_AT * WIDTH + physicsX - this.trackedShip.position.x;
     }
 
-    private getScreenY(physicsY: number): number {
+    public getScreenY(physicsY: number): number {
         return HEIGHT - physicsY;
     }
 
@@ -59,7 +60,7 @@ export default class Renderer {
         this.canvas.height = HEIGHT;
     }
 
-    render(world: World): void {
+    public render(world: World): void {
         this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
         const screenLeft = this.camera.getScreenLeft();
         const screenRight = this.camera.getScreenRight();
@@ -75,10 +76,20 @@ export default class Renderer {
                 g = 255;
             }
             this.drawBox(ship, `rgb(${r}, ${g}, ${b}`);
+            this.drawMarker(ship, world);
         }
     }
 
-    drawBox(box: Box, color: string): void {
+    private drawMarker(ship: Ship, world: World): void {
+        const markerPosition = ship.position.add(new Vector(32 * 2, 0));
+        const collides: boolean = world.getBox(markerPosition) !== undefined;
+        this.ctx.fillStyle = collides ? 'red' : 'green';
+        this.ctx.beginPath();
+        this.ctx.arc(this.camera.getScreenX(markerPosition.x), this.camera.getScreenY(markerPosition.y), 2, 0, Math.PI * 2);
+        this.ctx.fill();
+    }
+
+    private drawBox(box: Box, color: string): void {
         this.ctx.fillStyle = color;
         const {x, y} = this.camera.getScreenPosition(box);
         const {x: w, y: h} = box.size;

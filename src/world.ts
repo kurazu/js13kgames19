@@ -40,19 +40,19 @@ export default class World {
         this.finishX = levelLength * BLOCK_SIZE;
     }
 
-    public addBox(x: number, y: number): Box {
-        const position = new Vector((x + 0.5) * BLOCK_SIZE, (y + 0.5) * BLOCK_SIZE);
+    public addBox(column: number, row: number): Box {
+        const position = new Vector((column + 0.5) * BLOCK_SIZE, (row + 0.5) * BLOCK_SIZE);
         const box = new Box(position, BOX_SIZE);
-        let columnMap = this.boxes.get(x);
+        let columnMap = this.boxes.get(column);
         if (!columnMap) {
             columnMap = new Map();
-            this.boxes.set(x, columnMap);
+            this.boxes.set(column, columnMap);
         }
-        columnMap.set(y, box);
+        columnMap.set(row, box);
         return box;
     }
 
-    public getBoxes (minX: number, maxX: number): Box[] {
+    public getBoxes(minX: number, maxX: number): Box[] {
         const result: Box[] = [];
         const minXIndex = ~~(minX / BLOCK_SIZE) - 1;
         const maxXIndex = ~~(maxX / BLOCK_SIZE) + 1;
@@ -63,6 +63,16 @@ export default class World {
             }
         }
         return result;
+    }
+
+    public getBox(position: Vector): Box | undefined {
+        const column = ~~(position.x / BLOCK_SIZE);
+        const row = ~~(position.y / BLOCK_SIZE);
+        const columnBoxes = this.boxes.get(column);
+        if (!columnBoxes) {
+            return undefined;
+        }
+        return columnBoxes.get(row);
     }
 
     public addShip(ship: Ship): void {
