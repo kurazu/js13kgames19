@@ -2,7 +2,7 @@
   "name": "js13kgames19",
   "version": "1.0.0",
   "description": "",
-  "main": "sim.js",
+  "main": "./build/sim.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -18,7 +18,10 @@
     "url": "https://github.com/kurazu/js13kgames19/issues"
   },
   "homepage": "https://github.com/kurazu/js13kgames19#readme",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "@zoltu/typescript-transformer-append-js-extension": "^1.0.1",
+    "ttypescript": "^1.5.7",
     "typescript": "^3.6.2"
   }
 }

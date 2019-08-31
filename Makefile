@@ -4,11 +4,12 @@ COMPILER = java -jar ~/Downloads/compiler-latest/closure-compiler-v20190819.jar
 COMPILER_FLAGS_DEV = -O BUNDLE --js_output_file=dist/bundle.js
 COMPILER_FLAGS_PROD = -O ADVANCED --js_output_file=dist/bundle.min.js
 COMPILER_FLAGS = --dependency_mode STRICT --language_in ECMASCRIPT_2019 --language_out ECMASCRIPT_2019 --module_resolution=NODE --warning_level=VERBOSE --entry_point build/scripts.js --js='build/*.js'
+NODE_PATH=/home/kurazu/apps/node-v12.9.1-linux-x64/bin
 
 all: dev
 
 compile:
-	npm run tsc
+	$(NODE_PATH)/npx ttsc
 
 dev: compile
 	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_DEV)
@@ -16,6 +17,12 @@ dev: compile
 min: compile
 	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_PROD)
 	ls -lh dist/*.js
+
+run: compile
+	$(NODE_PATH)/node --experimental-modules build/sim.js
+
+install:
+	$(NODE_PATH)/npm install .
 
 clean:
 	rm build/*.js

@@ -8,9 +8,9 @@ const SHIP_SIZE = new Vector(BLOCK_SIZE * 2, BLOCK_SIZE);
 export default abstract class Ship extends Body {
     public touching: boolean = false;
 
-    constructor(position: Vector) {
+    public constructor(position: Vector) {
         super(position, SHIP_SIZE);
     }
 
-    abstract getControls() : Controls;
+    public abstract getControls() : Controls;
 }

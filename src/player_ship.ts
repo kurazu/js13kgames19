@@ -6,12 +6,12 @@ import Ship from './ship';
 export default class PlayerShip extends Ship {
     private keyboard: Keyboard;
 
-    constructor(position: Vector, keyboard: Keyboard) {
+    public constructor(position: Vector, keyboard: Keyboard) {
         super(position);
         this.keyboard = keyboard;
     }
 
-    getControls(): Controls {
+    public getControls(): Controls {
         return {
             right: this.keyboard.isPressed('ArrowRight'),
             left: this.keyboard.isPressed('ArrowLeft'),
