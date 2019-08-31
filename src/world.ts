@@ -26,13 +26,16 @@ function movedBox(box: Box, newPosition: Vector) {
 
 export type ShipAndPosition = [Ship, number];
 
+type BoxColumn = Map<number, Box>
+const EMPTY_MAP: BoxColumn = new Map();
+
 export default class World {
-    private boxes: { [key: number]: Box[]; }
+    private boxes: Map<number, BoxColumn>;
     public ships: Ship[];
     private finishX: number;
 
     public constructor(levelLength: number) {
-        this.boxes = {};
+        this.boxes = new Map();
         this.ships = [];
         this.finishX = levelLength * BLOCK_SIZE;
     }
@@ -40,20 +43,22 @@ export default class World {
     public addBox(x: number, y: number): Box {
         const position = new Vector((x + 0.5) * BLOCK_SIZE, (y + 0.5) * BLOCK_SIZE);
         const box = new Box(position, BOX_SIZE);
-        if (!this.boxes.hasOwnProperty(x)) {
-            this.boxes[x] = [];
+        let columnMap = this.boxes.get(x);
+        if (!columnMap) {
+            columnMap = new Map();
+            this.boxes.set(x, columnMap);
         }
-        this.boxes[x].push(box);
+        columnMap.set(y, box);
         return box;
     }
 
     public getBoxes (minX: number, maxX: number): Box[] {
-        const result = [];
+        const result: Box[] = [];
         const minXIndex = ~~(minX / BLOCK_SIZE) - 1;
         const maxXIndex = ~~(maxX / BLOCK_SIZE) + 1;
         for (let idx = minXIndex; idx < maxXIndex; idx++) {
-            const columnBoxes = this.boxes[idx] || [];
-            for (const box of columnBoxes) {
+            const columnBoxes: BoxColumn = this.boxes.get(idx) || EMPTY_MAP;
+            for (const box of columnBoxes.values()) {
                 result.push(box);
             }
         }
