@@ -29,12 +29,12 @@ export type ShipAndPosition = [Ship, number];
 export default class World {
     private boxes: { [key: number]: Box[]; }
     public ships: Ship[];
-    private levelLength: number;
+    private finishX: number;
 
     public constructor(levelLength: number) {
         this.boxes = {};
         this.ships = [];
-        this.levelLength = levelLength * BLOCK_SIZE;
+        this.finishX = levelLength * BLOCK_SIZE;
     }
 
     public addBox(x: number, y: number): Box {
@@ -137,7 +137,7 @@ export default class World {
 
         const shipsWithPositions: ShipAndPosition[] = this.ships.map(ship => [ship, ship.position.x]);
         shipsWithPositions.sort(([shipA, positionA]: ShipAndPosition, [shipB, positionB]: ShipAndPosition) => positionB - positionA);
-        if (shipsWithPositions.some(([ship, position]: ShipAndPosition) => position > this.levelLength)) {
+        if (shipsWithPositions.some(([ship, position]: ShipAndPosition) => position > this.finishX)) {
             return shipsWithPositions;
         } else {
             return null;
