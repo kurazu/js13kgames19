@@ -5,12 +5,10 @@ import Keyboard from './keyboard';
 import World from './world';
 import PlayerShip from './player_ship';
 import Ship from './ship';
-import { BLOCK_SIZE, MAX_VELOCITY, COLUMNS, ROWS, DEFAULT_LEVEL_LENGTH } from './constants';
+import { BLOCK_SIZE, MAX_VELOCITY, COLUMNS, ROWS, DEFAULT_LEVEL_LENGTH, DEFAULT_PLAYER_POSITION } from './constants';
 import Renderer from './renderer';
 import generateLevel from './level_generator';
 import { range } from './utils';
-
-const DEFAULT_PLAYER_POSITION = new Vector(BLOCK_SIZE * COLUMNS / 2, BLOCK_SIZE * (ROWS - 2))
 
 class Game {
     private keyboard: Keyboard;

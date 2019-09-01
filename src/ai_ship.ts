@@ -10,7 +10,7 @@ import { SENSORS_RANGE  } from './constants';
 const MAX_VALUE: number = SENSORS_RANGE + 1;
 
 export default class AIShip extends Ship {
-    private readonly neuralNetwork: FeedForwardNetwork;
+    public readonly neuralNetwork: FeedForwardNetwork;
 
     public constructor(position: Vector, neuralNetwork: FeedForwardNetwork) {
         super(position);

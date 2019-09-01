@@ -18,4 +18,5 @@ export const ROWS = HEIGHT / BLOCK_SIZE;
 export const DEFAULT_LEVEL_LENGTH = COLUMNS * 10;
 
 export const SENSORS_COUNT = 20;
-export const SENSORS_RANGE = 12;
+export const SENSORS_RANGE = 12
+export const DEFAULT_PLAYER_POSITION = new Vector(BLOCK_SIZE * COLUMNS / 2, BLOCK_SIZE * (ROWS - 2));;
