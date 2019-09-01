@@ -1,7 +1,7 @@
 export class Action {
-    up: boolean;
-    left: boolean;
-    right: boolean;
+    public readonly up: boolean;
+    public readonly left: boolean;
+    public readonly right: boolean;
 
     public constructor(up: boolean, left: boolean, right: boolean) {
         this.up = up;

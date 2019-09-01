@@ -2,7 +2,7 @@ import Vector from './vector';
 
 export default class Box {
     public position: Vector;
-    public size: Vector;
+    public readonly size: Vector;
     public constructor(position: Vector, size: Vector) {
         this.position = position;
         this.size = size;
