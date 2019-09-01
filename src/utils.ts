@@ -25,12 +25,12 @@ export function assert(condition: boolean, msg: string = ''): void {
     }
 }
 
-export function zip(...sequences: any[][]) {
-    const first = sequences[0];
-    for (const sequence of sequences) {
-        assert(sequence.length === first.length);
+export function zip(...arrays: Float32Array[]): Float32Array[] {
+    const first: Float32Array = arrays[0];
+    for (const array of arrays) {
+        assert(array.length === first.length);
     }
-    return first.map((_, idx) => sequences.map(sequence => sequence[idx]));
+    return range(first.length).map((idx: number) => Float32Array.from(arrays.map(array => array[idx])));
 }
 
 export function sum(sequence: number[]): number {

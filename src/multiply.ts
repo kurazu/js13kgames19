@@ -26,12 +26,10 @@ export class Matrix2D {
         this.buffer[address] = value;
     }
 
-    public setRow(row: number, values: number[]): void {
+    public setRow(row: number, values: Float32Array): void {
         assert(values.length == this.columns);
         const address = this.getAddress(row, 0);
-        for (const [offset, value] of values.entries()) {
-            this.buffer[address + offset] = value;
-        }
+        this.buffer.set(values, address);
     }
 
     public set(values: number[][]): void {
@@ -50,13 +48,15 @@ export class Matrix2D {
         return this.buffer[address];
     }
 
-    public getRow(row: number): number[] {
+    public getRow(row: number): Float32Array {
         const address = this.getAddress(row, 0);
-        return range(this.columns).map(offset => this.buffer[address + offset]);
+        return this.buffer.slice(address, address + this.columns);
     }
 
-    public getColumn(column: number): number[] {
-        return range(this.rows).map(row => this.buffer[row * this.columns + column]);
+    public getColumn(column: number): Float32Array {
+        return Float32Array.from(
+            range(this.rows).map(row => this.buffer[row * this.columns + column])
+        );
     }
 
     public toString(): string {
@@ -77,7 +77,7 @@ export function dot(A: Matrix2D, B: Matrix2D): Matrix2D {
     const result = new Matrix2D(A.rows, B.columns);
     for (let row = 0; row < A.rows; row++) {
         for (let column = 0; column < B.columns; column++) {
-            const value = sum(zip(A.getRow(row), B.getColumn(column)).map(([aValue, bValue]) => aValue * bValue));
+            const value = sum(zip(A.getRow(row), B.getColumn(column)).map((values: Float32Array) => values[0] * values[1]));
             result.setItem(row, column, value);
         }
     }
@@ -106,7 +106,7 @@ export function relu(matrix: Matrix2D): Matrix2D {
     return result;
 }
 
-function softmaxArray(array: number[]): number[] {
+function softmaxArray(array: Float32Array): Float32Array {
     const exponents = array.map(item => Math.exp(item));
     const sum = exponents.reduce((acc, item) => acc + item);
     return exponents.map(exponent => exponent / sum);
@@ -147,4 +147,16 @@ export function uniformRandomDistribution(array: Float32Array, stdDeviation: num
     for (let idx = 0, length = array.length; idx < length; idx++) {
         array[idx] = (Math.random() * 2 - 1) * stdDeviation;
     }
+}
+
+
+export function argmax(array: Float32Array): number {
+    let bestIdx: (number | undefined), bestValue: (number | undefined);
+    for (const [idx, item] of array.entries()) {
+        if (bestIdx === undefined || item > bestValue!) {
+            bestIdx = idx;
+            bestValue = item;
+        }
+    }
+    return bestIdx!;
 }

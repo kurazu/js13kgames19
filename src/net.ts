@@ -53,7 +53,7 @@ export class SoftmaxLayer extends ActivationLayer {
 
 export class FeedForwardNetwork {
     private layers: Layer[];
-    private inputWidth: number;
+    public readonly inputWidth: number;
 
     public constructor(inputWidth: number, layers: Layer[]) {
         this.layers = layers;

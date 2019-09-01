@@ -1,6 +1,6 @@
 import Vector from './vector';
 import Keyboard from './keyboard';
-import Controls from './controls';
+import { Action } from './actions';
 import Ship from './ship';
 import { SensorsState } from './collision';
 
@@ -12,11 +12,10 @@ export default class PlayerShip extends Ship {
         this.keyboard = keyboard;
     }
 
-    public getControls(sensorsState: SensorsState): Controls {
-        return {
-            right: this.keyboard.isPressed('ArrowRight'),
-            left: this.keyboard.isPressed('ArrowLeft'),
-            up: this.keyboard.isPressed('ArrowUp'),
-        }
+    public getControls(sensorsState: SensorsState): Action {
+        const right = this.keyboard.isPressed('ArrowRight');
+        const left = this.keyboard.isPressed('ArrowLeft');
+        const up = this.keyboard.isPressed('ArrowUp');
+        return new Action(up, left, right);
     }
 }
