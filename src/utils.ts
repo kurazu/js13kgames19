@@ -6,6 +6,15 @@ export function randRange(n: number): number {
     return ~~(Math.random() * n);
 }
 
+export function randomSample(n: number, k: number): number[] {
+    const choices = range(n);
+    return range(k).map(_ => {
+        const idx = randRange(choices.length);
+        const [selected] = choices.splice(idx, 1);
+        return selected;
+    });
+}
+
 export function minBy<T>(items: T[], measureCallback: (item: T) => number): [T, number] {
     const first = items[0];
     const firstMeasure = measureCallback(first);
@@ -35,4 +44,8 @@ export function zip(...arrays: Float32Array[]): Float32Array[] {
 
 export function sum(sequence: number[]): number {
     return sequence.reduce((acc, item) => acc + item, 0);
+}
+
+export function uniformRandom(): number {
+    return Math.random() * 2 - 1;
 }

@@ -9,19 +9,23 @@ import { BLOCK_SIZE, MAX_VELOCITY, COLUMNS, ROWS, DEFAULT_LEVEL_LENGTH, DEFAULT_
 import Renderer from './renderer';
 import generateLevel from './level_generator';
 import { range } from './utils';
+import { FeedForwardNetwork } from './net';
+import AIShip from './ai_ship';
+import { evolveBest, createNeuralNetwork } from './genetic';
 
 class Game {
     private keyboard: Keyboard;
-    private world: World;
+    private world!: World;
     private renderer: Renderer;
     private player: Ship;
+    private robot: Ship;
 
-    public constructor(canvas: HTMLCanvasElement) {
+    public constructor(canvas: HTMLCanvasElement, net: FeedForwardNetwork) {
         this.keyboard = new Keyboard();
         this.loop = this.loop.bind(this);
         this.player = new PlayerShip(DEFAULT_PLAYER_POSITION.clone(), this.keyboard);
+        this.robot = new AIShip(DEFAULT_PLAYER_POSITION.clone(), net);
         this.renderer = new Renderer(canvas, this.player, DEFAULT_LEVEL_LENGTH);
-        this.world = new World(DEFAULT_LEVEL_LENGTH);
         this.newLevel();
     }
 
@@ -30,9 +34,11 @@ class Game {
         for (const [column, row] of generateLevel(DEFAULT_LEVEL_LENGTH)) {
             this.world.addBox(column, row);
         }
-        this.player.position = DEFAULT_PLAYER_POSITION.clone();
-        this.player.velocity.multiplyByScalarInplace(0);
-        this.world.addShip(this.player);
+        for (const ship of [this.player, this.robot]) {
+            ship.position = DEFAULT_PLAYER_POSITION.clone();
+            ship.velocity.multiplyByScalarInplace(0);
+            this.world.addShip(ship);
+        }
     }
 
     private loop(): void {
@@ -58,7 +64,9 @@ function onLoad(): void {
     if (!canvas) {
         throw new Error("Canvas not found");
     }
-    const game = new Game(canvas);
+    const LEARN = false;
+    const network = (LEARN ? evolveBest : createNeuralNetwork)();
+    const game = new Game(canvas, network);
     game.start();
 }
 

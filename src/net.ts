@@ -6,12 +6,15 @@ import { Matrix2D, dot, addBias, relu, softmax, uniformRandomDistribution } from
 export abstract class Layer {
     public abstract compile(inputWidth: number): number;
     public abstract calculate(inputMatrix: Matrix2D): Matrix2D;
+    public abstract getWeights(): Iterable<Float32Array>;
+    public abstract clone(): Layer;
 }
 
 export class DenseLayer extends Layer {
     private kernel!: Matrix2D;
     private bias!: Float32Array;
     private width: number;
+    private stdDeviation!: number;
 
     public constructor(width: number) {
         super();
@@ -20,22 +23,40 @@ export class DenseLayer extends Layer {
 
     public compile(inputWidth: number): number {
         this.kernel = new Matrix2D(inputWidth, this.width);
-        // Kaiming He et. al.
-        const stdDeviation = Math.sqrt(2 / inputWidth);
-        uniformRandomDistribution(this.kernel.buffer, stdDeviation);
+        uniformRandomDistribution(this.kernel.buffer);
         this.bias = new Float32Array(this.width);
-        // bias is initialized to zeroes
+        uniformRandomDistribution(this.bias);
         return this.width;
     }
 
     public calculate(inputMatrix: Matrix2D): Matrix2D {
         return addBias(dot(inputMatrix, this.kernel), this.bias);
     }
+
+    public *getWeights() {
+        yield this.kernel.buffer;
+        yield this.bias;
+    }
+
+    public clone(): DenseLayer {
+        const copy = new DenseLayer(this.width);
+        copy.kernel = new Matrix2D(this.kernel.rows, this.kernel.columns);
+        copy.bias = new Float32Array(this.width);
+        return copy;
+    }
 }
 
 abstract class ActivationLayer extends Layer {
     public compile(inputWidth: number) {
         return inputWidth;
+    }
+
+    public *getWeights() {
+
+    }
+
+    public clone(): ActivationLayer {
+        return this; /* activation layers are stateless, so no need to copy them. */
     }
 }
 
@@ -69,6 +90,16 @@ export class FeedForwardNetwork {
 
     public calculate(inputMatrix: Matrix2D): Matrix2D {
         return this.layers.reduce((acc: Matrix2D, layer: Layer) => layer.calculate(acc), inputMatrix);
+    }
+
+    public *getWeights(): Iterable<Float32Array> {
+        for (const layer of this.layers) {
+            yield* layer.getWeights();
+        }
+    }
+
+    public clone(): FeedForwardNetwork {
+        return new FeedForwardNetwork(this.inputWidth, this.layers.map(layer => layer.clone()));
     }
 }
 

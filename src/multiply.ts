@@ -1,4 +1,4 @@
-import { range, zip, assert, sum } from './utils';
+import { range, zip, assert, sum, uniformRandom } from './utils';
 
 export class Matrix2D {
     public buffer: Float32Array;
@@ -143,9 +143,9 @@ export function softmax(matrix: Matrix2D): Matrix2D {
 // };
 
 
-export function uniformRandomDistribution(array: Float32Array, stdDeviation: number): void {
+export function uniformRandomDistribution(array: Float32Array): void {
     for (let idx = 0, length = array.length; idx < length; idx++) {
-        array[idx] = (Math.random() * 2 - 1) * stdDeviation;
+        array[idx] = uniformRandom();
     }
 }
 
