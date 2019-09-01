@@ -1,36 +1,31 @@
-import { Matrix2D, dot, addBias, relu, softmax } from './multiply';
+import { Matrix2D, dot, addBias, relu, softmax, uniformRandomDistribution } from './multiply';
 // const hiddenLayerDefinition = require('./hidden.json');
 // const outputLayerDefinition = require('./output.json');
 // const inputData = require('./input.json');
 
 export abstract class Layer {
+    public abstract compile(inputWidth: number): number;
     public abstract calculate(inputMatrix: Matrix2D): Matrix2D;
 }
 
-interface KernelDefinition {
-    shape: [number, number];
-    value: number[][];
-}
-
-interface BiasDefinition {
-    value: number[];
-}
-
-interface DenseLayerDefinition {
-    kernel: KernelDefinition;
-    bias: BiasDefinition;
-}
-
 export class DenseLayer extends Layer {
-    private kernel: Matrix2D;
-    private bias: number[];
+    private kernel!: Matrix2D;
+    private bias!: Float32Array;
+    private width: number;
 
-    constructor(definition: DenseLayerDefinition) {
+    public constructor(width: number) {
         super();
-        const {kernel: {shape: [rows, columns], value: kernelValue}, bias: {value: biasValue}} = definition;
-        this.kernel = new Matrix2D(rows, columns);
-        this.kernel.set(kernelValue);
-        this.bias = biasValue;
+        this.width = width;
+    }
+
+    public compile(inputWidth: number): number {
+        this.kernel = new Matrix2D(inputWidth, this.width);
+        // Kaiming He et. al.
+        const stdDeviation = Math.sqrt(2 / inputWidth);
+        uniformRandomDistribution(this.kernel.buffer, stdDeviation);
+        this.bias = new Float32Array(this.width);
+        // bias is initialized to zeroes
+        return this.width;
     }
 
     public calculate(inputMatrix: Matrix2D): Matrix2D {
@@ -38,13 +33,19 @@ export class DenseLayer extends Layer {
     }
 }
 
-export class ReluLayer extends Layer {
+abstract class ActivationLayer extends Layer {
+    public compile(inputWidth: number) {
+        return inputWidth;
+    }
+}
+
+export class ReluLayer extends ActivationLayer {
     public calculate(inputMatrix: Matrix2D): Matrix2D {
         return relu(inputMatrix);
     }
 }
 
-export class SoftmaxLayer extends Layer {
+export class SoftmaxLayer extends ActivationLayer {
     public calculate(inputMatrix: Matrix2D): Matrix2D {
         return softmax(inputMatrix);
     }
@@ -52,9 +53,18 @@ export class SoftmaxLayer extends Layer {
 
 export class FeedForwardNetwork {
     private layers: Layer[];
+    private inputWidth: number;
 
-    public constructor(layers: Layer[]) {
+    public constructor(inputWidth: number, layers: Layer[]) {
         this.layers = layers;
+        this.inputWidth = inputWidth;
+    }
+
+    public compile() {
+        let fanIn = this.inputWidth;
+        for (const layer of this.layers) {
+            fanIn = layer.compile(fanIn);
+        }
     }
 
     public calculate(inputMatrix: Matrix2D): Matrix2D {

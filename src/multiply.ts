@@ -84,7 +84,7 @@ export function dot(A: Matrix2D, B: Matrix2D): Matrix2D {
     return result;
 }
 
-export function addBias(matrix: Matrix2D, biasVector: number[]) {
+export function addBias(matrix: Matrix2D, biasVector: Float32Array) {
     assert(matrix.columns == biasVector.length);
     const result = new Matrix2D(matrix.rows, matrix.columns);
     let address = 0;
@@ -141,3 +141,10 @@ export function softmax(matrix: Matrix2D): Matrix2D {
 //     relu,
 //     softmax
 // };
+
+
+export function uniformRandomDistribution(array: Float32Array, stdDeviation: number): void {
+    for (let idx = 0, length = array.length; idx < length; idx++) {
+        array[idx] = (Math.random() * 2 - 1) * stdDeviation;
+    }
+}
