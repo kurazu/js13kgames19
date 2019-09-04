@@ -11,7 +11,8 @@ import generateLevel from './level_generator';
 import { range } from './utils';
 import { FeedForwardNetwork } from './net';
 import AIShip from './ai_ship';
-import { evolveBest, createNeuralNetwork } from './genetic';
+import learn from './learn';
+import { createNetwork } from './game_genetic';
 
 class Game {
     private keyboard: Keyboard;
@@ -52,8 +53,8 @@ class Game {
         requestAnimationFrame(this.loop);
     }
 
-    public start(): void {
-        this.renderer.start();
+    public async start(): Promise<void> {
+        await this.renderer.start();
         this.keyboard.start();
         requestAnimationFrame(this.loop);
     }
@@ -64,10 +65,10 @@ function onLoad(): void {
     if (!canvas) {
         throw new Error("Canvas not found");
     }
-    const LEARN = false;
-    const network = (LEARN ? evolveBest : createNeuralNetwork)();
+    const LEARN = true;
+    const network = (LEARN ? learn : createNetwork)();
     const game = new Game(canvas, network);
-    game.start();
+    game.start().catch(err => { console.error('Failed to start the game', err); });
 }
 
 

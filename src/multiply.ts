@@ -1,14 +1,20 @@
 import { range, zip, assert, sum, uniformRandom } from './utils';
 
 export class Matrix2D {
-    public buffer: Float32Array;
-    public rows: number;
-    public columns: number;
+    public readonly buffer: Float32Array;
+    public readonly rows: number;
+    public readonly columns: number;
 
-    public constructor(rows: number, columns: number) {
+    public constructor(rows: number, columns: number, buffer: (Float32Array | null) = null) {
+        const bufferLength = rows * columns;
         this.rows = rows;
         this.columns = columns;
-        this.buffer = new Float32Array(rows * columns);
+        if (buffer) {
+            assert(bufferLength === buffer.length);
+            this.buffer = buffer;
+        } else {
+            this.buffer = new Float32Array(bufferLength);
+        }
     }
 
     public get length() {
@@ -77,6 +83,12 @@ export function dot(A: Matrix2D, B: Matrix2D): Matrix2D {
     const result = new Matrix2D(A.rows, B.columns);
     for (let row = 0; row < A.rows; row++) {
         for (let column = 0; column < B.columns; column++) {
+            // TODO speedup
+            // const value = 0;
+            // for (const idx = 0; idx < A.columns; idx++) {
+            //     value += A.buffer[row]
+            // }
+            // result.buffer[row * result.columns + column] = value;
             const value = sum(zip(A.getRow(row), B.getColumn(column)).map((values: Float32Array) => values[0] * values[1]));
             result.setItem(row, column, value);
         }

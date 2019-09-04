@@ -3,6 +3,7 @@ import Vector from './vector';
 import Box from './box';
 import World from './world';
 import Ship from './ship';
+import { loadImage } from './resources';
 
 const PLAYER_X_AT = 1 / 3;
 
@@ -44,6 +45,7 @@ export default class Renderer {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     private camera: Camera;
+    private shipImage: HTMLImageElement | null = null;
 
     public constructor(canvas: HTMLCanvasElement, trackedShip: Box, levelLength: number) {
         this.canvas = canvas;
@@ -55,9 +57,10 @@ export default class Renderer {
         this.camera = new Camera(trackedShip, levelLength);
     }
 
-    public start(): void {
+    public async start(): Promise<void> {
         this.canvas.width = WIDTH;
         this.canvas.height = HEIGHT;
+        this.shipImage = await loadImage('img/ship.png');
     }
 
     public render(world: World): void {
@@ -68,14 +71,8 @@ export default class Renderer {
             this.drawBox(box, '#0000ff');
         }
         for (const ship of world.ships) {
-            const intensity = ~~(255 * ship.velocity.length() / MAX_VELOCITY);
-            let r = 0, g = 0, b = intensity;
-            if (ship.touching) {
-                r = 255;
-            } else {
-                g = 255;
-            }
-            this.drawBox(ship, `rgb(${r}, ${g}, ${b}`);
+
+            this.drawShip(ship);
             this.drawMarkers(ship, world);
         }
     }
@@ -98,5 +95,19 @@ export default class Renderer {
         const {x, y} = this.camera.getScreenPosition(box);
         const {x: w, y: h} = box.size;
         this.ctx.fillRect(x, y, w, h);
+    }
+
+    private drawShip(ship: Ship) {
+        const intensity = ~~(255 * ship.velocity.length() / MAX_VELOCITY);
+        let r = 0, g = 0, b = intensity;
+        if (ship.touching) {
+            r = 255;
+        } else {
+            g = 255;
+        }
+        const color = `rgb(${r}, ${g}, ${b})`;
+        this.drawBox(ship, color);
+        const {x, y} = this.camera.getScreenPosition(ship);
+        this.ctx.drawImage(this.shipImage!, x, y);
     }
 }

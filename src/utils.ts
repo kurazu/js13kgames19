@@ -28,6 +28,19 @@ export function minBy<T>(items: T[], measureCallback: (item: T) => number): [T, 
     }, [first, firstMeasure]);
 }
 
+export function maxBy<T>(items: T[], measureCallback: (item: T) => number): [T, number] {
+    const first = items[0];
+    const firstMeasure = measureCallback(first);
+    return items.slice(1).reduce(([bestItem, bestMeasure], item) => {
+        const measure = measureCallback(item);
+        if (measure > bestMeasure) {
+            return [item, measure];
+        } else {
+            return [bestItem, bestMeasure];
+        }
+    }, [first, firstMeasure]);
+}
+
 export function assert(condition: boolean, msg: string = ''): void {
     if (!condition) {
         throw new Error(msg);
@@ -48,4 +61,21 @@ export function sum(sequence: number[]): number {
 
 export function uniformRandom(): number {
     return Math.random() * 2 - 1;
+}
+
+export function* chain<T>(...iterables: Iterable<T>[]): Iterable<T> {
+    for (const iterable of iterables) {
+        yield* iterable;
+    }
+}
+
+export function iterableMap<Input, Output>(
+    iterable: Iterable<Input>,
+    mapCallback: ((input: Input) => Output)
+): Output[] {
+    const result: Output[] = [];
+    for (const input of iterable) {
+        result.push(mapCallback(input));
+    }
+    return result;
 }

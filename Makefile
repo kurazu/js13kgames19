@@ -21,8 +21,19 @@ min: compile
 run: compile
 	$(NODE_PATH)/node --experimental-modules build/sim.js
 
+query: compile
+	$(NODE_PATH)/node --experimental-modules build/query.js
+
+perf: compile
+	$(NODE_PATH)/node --experimental-modules build/perf.js
+
 install:
 	$(NODE_PATH)/npm install .
 
 clean:
 	rm build/*.js
+	rm game.zip
+
+zip: min
+	zip -r game.zip index.html dist/bundle.min.js img/*
+	ls -lh game.zip

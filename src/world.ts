@@ -36,13 +36,17 @@ export default class World {
     private boxes: Map<number, BoxColumn>;
     public ships: Ship[];
     public sensors: Sensor[][];
-    private finishX: number;
+    public readonly finishX: number;
 
     public constructor(levelLength: number) {
         this.sensors = getSensors(SENSORS_COUNT, SENSORS_RANGE);
         this.boxes = new Map();
         this.ships = [];
         this.finishX = levelLength * BLOCK_SIZE;
+    }
+
+    public reset(): void {
+        this.ships = [];
     }
 
     public addBox(column: number, row: number): Box {

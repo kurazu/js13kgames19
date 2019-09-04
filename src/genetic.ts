@@ -1,153 +1,128 @@
-import Box from './box';
-import Vector from './vector';
-import World, { ShipAndPosition } from './world';
-import { BLOCK_SIZE, COLUMNS, ROWS, DEFAULT_LEVEL_LENGTH, SENSORS_COUNT, DEFAULT_PLAYER_POSITION } from './constants';
-import generateLevel from './level_generator';
-import RandomShip from './random_ship';
-import AIShip from './ai_ship';
-import { ACTIONS } from './actions';
-import { FeedForwardNetwork, DenseLayer, ReluLayer, SoftmaxLayer } from './net';
-import { Matrix2D, uniformRandomDistribution } from './multiply';
-import { range, randomSample, uniformRandom, randRange } from './utils';
+import { range, randomSample, uniformRandom, randRange, maxBy, assert, chain, iterableMap } from './utils';
 
-const MIN_FRAMES = 1000;
-const MAX_FRAMES = 5000;
-const GENERATIONS = 20;
-const POPULATION = 30;
-const MUTATION_FACTOR = 0.1;
-const MATING_FACTOR = 1 / 3;
-const KEEP_N_BEST = 3;
-
-export function createNeuralNetwork() : FeedForwardNetwork {
-    const net = new FeedForwardNetwork(SENSORS_COUNT, [
-        new DenseLayer(32),
-        new ReluLayer(),
-        new DenseLayer(ACTIONS.length),
-        new SoftmaxLayer()
-    ]);
-    net.compile();
-    return net;
-}
-
-function evaluate(networks: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, number][] {
-    const players = networks.map(net => new AIShip(DEFAULT_PLAYER_POSITION, net));
-    const world = new World(DEFAULT_LEVEL_LENGTH);
-    const maxFrames = MIN_FRAMES + (MAX_FRAMES - MIN_FRAMES) * generation / (GENERATIONS - 1);
-    console.log(`Starting a ${players.length} player race of max ${maxFrames} frames`);
-
-    for (const [column, row] of generateLevel(DEFAULT_LEVEL_LENGTH)) {
-        world.addBox(column, row);
+export default abstract  class GeneticAlgorithm<Solution, Score> {
+    protected maxGenerations: number;
+    protected populationSize: number;
+    protected matingPoolSize: number;
+    protected eliteSize: number;
+    protected asexualReproductionSize: number;
+    protected get sexualReproductionSize(): number {
+        return this.populationSize - this.eliteSize - this.asexualReproductionSize;
     }
-    for (const player of players) {
-        world.addShip(player);
+    protected mutationFactor: number;
+    protected generationStartTS: number = +new Date;
+
+    protected constructor(
+        maxGenerations: number,
+        populationSize: number,
+        matingPoolSize: number,
+        eliteSize: number,
+        asexualReproductionSize: number,
+        mutationFactor: number
+    ) {
+        assert(maxGenerations > 0);
+        assert(populationSize > 2);
+        assert(matingPoolSize < populationSize);
+        assert(asexualReproductionSize + eliteSize < matingPoolSize);
+        assert(0 < mutationFactor);
+        assert(mutationFactor < 1);
+
+        this.maxGenerations = maxGenerations;
+        this.populationSize = populationSize;
+        this.matingPoolSize = matingPoolSize;
+        this.eliteSize = eliteSize;
+        this.asexualReproductionSize = asexualReproductionSize;
+        this.mutationFactor = mutationFactor;
     }
-    for (let frame = 0; frame < maxFrames; frame++) {
-        const result: (ShipAndPosition[] | null) = world.update();
-        if (result === null) { // nobody won yet
-            continue;
-        } else { // we have a winner
-            console.log('Somebody won the race!');
-            break;
+
+    protected abstract createInitialSolution(): Solution;
+    protected abstract evaluateFitness(population: Solution[], generation: number): [Solution, Score][];
+    protected abstract getGenes(solution: Solution): Float32Array;
+    protected abstract constructSolution(genes: Float32Array): Solution;
+    protected abstract constructGene(geneIdx: number): number;
+
+    protected onGenerationStart (generation: number): void {
+        console.log(`Generation ${generation + 1}/${this.maxGenerations}`);
+        this.generationStartTS = +new Date;
+    }
+
+    protected onGenerationEnd (generation: number, scoredPopulation: [Solution, Score][]): boolean {
+        const timeDiff = (+new Date) - this.generationStartTS;
+        const [bestSolution, bestScore] = maxBy(scoredPopulation, ([solution, score]: [Solution, Score]) => +score);
+        console.log(`Generation ${generation + 1}/${this.maxGenerations} best score ${bestScore} took ${(timeDiff / 1000).toFixed(1)} seconds.`);
+        return false;
+    }
+
+    protected selectParents(scoredPopulation: [Solution, Score][]): Solution[] {
+        scoredPopulation.sort(
+            (
+                [aSolution, aScore]: [Solution, Score],
+                [bSolution, bScore]: [Solution, Score]
+            ) => (+bScore) - (+aScore)
+        );
+        return scoredPopulation.map(
+            ([solution, score]: [Solution, Score]) => solution
+        ).slice(
+            0, this.matingPoolSize
+        );
+    }
+
+    protected reproduce(matingPool: Solution[]): Solution[] {
+        const genePool = matingPool.map(this.getGenes.bind(this));
+
+        const elite = genePool.slice(0, this.eliteSize); // umodified elite
+        const asexualReproductionOffspring = genePool.slice(
+            0, this.asexualReproductionSize
+        ).map(
+            (genes: Float32Array) => new Float32Array(genes) // copied because muation is applied in-place
+        );
+        const sexualReproductionOffspring = range(this.sexualReproductionSize).map(_ => this.getCrossover(genePool));
+
+        for (const genes of chain(asexualReproductionOffspring, sexualReproductionOffspring)) {
+            this.applyMutation(genes);
         }
+        const offspringGenes = chain(elite, asexualReproductionOffspring, sexualReproductionOffspring);
+        const offspring = iterableMap(offspringGenes, this.constructSolution.bind(this));
+        return offspring;
     }
-    return players.map(player => [player.neuralNetwork, player.position.x]);
-}
 
-function getGenes(net: FeedForwardNetwork): Float32Array {
-    let totalSize = 0;
-    for (const weights of net.getWeights()) {
-        totalSize += weights.length;
-    }
-    const chromosome = new Float32Array(totalSize);
-    let address = 0;
-    for (const weights of net.getWeights()) {
-        chromosome.set(weights, address);
-        address += weights.length;
-    }
-    return chromosome;
-}
-
-function networkFromGenes(template: FeedForwardNetwork, genes: Float32Array) {
-    const net = template.clone();
-    let address = 0;
-    for (const weights of net.getWeights()) {
-        weights.set(genes.subarray(address, address + weights.length));
-        address += weights.length;
-    }
-    return net;
-}
-
-function getInitialPopulation(): FeedForwardNetwork[] {
-    return range(POPULATION).map(_ => createNeuralNetwork());
-}
-
-function sortByFitness(population: FeedForwardNetwork[], generation: number): FeedForwardNetwork[] {
-    const results = evaluate(population, generation);
-    for (const [idx, [net, score]] of results.entries()) {
-        console.log(`\tNetwork ${idx} achieved score ${score}`);
-    }
-    results.sort(
-        (
-            [aNet, aScore]: [FeedForwardNetwork, number],
-            [bNet, bScore]: [FeedForwardNetwork, number]
-        ) => bScore - aScore
-    );
-    const [bestNet, bestScore] = results[0];
-    console.log(`Best score ${bestScore}`);
-    return results.map(([net, score]: [FeedForwardNetwork, number]) => net);
-}
-
-function selectParents(population: FeedForwardNetwork[]): FeedForwardNetwork[] {
-    return population.slice(0, ~~(population.length * MATING_FACTOR));
-}
-
-function getCrossOvers(matingPool: FeedForwardNetwork[]): FeedForwardNetwork[] {
-    const offspring = matingPool.slice(0, KEEP_N_BEST);
-    while (offspring.length < POPULATION) {
-        const [mother, father] = randomSample(matingPool.length, 2).map(idx => matingPool[idx]);
-        const motherGenes = getGenes(mother);
-        const fatherGenes = getGenes(father);
+    protected getCrossover(genePool: Float32Array[]): Float32Array {
+        // TODO weighted selection
+        const [motherGenes, fatherGenes] = randomSample(genePool.length, 2).map(idx => genePool[idx]);
         const crossOverPoint = randRange(motherGenes.length);
         const childGenes = new Float32Array(motherGenes.length);
         childGenes.set(motherGenes.subarray(0, crossOverPoint), 0);
         childGenes.set(fatherGenes.subarray(crossOverPoint), crossOverPoint);
-        offspring.push(networkFromGenes(mother, childGenes));
+        return childGenes;
     }
-    return offspring;
-}
 
-function getMutations(net: FeedForwardNetwork): FeedForwardNetwork {
-    const genes = getGenes(net);
-    const numberOfMutations = ~~(genes.length * MUTATION_FACTOR);
-    const mutationIndices = randomSample(genes.length, numberOfMutations);
-    for (const idx of mutationIndices) {
-        genes[idx] = uniformRandom();
-    }
-    return networkFromGenes(net, genes);
-}
-
-function getVariations(matingPool: FeedForwardNetwork[]): FeedForwardNetwork[] {
-    const offspring: FeedForwardNetwork[] = getCrossOvers(matingPool);
-    return offspring.map(getMutations);
-}
-
-export function evolve(): FeedForwardNetwork[] {
-    let population: FeedForwardNetwork[] = range(POPULATION).map(_ => createNeuralNetwork());
-    for (let generation = 0; generation < GENERATIONS; generation++) {
-        console.log(`Generation ${generation + 1}/${GENERATIONS}`);
-        population = sortByFitness(population, generation);
-
-        // in last generation we want best parents, not un-evaluated offspring.
-        if (generation < GENERATIONS - 1) {
-            const matingPool = selectParents(population);
-            population = getVariations(matingPool);
+    protected applyMutation(genes: Float32Array): void {
+        const numberOfMutations = ~~(genes.length * this.mutationFactor);
+        const mutationIndices = randomSample(genes.length, numberOfMutations);
+        for (const idx of mutationIndices) {
+            genes[idx] = this.constructGene(idx);
         }
     }
-    return population;
-}
 
-export function evolveBest(): FeedForwardNetwork {
-    const networks: FeedForwardNetwork[] = evolve();
-    const bestNetwork: FeedForwardNetwork = networks.shift()!;
-    return bestNetwork;
+    public evolve(): Solution[] {
+        let population: Solution[] = range(this.populationSize).map(_ => this.createInitialSolution());
+        for (let generation = 0; generation < this.maxGenerations; generation++) {
+            this.onGenerationStart(generation);
+            const scoredPopulation: [Solution, Score][] = this.evaluateFitness(population, generation);
+            const shouldTerminateEarly = this.onGenerationEnd(generation, scoredPopulation);
+            if (shouldTerminateEarly) {
+                break;
+            }
+            if (generation < this.maxGenerations - 1) {
+                const matingPool: Solution[] = this.selectParents(scoredPopulation);
+                population = this.reproduce(matingPool);
+            }
+        }
+        return population;
+    }
+
+    public evolveBest(): Solution {
+        const solutions: Solution[] = this.evolve();
+        return solutions[0];
+    }
 }
