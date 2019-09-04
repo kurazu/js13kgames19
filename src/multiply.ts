@@ -83,14 +83,11 @@ export function dot(A: Matrix2D, B: Matrix2D): Matrix2D {
     const result = new Matrix2D(A.rows, B.columns);
     for (let row = 0; row < A.rows; row++) {
         for (let column = 0; column < B.columns; column++) {
-            // TODO speedup
-            // const value = 0;
-            // for (const idx = 0; idx < A.columns; idx++) {
-            //     value += A.buffer[row]
-            // }
-            // result.buffer[row * result.columns + column] = value;
-            const value = sum(zip(A.getRow(row), B.getColumn(column)).map((values: Float32Array) => values[0] * values[1]));
-            result.setItem(row, column, value);
+            let value: number = 0;
+            for (let idx = 0; idx < A.columns; idx++) {
+                value += A.buffer[row * A.columns + idx] * B.buffer[idx * B.columns + column];
+            }
+            result.buffer[row * result.columns + column] = value;
         }
     }
     return result;

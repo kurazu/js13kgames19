@@ -30,6 +30,9 @@ perf: compile
 install:
 	$(NODE_PATH)/npm install .
 
+test: compile
+	$(NODE_PATH)/node --experimental-modules build/test.js
+
 clean:
 	rm build/*.js
 	rm game.zip

@@ -8,8 +8,9 @@ export default function learn(): FeedForwardNetwork {
     const eliteSize = 3;
     const asexualReproductionSize = 3;
     const mutationFactor = 0.05;
-    const minFrames = 60 * 20;
-    const maxFrames = 60 * 200;
+    const minFrames = 60 * 10;
+    const maxFrames = 60 * 20;
+    const consecutiveWinsForEarlyStopping = 5;
     const optimizer = new GameNetworkGeneticOptimizer(
         maxGenerations,
         populationSize,
@@ -19,6 +20,7 @@ export default function learn(): FeedForwardNetwork {
         mutationFactor,
         minFrames,
         maxFrames,
+        consecutiveWinsForEarlyStopping
     );
     return optimizer.evolveBest();
 }

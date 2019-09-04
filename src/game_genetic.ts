@@ -2,7 +2,7 @@ import GeneticAlgorithm from './genetic';
 import { SENSORS_COUNT, DEFAULT_LEVEL_LENGTH, DEFAULT_PLAYER_POSITION, FEATURES, LEARNING_FRAMES } from './constants';
 import { ACTIONS } from './actions';
 import { Layer, DenseLayer, ReluLayer, SoftmaxLayer, FeedForwardNetwork } from './net';
-import { uniformRandom } from './utils';
+import { uniformRandom, range } from './utils';
 import World, { ShipAndPosition } from './world';
 import generateLevel from './level_generator';
 import AIShip from './ai_ship';
@@ -12,7 +12,7 @@ const INPUTS_WIDTH = SENSORS_COUNT + VELOCITIES_COUNT;
 
 function createLayers(): Layer[] {
     return [
-        new DenseLayer(2048),
+        new DenseLayer(128),
         new ReluLayer(),
         new DenseLayer(ACTIONS.length),
         new SoftmaxLayer()
@@ -42,6 +42,7 @@ export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedFo
     private minFrames: number;
     private maxFrames: number;
     private generationsWon: number[];
+    private consecutiveWinsForEarlyStopping: number;
 
     public constructor(
         maxGenerations: number,
@@ -51,13 +52,15 @@ export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedFo
         asexualReproductionSize: number,
         mutationFactor: number,
         minFrames: number,
-        maxFrames: number
+        maxFrames: number,
+        consecutiveWinsForEarlyStopping: number
     ) {
         super(maxGenerations, populationSize, matingPoolSize, eliteSize, asexualReproductionSize, mutationFactor);
         this.world = this.buildWorld();
         this.minFrames = minFrames;
         this.maxFrames = maxFrames;
         this.generationsWon = [];
+        this.consecutiveWinsForEarlyStopping = consecutiveWinsForEarlyStopping;
     }
 
     private buildWorld(): World {
@@ -97,12 +100,8 @@ export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedFo
 
     protected onGenerationEnd (generation: number, scoredPopulation: [FeedForwardNetwork, PlayerScore][]): boolean {
         const shouldTerminateEarly = super.onGenerationEnd(generation, scoredPopulation);
-        if (
-            this.generationsWon[this.generationsWon.length - 1] === generation &&
-            this.generationsWon[this.generationsWon.length - 2] === generation - 1 &&
-            this.generationsWon[this.generationsWon.length - 3] === generation - 2
-        ) {
-            console.log('3 last generations have won. Terminating early.');
+        if (range(this.consecutiveWinsForEarlyStopping).every(n => this.generationsWon[this.generationsWon.length - 1 - n] === generation - n)) {
+            console.log(`${this.consecutiveWinsForEarlyStopping} last generations have won. Terminating early.`);
             return true;
         }
         if (scoredPopulation.some(([network, score]: [FeedForwardNetwork, PlayerScore]) => score.finished)) {
