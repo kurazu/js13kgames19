@@ -1,40 +1,50 @@
-export default class Vector {
-    public x: number;
-    public y: number;
-
+export default class Vector extends Float32Array {
     public constructor(x: number = 0, y: number = 0) {
-        this.x = x;
-        this.y = y;
+        super(2);
+        this[0] = x;
+        this[1] = y;
     }
 
-    [Symbol.iterator]() {
-        return [this.x, this.y][Symbol.iterator]()
+    public get x(): number {
+        return this[0];
+    }
+
+    public get y(): number {
+        return this[1];
+    }
+
+    public set x(value: number) {
+        this[0] = value;
+    }
+
+    public set y(value: number) {
+        this[1] = value;
     }
 
     public add(other: Vector): Vector {
-        return new Vector(this.x + other.x, this.y + other.y);
+        return new Vector(this[0] + other[0], this[1] + other[1]);
     }
 
     public addInplace(other: Vector): void {
-        this.x += other.x;
-        this.y += other.y;
+        this[0] += other[0];
+        this[1] += other[1];
     }
 
     public subtract(other: Vector): Vector {
-        return new Vector(this.x - other.x, this.y - other.y);
+        return new Vector(this[0] - other[0], this[1] - other[1]);
     }
 
     public multiplyByScalar(factor: number): Vector {
-        return new Vector(this.x * factor, this.y * factor);
+        return new Vector(this[0] * factor, this[1] * factor);
     }
 
     public multiplyByScalarInplace(factor: number): void {
-        this.x *= factor;
-        this.y *= factor;
+        this[0] *= factor;
+        this[1] *= factor;
     }
 
     public multiply(other: Vector): Vector {
-        return new Vector(this.x * other.x, this.y * other.y);
+        return new Vector(this[0] * other[0], this[1] * other[1]);
     }
 
     public static add(vectors: Iterable<Vector>): Vector {
@@ -45,12 +55,12 @@ export default class Vector {
         return result;
     }
 
-    public length(): number {
-        return Math.sqrt(this.x * this.x + this.y * this.y);
+    public getLength(): number {
+        return Math.sqrt(this[0] * this[0] + this[1] * this[1]);
     }
 
     public trim (maxLength: number): void {
-        const length = this.length();
+        const length = this.getLength();
         if (length > maxLength) {
             const factor = maxLength / length;
             this.multiplyByScalarInplace(factor);
@@ -58,7 +68,7 @@ export default class Vector {
     }
 
     public clone(): Vector {
-        return new Vector(this.x, this.y);
+        return new Vector(this[0], this[1]);
     }
 
     static fromAngleAndLength(angle: number, length: number): Vector {

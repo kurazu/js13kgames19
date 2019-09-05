@@ -13,7 +13,7 @@ import Topic from '../observable';
 
 interface GameScreenOptions {
     neuralNetwork: FeedForwardNetwork,
-    networkUpdatesTopic: Topic<FeedForwardNetwork>
+    networkUpdatesTopic: Topic<[FeedForwardNetwork, number]>
 }
 
 const PLAYER_X_AT = 1 / 3;
@@ -56,7 +56,7 @@ export default class GameScreen extends Screen<GameScreenOptions> {
     private world: World | undefined;
     private player: PlayerShip | undefined;
     private bot: AIShip | undefined;
-    private networkUpdateListener: (value: FeedForwardNetwork) => void;
+    private networkUpdateListener: ([value, generation]: [FeedForwardNetwork, number]) => void;
 
     public constructor(options: GameScreenOptions) {
         super(options);
@@ -64,8 +64,8 @@ export default class GameScreen extends Screen<GameScreenOptions> {
         this.options.networkUpdatesTopic.subscribe(this.networkUpdateListener);
     }
 
-    public onNetworkUpdated(network: FeedForwardNetwork): void {
-        console.log('GameScreen obtained updated neural network');
+    public onNetworkUpdated([network, generation]: [FeedForwardNetwork, number]): void {
+        console.log(`GameScreen obtained updated neural network from generation ${generation + 1}`);
         this.bot!.neuralNetwork = network;
     }
 
@@ -132,7 +132,7 @@ export default class GameScreen extends Screen<GameScreenOptions> {
     }
 
     private drawShip(ctx: CanvasRenderingContext2D, ship: Ship) {
-        const intensity = ~~(255 * ship.velocity.length() / MAX_VELOCITY);
+        const intensity = ~~(255 * ship.velocity.getLength() / MAX_VELOCITY);
         let r = 0, g = 0, b = intensity;
         if (ship.touching) {
             r = 255;

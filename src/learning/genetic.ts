@@ -12,7 +12,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
     }
     protected mutationFactor: number;
     protected generationStartTS: number = +new Date;
-    public readonly topic: Topic<Solution>;
+    public readonly topic: Topic<[Solution, number]>;
 
     protected constructor(
         maxGenerations: number,
@@ -54,7 +54,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
         const [[bestSolution, bestScore], bestScoreValue]: [[Solution, Score], number] = maxBy(
             scoredPopulation, ([solution, score]: [Solution, Score]) => +score
         );
-        this.topic.next(bestSolution);
+        this.topic.next([bestSolution, generation]);
         console.log(`Generation ${generation + 1}/${this.maxGenerations} best score ${bestScoreValue} took ${(timeDiff / 1000).toFixed(1)} seconds.`);
         return false;
     }

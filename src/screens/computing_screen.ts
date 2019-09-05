@@ -10,12 +10,12 @@ const FONT_SIZE_PX = 64;
 
 export default class ComputingScreen extends Screen<void> {
     private network: FeedForwardNetwork | undefined = undefined;
-    private topic: Topic<FeedForwardNetwork> | undefined = undefined;
+    private topic: Topic<[FeedForwardNetwork, number]> | undefined = undefined;
 
     public async load(keyboard: Keyboard): Promise<void> {
         this.topic = learnInBackground();
-        const listener = (network: FeedForwardNetwork) => {
-            console.log('Obtained first neural network', network);
+        const listener = ([network, generation]: [FeedForwardNetwork, number]) => {
+            console.log(`Obtained first neural network from generation ${generation}`);
             this.topic!.unsubscribe(listener);
             this.network = network;
         };
