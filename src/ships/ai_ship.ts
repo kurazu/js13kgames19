@@ -4,23 +4,27 @@ import Ship from './ship';
 import { SensorsState } from '../physics/collision';
 import { FeedForwardNetwork } from '../math/net';
 import { Matrix2D, argmax } from '../math/multiply';
-import { SENSORS_RANGE, MAX_VELOCITY, LEARNING_FRAMES, FEATURES } from '../constants';
-import { assert } from '../utils';
-import FeaturesQueue from '../math/queue';
+import { SENSORS_RANGE, MAX_VELOCITY, LEARNING_FRAMES, FEATURES, LEARNING_EVERY_N_FRAMES } from '../constants';
+import { assert, everyNthReversed } from '../utils';
+import { Queue } from '../math/queue';
 
 const MAX_VALUE: number = SENSORS_RANGE + 1;
 
 export default class AIShip extends Ship {
-    public readonly neuralNetwork: FeedForwardNetwork;
-    private features: FeaturesQueue;
+    public neuralNetwork: FeedForwardNetwork;
+    private features: Float32Array;
+    private featuresQueue: Queue<Float32Array>;
+    private inputMatrix: Matrix2D;
 
     public constructor(neuralNetwork: FeedForwardNetwork) {
         super();
         this.neuralNetwork = neuralNetwork;
-        this.features = new FeaturesQueue(FEATURES, LEARNING_FRAMES);
+        this.features = new Float32Array(FEATURES * LEARNING_FRAMES);
+        this.featuresQueue = new Queue(LEARNING_FRAMES * LEARNING_EVERY_N_FRAMES);
+        this.inputMatrix = new Matrix2D(1, this.neuralNetwork.inputWidth, this.features);
     }
 
-    public getFeatures(sensorsState: SensorsState): Float32Array {
+    private getFeatures(sensorsState: SensorsState): Float32Array {
         const result = new Float32Array(FEATURES);
         let idx = 0;
         for (const sensorState of sensorsState) {
@@ -35,10 +39,21 @@ export default class AIShip extends Ship {
     }
 
     public getControls(sensorsState: SensorsState): Action {
-        this.features.push(this.getFeatures(sensorsState))
-        const input = new Matrix2D(1, this.neuralNetwork.inputWidth, this.features.array);
-        const output = this.neuralNetwork.calculate(input);
+        this.featuresQueue.push(this.getFeatures(sensorsState));
+        this.buildInputMatrix();
+        const output = this.neuralNetwork.calculate(this.inputMatrix);
         const maxIdx = argmax(output.getRow(0));
         return ACTIONS[maxIdx];
+    }
+
+    private buildInputMatrix() {
+        const source = everyNthReversed(this.featuresQueue, LEARNING_EVERY_N_FRAMES);
+        let idx = 0;
+        for (const sourceItem of source) {
+            this.features.set(sourceItem, idx++);
+            if (idx >= LEARNING_FRAMES) {
+                break;
+            }
+        }
     }
 }

@@ -1,3 +1,3 @@
 import learn from './learning/learn';
 
-learn();
+learn(undefined);

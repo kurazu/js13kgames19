@@ -1,21 +1,22 @@
 import { assert } from '../utils';
-// export default class Queue<T> extends Array<T> {
-//     private maxLength: number;
 
-//     public constructor(maxLength: number) {
-//         super();
-//         this.maxLength = maxLength;
-//     }
+export class Queue<T> extends Array<T> {
+    private maxLength: number;
 
-//     public push(...items: T[]): number {
-//         while (this.length + items.length > this.maxLength) {
-//             this.shift();
-//         }
-//         return super.push(...items);
-//     }
-// }
+    public constructor(maxLength: number) {
+        super();
+        this.maxLength = maxLength;
+    }
 
-export default class FeaturesQueue {
+    public push(...items: T[]): number {
+        while (this.length + items.length > this.maxLength) {
+            this.shift();
+        }
+        return super.push(...items);
+    }
+}
+
+export class FeaturesQueue {
     public readonly array: Float32Array;
     private inputWidth: number;
     private maxLength: number;

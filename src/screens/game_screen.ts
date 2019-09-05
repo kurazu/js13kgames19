@@ -9,11 +9,11 @@ import { loadImage } from '../game/resources';
 import { FeedForwardNetwork } from '../math/net';
 import Screen from '../screens/screen';
 import Keyboard from '../game/keyboard';
+import Topic from '../observable';
 
 interface GameScreenOptions {
     neuralNetwork: FeedForwardNetwork,
-    player: boolean,
-    bot: boolean
+    networkUpdatesTopic: Topic<FeedForwardNetwork>
 }
 
 const PLAYER_X_AT = 1 / 3;
@@ -54,20 +54,32 @@ export default class GameScreen extends Screen<GameScreenOptions> {
     private shipImage: HTMLImageElement | undefined;
     private camera: Camera | undefined;
     private world: World | undefined;
+    private player: PlayerShip | undefined;
+    private bot: AIShip | undefined;
+    private networkUpdateListener: (value: FeedForwardNetwork) => void;
+
+    public constructor(options: GameScreenOptions) {
+        super(options);
+        this.networkUpdateListener = this.onNetworkUpdated.bind(this);
+        this.options.networkUpdatesTopic.subscribe(this.networkUpdateListener);
+    }
+
+    public onNetworkUpdated(network: FeedForwardNetwork): void {
+        console.log('GameScreen obtained updated neural network');
+        this.bot!.neuralNetwork = network;
+    }
 
     public async load(keyboard: Keyboard): Promise<void> {
         this.shipImage = await loadImage('img/ship.png');
         this.world = new World();
 
-        if (this.options.player) {
-            this.world.addShip(new PlayerShip(keyboard));
-        }
-        if (this.options.bot) {
-            this.world.addShip(new AIShip(this.options.neuralNetwork));
-        }
+        this.player = new PlayerShip(keyboard);
+        this.bot = new AIShip(this.options.neuralNetwork);
 
-        const [firstPlayer] = this.world.ships;
-        this.camera = new Camera(firstPlayer);
+        this.world.addShip(this.player);
+        this.world.addShip(this.bot);
+
+        this.camera = new Camera(this.player);
     }
 
     public update(ctx: CanvasRenderingContext2D): Screen<any> | undefined {
@@ -75,7 +87,11 @@ export default class GameScreen extends Screen<GameScreenOptions> {
         this.render(ctx);
 
         if (sortedShips) {
-            return new GameScreen(this.options);
+            this.options.networkUpdatesTopic.unsubscribe(this.networkUpdateListener);
+            return new GameScreen({
+                neuralNetwork: this.bot!.neuralNetwork,
+                networkUpdatesTopic: this.options.networkUpdatesTopic
+            });
         } else {
             return undefined;
         }

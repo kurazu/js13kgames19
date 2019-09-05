@@ -79,3 +79,18 @@ export function iterableMap<Input, Output>(
     }
     return result;
 }
+
+
+export function* everyNthReversed<T>(iterable: T[], n: number): Iterable<T> {
+    assert(iterable.length > 0);
+    let idx = iterable.length - 1;
+    let item = iterable[idx];
+    yield item;
+    while (true) {
+        idx -= n;
+        if (iterable.hasOwnProperty(idx)) {
+            item = iterable[idx];
+        }
+        yield item;
+    }
+}
