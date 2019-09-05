@@ -1,16 +1,16 @@
-import learn from './learning/learn';
+import getOptimizer from './learning/learn';
+import Topic from './observable';
 import { FeedForwardNetwork } from './math/net';
 
 const ctx: Worker = self as any;
 
 ctx.addEventListener('message', function(evt: MessageEvent) {
     console.log('Starting computations');
-    learn((network: FeedForwardNetwork, generation: number, maxGenerations: number) => {
-        console.log(`Sending generation ${generation}/${maxGenerations} result`);
-        ctx.postMessage({
-            generation,
-            maxGenerations,
-            weights: network.weights
-        });
+    const optimizer = getOptimizer();
+    const topic: Topic<FeedForwardNetwork> = optimizer.topic;
+    topic.subscribe((network: FeedForwardNetwork) => {
+        console.log(`Sending optimizer result`);
+        ctx.postMessage(network.weights);
     });
+    optimizer.evolve();
 });

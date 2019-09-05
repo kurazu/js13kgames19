@@ -38,15 +38,12 @@ class PlayerScore {
     }
 }
 
-export type GenerationEndCallbackType = ((solution: FeedForwardNetwork, generation: number, maxGenerations: number) => void) | undefined;
-
 export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedForwardNetwork, PlayerScore> {
     private world: World;
     private minFrames: number;
     private maxFrames: number;
     private generationsWon: number[];
     private consecutiveWinsForEarlyStopping: number;
-    private generationEndCallback: GenerationEndCallbackType;
 
     public constructor(
         maxGenerations: number,
@@ -58,7 +55,6 @@ export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedFo
         minFrames: number,
         maxFrames: number,
         consecutiveWinsForEarlyStopping: number,
-        generationEndCallback: GenerationEndCallbackType = undefined
     ) {
         super(maxGenerations, populationSize, matingPoolSize, eliteSize, asexualReproductionSize, mutationFactor);
         this.world = new World();
@@ -66,7 +62,6 @@ export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedFo
         this.maxFrames = maxFrames;
         this.generationsWon = [];
         this.consecutiveWinsForEarlyStopping = consecutiveWinsForEarlyStopping;
-        this.generationEndCallback = generationEndCallback;
     }
 
     protected createInitialSolution(): FeedForwardNetwork {
@@ -99,9 +94,6 @@ export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedFo
     protected onGenerationEnd (generation: number, scoredPopulation: [FeedForwardNetwork, PlayerScore][]): boolean {
         const shouldTerminateEarly = super.onGenerationEnd(generation, scoredPopulation);
         const [bestSolution, ]: [FeedForwardNetwork, PlayerScore] = scoredPopulation[0];
-        if (this.generationEndCallback) {
-            this.generationEndCallback(bestSolution, generation + 1, this.maxGenerations);
-        }
         if (range(this.consecutiveWinsForEarlyStopping).every(n => this.generationsWon[this.generationsWon.length - 1 - n] === generation - n)) {
             console.log(`${this.consecutiveWinsForEarlyStopping} last generations have won. Terminating early.`);
             return true;

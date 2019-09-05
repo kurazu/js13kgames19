@@ -42,3 +42,6 @@ clean:
 zip: min
 	zip -r game.zip index.html dist/bundle.min.js img/*
 	ls -lh game.zip
+
+serve:
+	python2.7 -m SimpleHTTPServer

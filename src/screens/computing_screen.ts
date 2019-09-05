@@ -15,6 +15,7 @@ export default class ComputingScreen extends Screen<void> {
     public async load(keyboard: Keyboard): Promise<void> {
         this.topic = learnInBackground();
         const listener = (network: FeedForwardNetwork) => {
+            console.log('Obtained first neural network', network);
             this.topic!.unsubscribe(listener);
             this.network = network;
         };

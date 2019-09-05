@@ -1,4 +1,5 @@
 import { range, randomSample, uniformRandom, randRange, maxBy, assert, chain, iterableMap } from '../utils';
+import Topic from '../observable';
 
 export default abstract  class GeneticAlgorithm<Solution, Score> {
     protected maxGenerations: number;
@@ -11,6 +12,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
     }
     protected mutationFactor: number;
     protected generationStartTS: number = +new Date;
+    public readonly topic: Topic<Solution>;
 
     protected constructor(
         maxGenerations: number,
@@ -33,6 +35,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
         this.eliteSize = eliteSize;
         this.asexualReproductionSize = asexualReproductionSize;
         this.mutationFactor = mutationFactor;
+        this.topic = new Topic();
     }
 
     protected abstract createInitialSolution(): Solution;
@@ -48,8 +51,11 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
 
     protected onGenerationEnd (generation: number, scoredPopulation: [Solution, Score][]): boolean {
         const timeDiff = (+new Date) - this.generationStartTS;
-        const [bestSolution, bestScore] = maxBy(scoredPopulation, ([solution, score]: [Solution, Score]) => +score);
-        console.log(`Generation ${generation + 1}/${this.maxGenerations} best score ${bestScore} took ${(timeDiff / 1000).toFixed(1)} seconds.`);
+        const [[bestSolution, bestScore], bestScoreValue]: [[Solution, Score], number] = maxBy(
+            scoredPopulation, ([solution, score]: [Solution, Score]) => +score
+        );
+        this.topic.next(bestSolution);
+        console.log(`Generation ${generation + 1}/${this.maxGenerations} best score ${bestScoreValue} took ${(timeDiff / 1000).toFixed(1)} seconds.`);
         return false;
     }
 
@@ -109,6 +115,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
         for (let generation = 0; generation < this.maxGenerations; generation++) {
             this.onGenerationStart(generation);
             const scoredPopulation: [Solution, Score][] = this.evaluateFitness(population, generation);
+            const [bestSolution, bestScore]: [Solution, Score] = scoredPopulation[0];
             const shouldTerminateEarly = this.onGenerationEnd(generation, scoredPopulation);
             if (shouldTerminateEarly) {
                 break;

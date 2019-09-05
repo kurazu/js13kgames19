@@ -1,3 +1,3 @@
-import learn from './learning/learn';
+import getOptimizer from './learning/learn';
 
-learn(undefined);
+getOptimizer().evolveBest();

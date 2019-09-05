@@ -1,15 +1,15 @@
-import GameNetworkGeneticOptimizer, { GenerationEndCallbackType } from './game_genetic';
+import GameNetworkGeneticOptimizer from './game_genetic';
 import { FeedForwardNetwork } from '../math/net';
 
-export default function learn(callback: GenerationEndCallbackType): FeedForwardNetwork {
-    const maxGenerations = 100;
+export default function getOptimizer(): GameNetworkGeneticOptimizer {
+    const maxGenerations = 1000;
     const populationSize = 100;
     const matingPoolSize = 10;
     const eliteSize = 3;
     const asexualReproductionSize = 3;
     const mutationFactor = 0.05;
     const minFrames = 60 * 5;
-    const maxFrames = 60 * 20;
+    const maxFrames = 60 * 5;
     const consecutiveWinsForEarlyStopping = 5;
     const optimizer = new GameNetworkGeneticOptimizer(
         maxGenerations,
@@ -21,8 +21,6 @@ export default function learn(callback: GenerationEndCallbackType): FeedForwardN
         minFrames,
         maxFrames,
         consecutiveWinsForEarlyStopping,
-        callback
     );
-    return optimizer.evolveBest();
+    return optimizer;
 }
-
