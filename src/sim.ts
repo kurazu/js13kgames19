@@ -1,3 +1,3 @@
-import learn from './learn';
+import learn from './learning/learn';
 
 learn();

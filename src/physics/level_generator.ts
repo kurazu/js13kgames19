@@ -1,5 +1,5 @@
-import { COLUMNS, ROWS } from './constants';
-import { range, randRange } from './utils';
+import { COLUMNS, ROWS } from '../constants';
+import { range, randRange } from '../utils';
 
 const START_LENGTH = 20;
 const END_LENGTH = 1;

@@ -1,13 +1,12 @@
-import Vector from './vector';
-import Keyboard from './keyboard';
-import { Action, ACTIONS } from './actions';
+import Vector from '../physics/vector';
+import { Action, ACTIONS } from '../physics/actions';
 import Ship from './ship';
-import { SensorsState } from './collision';
-import { FeedForwardNetwork } from './net';
-import { Matrix2D, argmax } from './multiply';
-import { SENSORS_RANGE, MAX_VELOCITY, LEARNING_FRAMES, FEATURES } from './constants';
-import { assert } from './utils';
-import FeaturesQueue from './queue';
+import { SensorsState } from '../physics/collision';
+import { FeedForwardNetwork } from '../math/net';
+import { Matrix2D, argmax } from '../math/multiply';
+import { SENSORS_RANGE, MAX_VELOCITY, LEARNING_FRAMES, FEATURES } from '../constants';
+import { assert } from '../utils';
+import FeaturesQueue from '../math/queue';
 
 const MAX_VALUE: number = SENSORS_RANGE + 1;
 
@@ -15,8 +14,8 @@ export default class AIShip extends Ship {
     public readonly neuralNetwork: FeedForwardNetwork;
     private features: FeaturesQueue;
 
-    public constructor(position: Vector, neuralNetwork: FeedForwardNetwork) {
-        super(position);
+    public constructor(neuralNetwork: FeedForwardNetwork) {
+        super();
         this.neuralNetwork = neuralNetwork;
         this.features = new FeaturesQueue(FEATURES, LEARNING_FRAMES);
     }

@@ -10,12 +10,15 @@ import {
     MAX_VELOCITY,
     FRICTION,
     SENSORS_COUNT,
-    SENSORS_RANGE
-} from './constants';
+    SENSORS_RANGE,
+    DEFAULT_LEVEL_LENGTH,
+    DEFAULT_PLAYER_POSITION
+} from '../constants';
 import { areColliding, SensorsState } from './collision';
-import Ship from './ship';
-import { minBy } from './utils';
+import Ship from '../ships/ship';
+import { minBy } from '../utils';
 import { getSensors, Sensor } from './sensors';
+import generateLevel from './level_generator';
 
 const BOX_SIZE = new Vector(BLOCK_SIZE, BLOCK_SIZE);
 
@@ -38,11 +41,14 @@ export default class World {
     public sensors: Sensor[][];
     public readonly finishX: number;
 
-    public constructor(levelLength: number) {
+    public constructor(levelLength: number = DEFAULT_LEVEL_LENGTH) {
         this.sensors = getSensors(SENSORS_COUNT, SENSORS_RANGE);
         this.boxes = new Map();
         this.ships = [];
         this.finishX = levelLength * BLOCK_SIZE;
+        for (const [column, row] of generateLevel(levelLength)) {
+            this.addBox(column, row);
+        }
     }
 
     public reset(): void {
@@ -85,6 +91,8 @@ export default class World {
     }
 
     public addShip(ship: Ship): void {
+        ship.position = DEFAULT_PLAYER_POSITION.clone();
+        ship.velocity.multiplyByScalarInplace(0);
         this.ships.push(ship);
     }
 

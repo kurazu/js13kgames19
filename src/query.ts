@@ -1,4 +1,4 @@
-import { createNetwork } from './game_genetic';
+import { createNetwork } from './learning/game_genetic';
 
 const network = createNetwork();
 console.log(network.weights.length);

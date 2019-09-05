@@ -1,4 +1,4 @@
-import { range, randomSample, uniformRandom, randRange, maxBy, assert, chain, iterableMap } from './utils';
+import { range, randomSample, uniformRandom, randRange, maxBy, assert, chain, iterableMap } from '../utils';
 
 export default abstract  class GeneticAlgorithm<Solution, Score> {
     protected maxGenerations: number;

@@ -1,18 +1,17 @@
 import GeneticAlgorithm from './genetic';
-import { SENSORS_COUNT, DEFAULT_LEVEL_LENGTH, DEFAULT_PLAYER_POSITION, FEATURES, LEARNING_FRAMES } from './constants';
-import { ACTIONS } from './actions';
-import { Layer, DenseLayer, ReluLayer, SoftmaxLayer, FeedForwardNetwork } from './net';
-import { uniformRandom, range } from './utils';
-import World, { ShipAndPosition } from './world';
-import generateLevel from './level_generator';
-import AIShip from './ai_ship';
+import { SENSORS_COUNT, DEFAULT_LEVEL_LENGTH, DEFAULT_PLAYER_POSITION, FEATURES, LEARNING_FRAMES } from '../constants';
+import { ACTIONS } from '../physics/actions';
+import { Layer, DenseLayer, ReluLayer, SoftmaxLayer, FeedForwardNetwork } from '../math/net';
+import { uniformRandom, range } from '../utils';
+import World, { ShipAndPosition } from '../physics/world';
+import AIShip from '../ships/ai_ship';
 
 const VELOCITIES_COUNT = 2;
 const INPUTS_WIDTH = SENSORS_COUNT + VELOCITIES_COUNT;
 
 function createLayers(): Layer[] {
     return [
-        new DenseLayer(128),
+        new DenseLayer(1024),
         new ReluLayer(),
         new DenseLayer(ACTIONS.length),
         new SoftmaxLayer()
@@ -56,19 +55,11 @@ export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedFo
         consecutiveWinsForEarlyStopping: number
     ) {
         super(maxGenerations, populationSize, matingPoolSize, eliteSize, asexualReproductionSize, mutationFactor);
-        this.world = this.buildWorld();
+        this.world = new World();
         this.minFrames = minFrames;
         this.maxFrames = maxFrames;
         this.generationsWon = [];
         this.consecutiveWinsForEarlyStopping = consecutiveWinsForEarlyStopping;
-    }
-
-    private buildWorld(): World {
-        const world = new World(DEFAULT_LEVEL_LENGTH);
-        for (const [column, row] of generateLevel(DEFAULT_LEVEL_LENGTH)) {
-            world.addBox(column, row);
-        }
-        return world;
     }
 
     protected createInitialSolution(): FeedForwardNetwork {
@@ -76,7 +67,7 @@ export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedFo
     }
 
     protected evaluateFitness(population: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, PlayerScore][] {
-        const players = population.map(net => new AIShip(DEFAULT_PLAYER_POSITION, net));
+        const players = population.map(net => new AIShip(net));
         for (const player of players) {
             this.world.addShip(player);
         }
@@ -106,7 +97,7 @@ export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedFo
         }
         if (scoredPopulation.some(([network, score]: [FeedForwardNetwork, PlayerScore]) => score.finished)) {
             console.log('Creating a new level');
-            this.world = this.buildWorld();
+            this.world = new World();
         } else {
             this.world.reset();
         }

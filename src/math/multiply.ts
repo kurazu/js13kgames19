@@ -1,4 +1,4 @@
-import { range, zip, assert, sum, uniformRandom } from './utils';
+import { range, zip, assert, sum, uniformRandom } from '../utils';
 
 export class Matrix2D {
     public readonly buffer: Float32Array;

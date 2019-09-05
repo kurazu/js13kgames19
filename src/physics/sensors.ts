@@ -1,7 +1,7 @@
 import Vector from './vector';
-import Ship from './ship';
-import { range } from './utils';
-import { BLOCK_SIZE } from './constants';
+import Ship from '../ships/ship';
+import { range } from '../utils';
+import { BLOCK_SIZE } from '../constants';
 
 export class Sensor {
     private offset: Vector;

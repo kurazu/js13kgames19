@@ -1,73 +1,16 @@
-import Box from './box';
-import Vector from './vector';
-import { areColliding } from './collision';
-import Keyboard from './keyboard';
-import World from './world';
-import PlayerShip from './player_ship';
-import Ship from './ship';
-import { BLOCK_SIZE, MAX_VELOCITY, COLUMNS, ROWS, DEFAULT_LEVEL_LENGTH, DEFAULT_PLAYER_POSITION } from './constants';
-import Renderer from './renderer';
-import generateLevel from './level_generator';
-import { range } from './utils';
-import { FeedForwardNetwork } from './net';
-import AIShip from './ai_ship';
-import learn from './learn';
-import { createNetwork } from './game_genetic';
-
-class Game {
-    private keyboard: Keyboard;
-    private world!: World;
-    private renderer: Renderer;
-    private player: Ship;
-    private robot: Ship;
-
-    public constructor(canvas: HTMLCanvasElement, net: FeedForwardNetwork) {
-        this.keyboard = new Keyboard();
-        this.loop = this.loop.bind(this);
-        this.player = new PlayerShip(DEFAULT_PLAYER_POSITION.clone(), this.keyboard);
-        this.robot = new AIShip(DEFAULT_PLAYER_POSITION.clone(), net);
-        this.renderer = new Renderer(canvas, this.player, DEFAULT_LEVEL_LENGTH);
-        this.newLevel();
-    }
-
-    private newLevel() {
-        this.world = new World(DEFAULT_LEVEL_LENGTH);
-        for (const [column, row] of generateLevel(DEFAULT_LEVEL_LENGTH)) {
-            this.world.addBox(column, row);
-        }
-        for (const ship of [this.player, this.robot]) {
-            ship.position = DEFAULT_PLAYER_POSITION.clone();
-            ship.velocity.multiplyByScalarInplace(0);
-            this.world.addShip(ship);
-        }
-    }
-
-    private loop(): void {
-        const sortedShips = this.world.update();
-        this.renderer.render(this.world);
-
-        if (sortedShips) {
-            this.newLevel();
-        }
-
-        requestAnimationFrame(this.loop);
-    }
-
-    public async start(): Promise<void> {
-        await this.renderer.start();
-        this.keyboard.start();
-        requestAnimationFrame(this.loop);
-    }
-}
+import { FeedForwardNetwork } from './math/net';
+import learn from './learning/learn';
+import { createNetwork } from './learning/game_genetic';
+import Game from './game/game';
+import GameScreen from './screens/game_screen';
 
 function onLoad(): void {
-    const canvas = document.querySelector<HTMLCanvasElement>('canvas');
-    if (!canvas) {
-        throw new Error("Canvas not found");
-    }
+    const canvas = document.querySelector<HTMLCanvasElement>('canvas')!;
     const LEARN = true;
-    const network = (LEARN ? learn : createNetwork)();
-    const game = new Game(canvas, network);
+    const network: FeedForwardNetwork = (LEARN ? learn : createNetwork)();
+
+
+    const game = new Game(canvas, new GameScreen({neuralNetwork: network, player: true, bot: true}));
     game.start().catch(err => { console.error('Failed to start the game', err); });
 }
 

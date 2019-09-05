@@ -1,5 +1,5 @@
 import { Matrix2D, dot, addBias, relu, softmax, uniformRandomDistribution } from './multiply';
-import { assert } from './utils';
+import { assert } from '../utils';
 
 export abstract class Layer {
     public abstract getOutputSize(inputWidth: number): number;

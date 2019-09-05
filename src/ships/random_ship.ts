@@ -1,8 +1,9 @@
-import Vector from './vector';
-import Keyboard from './keyboard';
-import { Action } from './actions';
+import Body from '../physics/body';
+import { BLOCK_SIZE } from '../constants';
+import Vector from '../physics/vector';
+import { Action } from '../physics/actions';
+import { SensorsState } from '../physics/collision';
 import Ship from './ship';
-import { SensorsState } from './collision';
 
 export default class RandomShip extends Ship {
     private counter: number = 0;
