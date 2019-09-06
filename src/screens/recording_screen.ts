@@ -1,18 +1,19 @@
 import Screen from './screen';
 import GameScreen from './game_screen';
-import PlayerShip from '../ships/player_ship';
+import RecordingShip from '../ships/recording_ship';
 import Keyboard from '../game/keyboard';
 
 export interface RecordingScreenOptions {
 
 }
 
-export default class RecordingScreen extends GameScreen<RecordingScreenOptions, PlayerShip> {
+export default class RecordingScreen extends GameScreen<RecordingScreenOptions, RecordingShip> {
     protected getNextScreen(): Screen<any> {
+        console.log('Gathered', this.player!.records.length, 'records');
         return new RecordingScreen(this.options);
     }
 
-    protected createPlayer(keyboard: Keyboard): PlayerShip {
-        return new PlayerShip(keyboard);
+    protected createPlayer(keyboard: Keyboard): RecordingShip {
+        return new RecordingShip(keyboard);
     }
 }
