@@ -4,7 +4,7 @@ import Screen from '../screens/screen';
 import Keyboard from '../game/keyboard';
 import learnInBackground from '../learning/background_calculation';
 import Topic from '../observable';
-import GameScreen from './game_screen';
+import UnsupervidedLearningScreenOptions from './unsupervised_screen';
 
 const FONT_SIZE_PX = 64;
 
@@ -25,7 +25,7 @@ export default class ComputingScreen extends Screen<void> {
     public update(ctx: CanvasRenderingContext2D): Screen<any> | undefined {
         this.render(ctx);
         if (this.network) {
-            return new GameScreen({ neuralNetwork: this.network, networkUpdatesTopic: this.topic! });
+            return new UnsupervidedLearningScreenOptions({ neuralNetwork: this.network, networkUpdatesTopic: this.topic! });
         } else {
             return undefined;
         }

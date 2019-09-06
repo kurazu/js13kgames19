@@ -4,17 +4,10 @@ import Box from '../physics/box';
 import World from '../physics/world';
 import Ship from '../ships/ship';
 import PlayerShip from '../ships/player_ship';
-import AIShip from '../ships/ai_ship';
 import { loadImage } from '../game/resources';
-import { FeedForwardNetwork } from '../math/net';
 import Screen from '../screens/screen';
 import Keyboard from '../game/keyboard';
 import Topic from '../observable';
-
-interface GameScreenOptions {
-    neuralNetwork: FeedForwardNetwork,
-    networkUpdatesTopic: Topic<[FeedForwardNetwork, number]>
-}
 
 const PLAYER_X_AT = 1 / 3;
 
@@ -50,48 +43,31 @@ class Camera {
     }
 }
 
-export default class GameScreen extends Screen<GameScreenOptions> {
-    private shipImage: HTMLImageElement | undefined;
-    private camera: Camera | undefined;
-    private world: World | undefined;
-    private player: PlayerShip | undefined;
-    private bot: AIShip | undefined;
-    private networkUpdateListener: ([value, generation]: [FeedForwardNetwork, number]) => void;
-
-    public constructor(options: GameScreenOptions) {
-        super(options);
-        this.networkUpdateListener = this.onNetworkUpdated.bind(this);
-        this.options.networkUpdatesTopic.subscribe(this.networkUpdateListener);
-    }
-
-    public onNetworkUpdated([network, generation]: [FeedForwardNetwork, number]): void {
-        console.log(`GameScreen obtained updated neural network from generation ${generation + 1}`);
-        this.bot!.neuralNetwork = network;
-    }
+export default abstract class GameScreen<Options, PlayerType extends PlayerShip> extends Screen<Options> {
+    protected shipImage: HTMLImageElement | undefined;
+    protected camera: Camera | undefined;
+    protected world: World | undefined;
+    protected player: PlayerType | undefined;
 
     public async load(keyboard: Keyboard): Promise<void> {
         this.shipImage = await loadImage('img/ship.png');
         this.world = new World();
 
-        this.player = new PlayerShip(keyboard);
-        this.bot = new AIShip(this.options.neuralNetwork);
-
+        this.player = this.createPlayer(keyboard);
         this.world.addShip(this.player);
-        this.world.addShip(this.bot);
 
         this.camera = new Camera(this.player);
     }
+
+    protected abstract createPlayer(keyboard: Keyboard): PlayerType;
+    protected abstract getNextScreen(): Screen<any>;
 
     public update(ctx: CanvasRenderingContext2D): Screen<any> | undefined {
         const sortedShips = this.world!.update();
         this.render(ctx);
 
         if (sortedShips) {
-            this.options.networkUpdatesTopic.unsubscribe(this.networkUpdateListener);
-            return new GameScreen({
-                neuralNetwork: this.bot!.neuralNetwork,
-                networkUpdatesTopic: this.options.networkUpdatesTopic
-            });
+            return this.getNextScreen();
         } else {
             return undefined;
         }
