@@ -85,9 +85,7 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
             this.drawBox(ctx, box, '#0000ff');
         }
         for (const ship of this.world!.ships) {
-
             this.drawShip(ctx, ship);
-            this.drawMarkers(ctx, ship);
         }
     }
 
@@ -123,14 +121,28 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         this.drawBox(ctx, ship, color);
         const {x, y} = this.camera!.getScreenPosition(ship);
         ctx.drawImage(this.shipImage!, x, y);
-
-        this.drawText(ctx, ship.name, ship.isThinking ? 'black' : 'white', this.camera!.getScreenX(ship.position.x), this.camera!.getScreenY(ship.top + 2));
+        this.drawMarkers(ctx, ship);
+        this.drawText(
+            ctx,
+            ship.name,
+            ship.isThinking ? 'white' : 'grey',
+            'black',
+            this.camera!.getScreenX(ship.position.x),
+            this.camera!.getScreenY(ship.top + 2)
+        );
     }
 
-    private drawText(ctx: CanvasRenderingContext2D, text: string, color: string, x: number, y: number): void{
-        ctx.font = `16px monospace`;
+    private drawText(ctx: CanvasRenderingContext2D, text: string, textColor: string, bgColor: string, x: number, y: number): void{
+        ctx.font = `8px monospace`;
         ctx.textAlign = "center";
-        ctx.fillStyle = color;
+        ctx.fillStyle = bgColor;
+        const range = [-1, 0, 1];
+        for (const xDiff of range) {
+            for (const yDiff of range) {
+                ctx.fillText(text, x - xDiff, y - yDiff);
+            }
+        }
+        ctx.fillStyle = textColor;
         ctx.fillText(text, x, y);
     }
 }

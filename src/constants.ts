@@ -1,7 +1,7 @@
 import Vector from './physics/vector';
 
 
-export const BLOCK_SIZE = 32;
+export const BLOCK_SIZE = 16;
 export const FPS = 60;
 export const TIME_DELTA = 1 / FPS;
 export const MAX_VELOCITY = BLOCK_SIZE / TIME_DELTA;
