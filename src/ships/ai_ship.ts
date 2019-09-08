@@ -14,17 +14,19 @@ export default class AIShip extends Ship {
     private features: Float32Array;
     private featuresQueue: Queue<Float32Array>;
     private inputMatrix: Matrix2D;
+    public generation: number;
     private randomChance: number;
     private randomDuration: number;
     private randomCounter: number = 0;
     private randomActionIdx: number = 0;
 
-    public constructor(neuralNetwork: FeedForwardNetwork, randomChance: number = 0, randomDuration: number = 0) {
+    public constructor(neuralNetwork: FeedForwardNetwork, generation: number, randomChance: number = 0, randomDuration: number = 0) {
         super();
         this.neuralNetwork = neuralNetwork;
         this.features = new Float32Array(FEATURES * LEARNING_FRAMES);
         this.featuresQueue = new Queue(LEARNING_FRAMES * LEARNING_EVERY_N_FRAMES);
         this.inputMatrix = new Matrix2D(1, this.neuralNetwork.inputWidth, this.features);
+        this.generation = generation;
         this.randomChance = randomChance;
         this.randomDuration = randomDuration;
     }
@@ -46,6 +48,10 @@ export default class AIShip extends Ship {
         return ACTIONS[actionIdx];
     }
 
+    public get isThinking(): boolean {
+        return !this.randomCounter;
+    }
+
     private buildInputMatrix() {
         const source = everyNthReversed(this.featuresQueue, LEARNING_EVERY_N_FRAMES);
         let idx = 0;
@@ -55,5 +61,9 @@ export default class AIShip extends Ship {
                 break;
             }
         }
+    }
+
+    public get name() {
+        return `BOT-gen-{this.generation}`;
     }
 }

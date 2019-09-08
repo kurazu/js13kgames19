@@ -9,6 +9,12 @@ const SHIP_SIZE = new Vector(BLOCK_SIZE * 2, BLOCK_SIZE);
 export default abstract class Ship extends Body {
     public touching: boolean = false;
 
+    public get isThinking(): boolean {
+        return true;
+    }
+
+    public abstract get name(): string;
+
     public constructor() {
         super(new Vector(), SHIP_SIZE);
     }

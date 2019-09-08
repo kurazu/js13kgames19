@@ -46,7 +46,7 @@ export default class GameNetworkGeneticOptimizer extends NeuralGeneticAlgorithm<
     }
 
     protected evaluateFitness(population: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, PlayerScore][] {
-        const players = population.map(net => new AIShip(net));
+        const players = population.map(net => new AIShip(net, 0));
         for (const player of players) {
             this.world.addShip(player);
         }

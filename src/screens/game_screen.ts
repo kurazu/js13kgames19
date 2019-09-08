@@ -109,7 +109,7 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         ctx.fillRect(x, y, w, h);
     }
 
-    private drawShip(ctx: CanvasRenderingContext2D, ship: Ship) {
+    private drawShip(ctx: CanvasRenderingContext2D, ship: Ship): void {
         const intensity = ~~(255 * ship.velocity.getLength() / MAX_VELOCITY);
         let r = 0, g = 0, b = intensity;
         if (ship.touching) {
@@ -121,5 +121,14 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         this.drawBox(ctx, ship, color);
         const {x, y} = this.camera!.getScreenPosition(ship);
         ctx.drawImage(this.shipImage!, x, y);
+
+        this.drawText(ctx, ship.name, ship.isThinking ? 'black' : 'white', this.camera!.getScreenX(ship.position.x), this.camera!.getScreenY(ship.top + 2));
+    }
+
+    private drawText(ctx: CanvasRenderingContext2D, text: string, color: string, x: number, y: number): void{
+        ctx.font = `16px monospace`;
+        ctx.textAlign = "center";
+        ctx.fillStyle = color;
+        ctx.fillText(text, x, y);
     }
 }

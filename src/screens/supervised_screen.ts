@@ -9,6 +9,7 @@ import WorkerCommunicator from '../worker_communication';
 
 interface SupervidedLearningScreenOptions {
     neuralNetwork: FeedForwardNetwork | null,
+    generation: number
 }
 
 export default class SupervisedLearningScreen extends GameScreen<SupervidedLearningScreenOptions, PlayerShip> {
@@ -28,23 +29,24 @@ export default class SupervisedLearningScreen extends GameScreen<SupervidedLearn
         console.log(`SupervisedScreen obtained updated neural network from generation ${generation + 1}`);
         if (this.bot) {
             this.bot.neuralNetwork = network;
+            this.bot.generation = generation + 1;
         } else {
-            this.bot = this.createBot(network);
+            this.bot = this.createBot(network, generation + 1);
             this.world!.addShip(this.bot);
         }
         this.bot.position = this.player!.position.clone();
         this.bot.velocity = this.player!.velocity.clone();
     }
 
-    private createBot(network: FeedForwardNetwork): AIShip {
-        return new AIShip(network, 0.01, 60);
+    private createBot(network: FeedForwardNetwork, generation: number): AIShip {
+        return new AIShip(network, generation, 0.005, 15);
     }
 
     public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
         workerCommunicator.supervisedTopic.subscribe(this.networkUpdateListener);
         await super.load(keyboard, workerCommunicator);
         if (this.options.neuralNetwork) {
-            this.bot = this.createBot(this.options.neuralNetwork);
+            this.bot = this.createBot(this.options.neuralNetwork, this.options.generation);
             this.world!.addShip(this.bot);
         }
     }
@@ -52,8 +54,10 @@ export default class SupervisedLearningScreen extends GameScreen<SupervidedLearn
     protected getNextScreen(workerCommunicator: WorkerCommunicator): Screen<any> {
         workerCommunicator.supervisedTopic.unsubscribe(this.networkUpdateListener);
         const neuralNetwork = this.bot ? this.bot.neuralNetwork : null;
+        const generation = this.bot ? this.bot.generation : 0;
         return new SupervisedLearningScreen({
-            neuralNetwork
+            neuralNetwork,
+            generation
         });
     }
 }

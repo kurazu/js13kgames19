@@ -18,4 +18,8 @@ export default class PlayerShip extends Ship {
         const up = this.keyboard.isPressed('ArrowUp');
         return new Action(up, left, right);
     }
+
+    public get name() {
+        return 'PLAYER';
+    }
 }

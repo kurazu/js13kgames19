@@ -21,7 +21,8 @@ export default class RecordingScreen extends GameScreen<RecordingScreenOptions, 
         const [inputMatrix, labels]: [Matrix2D, Uint8Array] = getStackedFeatures(records);
         workerCommunicator.startSupervisedLearning(inputMatrix, labels);
         return new SupervisedLearningScreen({
-            neuralNetwork: null
+            neuralNetwork: null,
+            generation: 0
         });
     }
 

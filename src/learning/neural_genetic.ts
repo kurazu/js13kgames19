@@ -1,19 +1,19 @@
 import GeneticAlgorithm from './genetic';
-import { SENSORS_COUNT, DEFAULT_LEVEL_LENGTH, DEFAULT_PLAYER_POSITION, FEATURES, LEARNING_FRAMES } from '../constants';
+import { SENSORS_COUNT, DEFAULT_LEVEL_LENGTH, DEFAULT_PLAYER_POSITION, FEATURES, LEARNING_FRAMES, DENSE_LAYERS } from '../constants';
 import { ACTIONS } from '../physics/actions';
 import { Layer, DenseLayer, ReluLayer, SoftmaxLayer, FeedForwardNetwork } from '../math/net';
 import { uniformRandom, range } from '../utils';
 
 
 function createLayers(): Layer[] {
-    return [
-        new DenseLayer(64),
-        new ReluLayer(),
-        new DenseLayer(16),
-        new ReluLayer(),
-        new DenseLayer(ACTIONS.length),
-        new SoftmaxLayer()
-    ];
+    const layers: Layer[] = [];
+    for (const neuronsCount of DENSE_LAYERS) {
+        layers.push(new DenseLayer(neuronsCount));
+        layers.push(new ReluLayer());
+    }
+    layers.push(new DenseLayer(ACTIONS.length));
+    layers.push(new SoftmaxLayer());
+    return layers;
 }
 
 export function createNetwork(buffer: Float32Array | null = null) {

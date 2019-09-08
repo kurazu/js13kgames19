@@ -33,7 +33,7 @@ export default class UnsupervisedLearningScreen extends GameScreen<UnsupervidedL
 
     public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
         await super.load(keyboard, workerCommunicator);
-        this.bot = new AIShip(this.options.neuralNetwork);
+        this.bot = new AIShip(this.options.neuralNetwork, 0);
         this.world!.addShip(this.bot);
     }
 

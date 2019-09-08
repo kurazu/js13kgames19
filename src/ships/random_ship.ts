@@ -16,4 +16,8 @@ export default class RandomShip extends Ship {
         const up = phase === 3;
         return new Action(up, left, right);
     }
+
+    public get name(): string {
+        return 'random';
+    }
 }
