@@ -20,7 +20,7 @@ class Camera {
     }
 
     public getScreenX(physicsX: number): number {
-        return PLAYER_X_AT * WIDTH + physicsX - this.trackedShip.position.x;
+        return physicsX - Math.max(this.trackedShip.position.x - PLAYER_X_AT * WIDTH, 0);
     }
 
     public getScreenY(physicsY: number): number {
@@ -36,11 +36,11 @@ class Camera {
     }
 
     public getScreenLeft(): number {
-        return this.trackedShip.position.x - PLAYER_X_AT * WIDTH;
+        return Math.max(this.trackedShip.position.x - PLAYER_X_AT * WIDTH, 0);
     }
 
     public getScreenRight(): number {
-        return this.trackedShip.position.x + (1 - PLAYER_X_AT) * WIDTH;
+        return this.getScreenLeft() + WIDTH;
     }
 }
 
