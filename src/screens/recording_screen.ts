@@ -13,7 +13,7 @@ export interface RecordingScreenOptions {
 }
 
 export default class RecordingScreen extends GameScreen<RecordingScreenOptions, RecordingShip> {
-    protected levelLength: number = DEFAULT_LEVEL_LENGTH * 10;
+    protected levelLength: number = ~~(DEFAULT_LEVEL_LENGTH / 5);
 
     protected getNextScreen(workerCommunicator: WorkerCommunicator): Screen<any> {
         const records = this.player!.records;

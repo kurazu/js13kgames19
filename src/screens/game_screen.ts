@@ -14,13 +14,15 @@ const PLAYER_X_AT = 1 / 3;
 
 class Camera {
     public trackedShip: Box;
+    private finishX: number;
 
-    public constructor(trackedShip: Box) {
+    public constructor(trackedShip: Box, finishX: number) {
         this.trackedShip = trackedShip;
+        this.finishX = finishX;
     }
 
     public getScreenX(physicsX: number): number {
-        return physicsX - Math.max(this.trackedShip.position.x - PLAYER_X_AT * WIDTH, 0);
+        return physicsX - Math.min(Math.max(this.trackedShip.position.x - PLAYER_X_AT * WIDTH, 0), this.finishX - WIDTH);
     }
 
     public getScreenY(physicsY: number): number {
@@ -36,7 +38,7 @@ class Camera {
     }
 
     public getScreenLeft(): number {
-        return Math.max(this.trackedShip.position.x - PLAYER_X_AT * WIDTH, 0);
+        return Math.min(Math.max(this.trackedShip.position.x - PLAYER_X_AT * WIDTH, 0), this.finishX - WIDTH);
     }
 
     public getScreenRight(): number {
@@ -58,7 +60,7 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         this.player = this.createPlayer(keyboard);
         this.world.addShip(this.player);
 
-        this.camera = new Camera(this.player);
+        this.camera = new Camera(this.player, this.world.finishX);
     }
 
     protected abstract createPlayer(keyboard: Keyboard): PlayerType;
