@@ -1,7 +1,7 @@
 import GeneticAlgorithm from './genetic';
 import { SENSORS_COUNT, DEFAULT_LEVEL_LENGTH, DEFAULT_PLAYER_POSITION, FEATURES, LEARNING_FRAMES, DENSE_LAYERS } from '../constants';
 import { ACTIONS } from '../physics/actions';
-import { Layer, DenseLayer, ReluLayer, SoftmaxLayer, FeedForwardNetwork } from '../math/net';
+import { Layer, DenseLayer, ReluLayer, SigmoidLayer, SoftmaxLayer, FeedForwardNetwork } from '../math/net';
 import { uniformRandom, range } from '../utils';
 
 
@@ -9,7 +9,7 @@ function createLayers(): Layer[] {
     const layers: Layer[] = [];
     for (const neuronsCount of DENSE_LAYERS) {
         layers.push(new DenseLayer(neuronsCount));
-        layers.push(new ReluLayer());
+        layers.push(new SigmoidLayer());
     }
     layers.push(new DenseLayer(ACTIONS.length));
     layers.push(new SoftmaxLayer());

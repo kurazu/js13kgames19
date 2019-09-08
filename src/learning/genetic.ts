@@ -69,7 +69,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
     }
 
     protected reproduce(matingPool: Solution[]): Solution[] {
-        const genePool = matingPool.map(this.getGenes.bind(this));
+        const genePool: Float32Array[] = matingPool.map(this.getGenes.bind(this));
 
         const elite = genePool.slice(0, this.eliteSize); // umodified elite
         const asexualReproductionOffspring = genePool.slice(

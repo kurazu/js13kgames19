@@ -1,4 +1,4 @@
-import { Matrix2D, dot, addBias, relu, softmax, uniformRandomDistribution } from './multiply';
+import { Matrix2D, dot, addBias, relu, softmax, sigmoid, uniformRandomDistribution } from './multiply';
 import { assert } from '../utils';
 
 export abstract class Layer {
@@ -74,6 +74,12 @@ abstract class ActivationLayer extends Layer {
 export class ReluLayer extends ActivationLayer {
     public calculate(inputMatrix: Matrix2D): Matrix2D {
         return relu(inputMatrix);
+    }
+}
+
+export class SigmoidLayer extends ActivationLayer {
+    public calculate(inputMatrix: Matrix2D): Matrix2D {
+        return sigmoid(inputMatrix);
     }
 }
 

@@ -108,11 +108,11 @@ export function addBias(matrix: Matrix2D, biasVector: Float32Array) {
 }
 
 export function relu(matrix: Matrix2D): Matrix2D {
-    const result = new Matrix2D(matrix.rows, matrix.columns);
-    for (let address = 0; address < result.length; address++) {
-        result.buffer[address] = matrix.buffer[address] > 0 ? matrix.buffer[address] : 0;
-    }
-    return result;
+    return new Matrix2D(matrix.rows, matrix.columns, matrix.buffer.map(x => x >= 0 ? x : 0));
+}
+
+export function sigmoid(matrix: Matrix2D): Matrix2D {
+    return new Matrix2D(matrix.rows, matrix.columns, matrix.buffer.map(x => 1 / (1 + Math.exp(-x))));
 }
 
 function softmaxArray(array: Float32Array): Float32Array {

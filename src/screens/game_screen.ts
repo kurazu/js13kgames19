@@ -1,4 +1,4 @@
-import { WIDTH, HEIGHT, MAX_VELOCITY } from '../constants';
+import { WIDTH, HEIGHT, MAX_VELOCITY, BLOCK_SIZE } from '../constants';
 import Vector from '../physics/vector';
 import Box from '../physics/box';
 import World from '../physics/world';
@@ -87,6 +87,7 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         for (const ship of this.world!.ships) {
             this.drawShip(ctx, ship);
         }
+        this.drawHUD(ctx);
     }
 
     private drawMarkers(ctx: CanvasRenderingContext2D, ship: Ship): void {
@@ -121,20 +122,27 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         this.drawBox(ctx, ship, color);
         const {x, y} = this.camera!.getScreenPosition(ship);
         ctx.drawImage(this.shipImage!, x, y);
-        // this.drawMarkers(ctx, ship);
+        this.drawMarkers(ctx, ship);
         this.drawText(
             ctx,
             ship.name,
-            ship.isThinking ? 'white' : 'grey',
-            'black',
+            12,
             this.camera!.getScreenX(ship.position.x),
-            this.camera!.getScreenY(ship.top + 2)
+            this.camera!.getScreenY(ship.top + 2),
+            'center',
+            ship.isThinking ? undefined : 'grey',
         );
     }
 
-    private drawText(ctx: CanvasRenderingContext2D, text: string, textColor: string, bgColor: string, x: number, y: number): void{
-        ctx.font = `8px monospace`;
-        ctx.textAlign = "center";
+    private drawText(
+        ctx: CanvasRenderingContext2D,
+        text: string, fontSize: number,
+        x: number, y: number,
+        textAlign: CanvasTextAlign = 'left',
+        textColor: string = 'white', bgColor: string = 'black'
+    ): void{
+        ctx.font = `${fontSize}px monospace`;
+        ctx.textAlign = textAlign;
         ctx.fillStyle = bgColor;
         const range = [-1, 0, 1];
         for (const xDiff of range) {
@@ -144,5 +152,18 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         }
         ctx.fillStyle = textColor;
         ctx.fillText(text, x, y);
+    }
+
+    private drawHUD(ctx: CanvasRenderingContext2D): void {
+        // RISKY - sort mutates data we don't own
+        const PADDING = 4;
+        const FONT_SIZE = 16;
+        const ships = this.world!.ships.sort((aShip, bShip) => bShip.position.x - aShip.position.x);
+        for (const [idx, ship] of ships.entries()) {
+            const initialOffset = BLOCK_SIZE + ship.halfWidth;
+            const progression = (ship.position.x - initialOffset) / (this.world!.finishX - initialOffset) * 100;
+            const text = `🏁 ${ship.name} ${progression.toFixed(0)}%`;
+            this.drawText(ctx, text, FONT_SIZE, PADDING, (FONT_SIZE + PADDING) * (idx + 1));
+        }
     }
 }
