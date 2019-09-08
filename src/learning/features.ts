@@ -39,7 +39,7 @@ export function getStackedFeatures(samples: [SensorsState, Vector, Action][]): [
     for (let row = 0; row < rows; row++) {
         const [,, action]: [SensorsState, Vector, Action] = samples[samples.length - 1 - row];
         for (let frame = 0; frame < LEARNING_FRAMES; frame++) {
-            const sampleIdx = samples.length - 1 - row - frame * LEARNING_EVERY_N_FRAMES;
+            const sampleIdx = samples.length - 1 - row - (LEARNING_FRAMES - 1 - frame) * LEARNING_EVERY_N_FRAMES;
             assert(sampleIdx >= 0);
             const [sensors, velocity,]: [SensorsState, Vector, Action] = samples[sampleIdx];
             const features: Float32Array = getFeatures(velocity, sensors);

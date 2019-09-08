@@ -9,6 +9,16 @@ import { assert, everyNthReversed, randRange } from '../utils';
 import { Queue } from '../math/queue';
 import { getFeatures } from '../learning/features';
 
+function getNeededQueueSize(): number {
+    if (LEARNING_FRAMES === 1) {
+        return 1;
+    } else if (LEARNING_EVERY_N_FRAMES === 1) {
+        return LEARNING_FRAMES;
+    } else {
+        return LEARNING_FRAMES * (LEARNING_EVERY_N_FRAMES - 1);
+    }
+}
+
 export default class AIShip extends Ship {
     public neuralNetwork: FeedForwardNetwork;
     private features: Float32Array;
@@ -24,7 +34,7 @@ export default class AIShip extends Ship {
         super();
         this.neuralNetwork = neuralNetwork;
         this.features = new Float32Array(FEATURES * LEARNING_FRAMES);
-        this.featuresQueue = new Queue(LEARNING_FRAMES * LEARNING_EVERY_N_FRAMES);
+        this.featuresQueue = new Queue(getNeededQueueSize());
         this.inputMatrix = new Matrix2D(1, this.neuralNetwork.inputWidth, this.features);
         this.generation = generation;
         this.randomChance = randomChance;
@@ -33,7 +43,6 @@ export default class AIShip extends Ship {
 
     public queryControls(sensorsState: SensorsState): Action {
         this.featuresQueue.push(getFeatures(this.velocity, sensorsState));
-        this.buildInputMatrix();
         let actionIdx: number;
         if (this.randomCounter) { // continue random action
             this.randomCounter--;
@@ -44,6 +53,7 @@ export default class AIShip extends Ship {
         } else { // take sensible action
             const output = this.neuralNetwork.calculate(this.inputMatrix);
             actionIdx = argmax(output.getRow(0));
+            this.buildInputMatrix();
         }
         return ACTIONS[actionIdx];
     }
@@ -53,14 +63,14 @@ export default class AIShip extends Ship {
     }
 
     private buildInputMatrix() {
-        const source = everyNthReversed(this.featuresQueue, LEARNING_EVERY_N_FRAMES);
-        let idx = 0;
-        for (const sourceItem of source) {
-            this.features.set(sourceItem, idx++);
-            if (idx >= LEARNING_FRAMES) {
-                break;
-            }
+        let sampleIdx: number = 0;
+        for (let frame = 0; frame < LEARNING_FRAMES; frame++) {
+            sampleIdx = frame * LEARNING_EVERY_N_FRAMES;
+            assert(0 <= sampleIdx && sampleIdx < this.featuresQueue.length);
+            const sample: Float32Array = this.featuresQueue[sampleIdx];
+            this.features.set(sample, frame * FEATURES);
         }
+        assert(sampleIdx === this.featuresQueue.length - 1);
     }
 
     public get name() {
