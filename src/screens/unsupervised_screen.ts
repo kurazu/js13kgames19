@@ -5,6 +5,7 @@ import AIShip from '../ships/ai_ship';
 import Keyboard from '../game/keyboard';
 import Screen from './screen';
 import PlayerShip from '../ships/player_ship';
+import WorkerCommunicator from '../worker_communication';
 
 interface UnsupervidedLearningScreenOptions {
     neuralNetwork: FeedForwardNetwork,
@@ -30,8 +31,8 @@ export default class UnsupervisedLearningScreen extends GameScreen<UnsupervidedL
         this.bot!.neuralNetwork = network;
     }
 
-    public async load(keyboard: Keyboard): Promise<void> {
-        await super.load(keyboard);
+    public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
+        await super.load(keyboard, workerCommunicator);
         this.bot = new AIShip(this.options.neuralNetwork);
         this.world!.addShip(this.bot);
     }

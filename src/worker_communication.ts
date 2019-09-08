@@ -1,51 +1,47 @@
 import Topic from './observable';
 import { FeedForwardNetwork } from './math/net';
 import { Matrix2D } from './math/multiply';
-import { createNetwork } from './genetic/game_genetic';
-import { WorkerData, RequestType } from './worker_interface';
-import { Action } from './physics/actions';
-import { SensorState } from './physics/collision';
+import { createNetwork } from './learning/neural_genetic';
+import { WorkerResponse, SupervisedWorkerRequest, UnsupervisedWorkerRequest, RequestType } from './worker_interface';
+import { SensorsState } from './physics/collision';
 import { getStackedFeatures } from './learning/features';
-
-export function learnInBackground(): Topic<[FeedForwardNetwork, number]> {
-    const topic: Topic<[FeedForwardNetwork, number]> = new Topic();
-    const worker = new Worker('dist/worker.js');
-
-    worker.addEventListener('message', (event: MessageEvent) => {
-        const workerData: WorkerData = event.data;
-        console.log(`Received new weights from worker from generation ${workerData.generation + 1}`);
-        const network = createNetwork(workerData.weights);
-        topic.next([network, workerData.generation]);
-    });
-
-    // Initialize calculations.
-    worker.postMessage({});
-
-    return topic;
-}
-
 
 export default class WorkerCommunicator {
     private worker: Worker;
+    public readonly supervisedTopic: Topic<[FeedForwardNetwork, number]>;
+    public readonly unsupervisedTopic: Topic<[FeedForwardNetwork, number]>;
 
     public constructor() {
+        this.supervisedTopic = new Topic();
+        this.unsupervisedTopic = new Topic();
+
         this.worker = new Worker('dist/worker.js');
         this.worker.addEventListener('message', this.onMessage.bind(this));
     }
 
     private onMessage(event: MessageEvent): void {
-
+        const response: WorkerResponse = event.data;
+        const topic: Topic<[FeedForwardNetwork, number]> = (
+            response.type === RequestType.SUPERVISED ? this.supervisedTopic : this.unsupervisedTopic
+        );
+        const network: FeedForwardNetwork = createNetwork(response.weights);
+        topic.next([network, response.generation]);
     }
 
     public startUnsupervisedLearning(): void {
-        this.worker.postMessage({type: RequestType.UNSUPERVISED});
+        const request: UnsupervisedWorkerRequest = {type: RequestType.UNSUPERVISED};
+        this.worker.postMessage(request);
     }
 
-    public feedSupervisedLearning(inputs: Matrix2D, labels: Uint8Array): void {
-        this.worker.postMessage({
+    public startSupervisedLearning(inputMatrix: Matrix2D, labelsArray: Uint8Array): void {
+        const inputsArray: Float32Array = inputMatrix.buffer;
+        const inputs: ArrayBuffer = inputsArray.buffer;
+        const labels: ArrayBuffer = labelsArray.buffer;
+        const request: SupervisedWorkerRequest = {
             type: RequestType.SUPERVISED,
-            inputs: inputs.buffer,
+            inputs,
             labels
-        }, [inputs.buffer, labels]);
+        };
+        this.worker.postMessage(request, [inputs, labels]);
     }
 }

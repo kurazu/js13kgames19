@@ -1,4 +1,4 @@
-import { createNetwork } from './learning/game_genetic';
+import { createNetwork } from './learning/neural_genetic';
 
 const network = createNetwork();
 console.log('inputs', network.inputWidth);

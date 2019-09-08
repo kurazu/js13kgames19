@@ -1,3 +1,3 @@
-import getOptimizer from './learning/learn';
+import { getUnsupervisedOptimizer } from './learning/learn';
 
-getOptimizer().evolveBest();
+getUnsupervisedOptimizer().evolveBest();

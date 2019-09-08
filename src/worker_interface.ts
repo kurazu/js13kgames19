@@ -9,6 +9,8 @@ export interface WorkerRequest {
 
 export interface WorkerResponse {
     readonly type: RequestType;
+    readonly weights: Float32Array;
+    readonly generation: number;
 }
 
 export interface UnsupervisedWorkerRequest  extends WorkerRequest {
@@ -16,17 +18,6 @@ export interface UnsupervisedWorkerRequest  extends WorkerRequest {
 }
 
 export interface SupervisedWorkerRequest extends WorkerRequest {
-    readonly inputs: Float32Array;
-    readonly labels: Uint8Array;
-}
-
-
-export interface SupervisedWorkerResponse extends WorkerResponse {
-    readonly weights: Float32Array;
-    readonly generation: number;
-}
-
-export interface UnsupervisedWorkerResponse extends WorkerResponse {
-    readonly weigths: Float32Array;
-    readonly generation: number;
+    readonly inputs: ArrayBuffer;
+    readonly labels: ArrayBuffer;
 }

@@ -8,6 +8,7 @@ import { loadImage } from '../game/resources';
 import Screen from '../screens/screen';
 import Keyboard from '../game/keyboard';
 import Topic from '../observable';
+import WorkerCommunicator from '../worker_communication';
 
 const PLAYER_X_AT = 1 / 3;
 
@@ -49,7 +50,7 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
     protected world: World | undefined;
     protected player: PlayerType | undefined;
 
-    public async load(keyboard: Keyboard): Promise<void> {
+    public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
         this.shipImage = await loadImage('img/ship.png');
         this.world = new World();
 
@@ -60,14 +61,14 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
     }
 
     protected abstract createPlayer(keyboard: Keyboard): PlayerType;
-    protected abstract getNextScreen(): Screen<any>;
+    protected abstract getNextScreen(workerCommunicator: WorkerCommunicator): Screen<any>;
 
-    public update(ctx: CanvasRenderingContext2D): Screen<any> | undefined {
+    public update(ctx: CanvasRenderingContext2D, workerCommunicator: WorkerCommunicator): Screen<any> | undefined {
         const sortedShips = this.world!.update();
         this.render(ctx);
 
         if (sortedShips) {
-            return this.getNextScreen();
+            return this.getNextScreen(workerCommunicator);
         } else {
             return undefined;
         }

@@ -44,12 +44,12 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
     protected abstract constructSolution(genes: Float32Array): Solution;
     protected abstract constructGene(geneIdx: number): number;
 
-    protected onGenerationStart (generation: number): void {
+    protected onGenerationStart(generation: number): void {
         console.log(`Generation ${generation + 1}/${this.maxGenerations}`);
         this.generationStartTS = +new Date;
     }
 
-    protected onGenerationEnd (generation: number, scoredPopulation: [Solution, Score][]): boolean {
+    protected onGenerationEnd(generation: number, scoredPopulation: [Solution, Score][]): boolean {
         const timeDiff = (+new Date) - this.generationStartTS;
         const [[bestSolution, bestScore], bestScoreValue]: [[Solution, Score], number] = maxBy(
             scoredPopulation, ([solution, score]: [Solution, Score]) => +score

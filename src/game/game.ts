@@ -1,18 +1,21 @@
 import Screen from '../screens/screen';
 import Keyboard from './keyboard';
 import { WIDTH, HEIGHT } from '../constants';
+import WorkerCommunicator from '../worker_communication';
 
 export default class Game {
-    private canvas: HTMLCanvasElement;
-    private ctx: CanvasRenderingContext2D;
+    private readonly canvas: HTMLCanvasElement;
+    private readonly ctx: CanvasRenderingContext2D;
     private screen: Screen<any>;
-    private keyboard: Keyboard;
+    private readonly keyboard: Keyboard;
+    private readonly workerCommunicator: WorkerCommunicator;
 
     public constructor(canvas: HTMLCanvasElement, initialScreen: Screen<any>) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d')!;
         this.screen = initialScreen;
         this.keyboard = new Keyboard();
+        this.workerCommunicator = new WorkerCommunicator();
 
         this.loop = this.loop.bind(this);
     }
@@ -28,14 +31,14 @@ export default class Game {
     private loadScreen(screen: Screen<any>): void {
         console.log('Loading screen', screen);
         this.screen = screen;
-        screen.load(this.keyboard).then(
+        screen.load(this.keyboard, this.workerCommunicator).then(
             _ => { requestAnimationFrame(this.loop); },
             err => { console.error('Failed to load screen', screen, err); }
         );
     }
 
     private loop(): void {
-        const nextScreen: Screen<any> | undefined = this.screen.update(this.ctx);
+        const nextScreen: Screen<any> | undefined = this.screen.update(this.ctx, this.workerCommunicator);
         if (nextScreen) {
             this.loadScreen(nextScreen);
         } else {
