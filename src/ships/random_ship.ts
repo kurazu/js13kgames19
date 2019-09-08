@@ -8,7 +8,7 @@ import Ship from './ship';
 export default class RandomShip extends Ship {
     private counter: number = 0;
 
-    public getControls(sensorsState: SensorsState): Action {
+    public queryControls(sensorsState: SensorsState): Action {
         const second = ~~(this.counter++ / 60);
         const phase = second % 4;
         const right = phase <= 1;

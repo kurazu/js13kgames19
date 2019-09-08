@@ -8,6 +8,7 @@ const SHIP_SIZE = new Vector(BLOCK_SIZE * 2, BLOCK_SIZE);
 
 export default abstract class Ship extends Body {
     public touching: boolean = false;
+    public lastAction: Action = new Action(false, false, false);
 
     public get isThinking(): boolean {
         return true;
@@ -19,5 +20,9 @@ export default abstract class Ship extends Body {
         super(new Vector(), SHIP_SIZE);
     }
 
-    public abstract getControls(sensorsState: SensorsState): Action;
+    protected abstract queryControls(sensorState: SensorsState): Action;
+
+    public getControls(sensorsState: SensorsState): Action {
+        return this.lastAction = this.queryControls(sensorsState);
+    }
 }

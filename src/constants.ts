@@ -24,4 +24,4 @@ export const DEFAULT_PLAYER_POSITION = new Vector(BLOCK_SIZE * 4, BLOCK_SIZE * R
 export const FEATURES = SENSORS_COUNT + 2;
 export const LEARNING_FRAMES = 6;
 export const LEARNING_EVERY_N_FRAMES = 20;
-export const DENSE_LAYERS = [256, 32];
+export const DENSE_LAYERS = [128];

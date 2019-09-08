@@ -32,7 +32,7 @@ function* generateLevelContent(levelLength: number): Iterable<[number, number]> 
 }
 
 function* generateLevelEnd(levelLength: number): Iterable<[number, number]> {
-    for (const row of range(ROWS / 3)) {
+    for (const row of range(~~(ROWS / 3))) {
         yield [levelLength - 1, row];
         yield [levelLength - 1, ROWS - 1 - row];
     }

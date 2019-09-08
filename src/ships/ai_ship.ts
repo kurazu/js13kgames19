@@ -31,7 +31,7 @@ export default class AIShip extends Ship {
         this.randomDuration = randomDuration;
     }
 
-    public getControls(sensorsState: SensorsState): Action {
+    public queryControls(sensorsState: SensorsState): Action {
         this.featuresQueue.push(getFeatures(this.velocity, sensorsState));
         this.buildInputMatrix();
         let actionIdx: number;

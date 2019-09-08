@@ -12,7 +12,7 @@ export default class PlayerShip extends Ship {
         this.keyboard = keyboard;
     }
 
-    public getControls(sensorsState: SensorsState): Action {
+    public queryControls(sensorsState: SensorsState): Action {
         const right = this.keyboard.isPressed('ArrowRight');
         const left = this.keyboard.isPressed('ArrowLeft');
         const up = this.keyboard.isPressed('ArrowUp');
