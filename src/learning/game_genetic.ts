@@ -68,14 +68,13 @@ export default class GameNetworkGeneticOptimizer extends NeuralGeneticAlgorithm<
         ]);
     }
 
-    protected onGenerationEnd (generation: number, scoredPopulation: [FeedForwardNetwork, PlayerScore][]): boolean {
-        const shouldTerminateEarly = super.onGenerationEnd(generation, scoredPopulation);
-        const [bestSolution, ]: [FeedForwardNetwork, PlayerScore] = scoredPopulation[0];
+    protected onGenerationEnd(generation: number, bestSolution: FeedForwardNetwork, bestScore: PlayerScore): boolean {
+        const shouldTerminateEarly = super.onGenerationEnd(generation, bestSolution, bestScore);
         if (range(this.consecutiveWinsForEarlyStopping).every(n => this.generationsWon[this.generationsWon.length - 1 - n] === generation - n)) {
             console.log(`${this.consecutiveWinsForEarlyStopping} last generations have won. Terminating early.`);
             return true;
         }
-        if (scoredPopulation.some(([network, score]: [FeedForwardNetwork, PlayerScore]) => score.finished)) {
+        if (bestScore.finished) {
             console.log('Creating a new level');
             this.world = new World();
         } else {

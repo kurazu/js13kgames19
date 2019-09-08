@@ -6,12 +6,15 @@ import SupervisedLearningScreen from './supervised_screen';
 import Keyboard from '../game/keyboard';
 import WorkerCommunicator from '../worker_communication';
 import { getStackedFeatures } from '../learning/features';
+import { DEFAULT_LEVEL_LENGTH } from '../constants';
 
 export interface RecordingScreenOptions {
 
 }
 
 export default class RecordingScreen extends GameScreen<RecordingScreenOptions, RecordingShip> {
+    protected levelLength: number = DEFAULT_LEVEL_LENGTH * 10;
+
     protected getNextScreen(workerCommunicator: WorkerCommunicator): Screen<any> {
         const records = this.player!.records;
         console.log(`Gathered ${records.length} records`);

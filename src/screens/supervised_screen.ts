@@ -29,18 +29,22 @@ export default class SupervisedLearningScreen extends GameScreen<SupervidedLearn
         if (this.bot) {
             this.bot.neuralNetwork = network;
         } else {
-            this.bot = new AIShip(network);
+            this.bot = this.createBot(network);
             this.world!.addShip(this.bot);
         }
         this.bot.position = this.player!.position.clone();
         this.bot.velocity = this.player!.velocity.clone();
     }
 
+    private createBot(network: FeedForwardNetwork): AIShip {
+        return new AIShip(network, 0.01, 60);
+    }
+
     public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
         workerCommunicator.supervisedTopic.subscribe(this.networkUpdateListener);
         await super.load(keyboard, workerCommunicator);
         if (this.options.neuralNetwork) {
-            this.bot = new AIShip(this.options.neuralNetwork);
+            this.bot = this.createBot(this.options.neuralNetwork);
             this.world!.addShip(this.bot);
         }
     }

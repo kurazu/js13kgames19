@@ -49,10 +49,11 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
     protected camera: Camera | undefined;
     protected world: World | undefined;
     protected player: PlayerType | undefined;
+    protected levelLength: number | undefined = undefined;
 
     public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
         this.shipImage = await loadImage('img/ship.png');
-        this.world = new World();
+        this.world = new World(this.levelLength);
 
         this.player = this.createPlayer(keyboard);
         this.world.addShip(this.player);
