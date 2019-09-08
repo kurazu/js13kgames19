@@ -1,7 +1,11 @@
+@width: 1024;
+@height: 576;
+
 * { margin:0; padding:0; }
 
 html, body {
     height: 100%;
+    background-color: #000;
 }
 
 canvas {
@@ -10,10 +14,10 @@ canvas {
   display: block;*/
 
     width: 100vw;
-    height: 75vw; /* height:width ratio = 9/16 = .5625  */
-    background: pink;
+    height: @height / @width * 100vw; /* height:width ratio = 9/16 = .5625  */
+    background: #222;
     max-height: 100vh;
-    max-width: 133.33vh; /* 16/9 = 1.778 */
+    max-width: @width / @height * 100vh; /* 16/9 = 1.778 */
     margin: auto;
     position: absolute;
     top:0;bottom:0; /* vertical center */

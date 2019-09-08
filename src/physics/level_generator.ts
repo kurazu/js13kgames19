@@ -1,7 +1,7 @@
 import { COLUMNS, ROWS } from '../constants';
 import { range, randRange } from '../utils';
 
-const START_LENGTH = 20;
+const START_LENGTH = 10;
 const END_LENGTH = 1;
 
 function* generateLevelStart(levelLength: number): Iterable<[number, number]> {

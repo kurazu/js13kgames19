@@ -22,11 +22,11 @@ class Camera {
     }
 
     public getScreenX(physicsX: number): number {
-        return physicsX - Math.min(Math.max(this.trackedShip.position.x - PLAYER_X_AT * WIDTH, 0), this.finishX - WIDTH);
+        return ~~(physicsX - Math.min(Math.max(this.trackedShip.position.x - PLAYER_X_AT * WIDTH, 0), this.finishX - WIDTH));
     }
 
     public getScreenY(physicsY: number): number {
-        return HEIGHT - physicsY;
+        return ~~(HEIGHT - physicsY);
     }
 
     public getScreenPosition(box: Box): Vector {
@@ -38,7 +38,7 @@ class Camera {
     }
 
     public getScreenLeft(): number {
-        return Math.min(Math.max(this.trackedShip.position.x - PLAYER_X_AT * WIDTH, 0), this.finishX - WIDTH);
+        return ~~Math.min(Math.max(this.trackedShip.position.x - PLAYER_X_AT * WIDTH, 0), this.finishX - WIDTH);
     }
 
     public getScreenRight(): number {
@@ -121,7 +121,7 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         this.drawBox(ctx, ship, color);
         const {x, y} = this.camera!.getScreenPosition(ship);
         ctx.drawImage(this.shipImage!, x, y);
-        this.drawMarkers(ctx, ship);
+        // this.drawMarkers(ctx, ship);
         this.drawText(
             ctx,
             ship.name,
