@@ -4,11 +4,10 @@ import Ship from './ship';
 import { SensorsState } from '../physics/collision';
 import { FeedForwardNetwork } from '../math/net';
 import { Matrix2D, argmax } from '../math/multiply';
-import { SENSORS_RANGE, MAX_VELOCITY, LEARNING_FRAMES, FEATURES, LEARNING_EVERY_N_FRAMES } from '../constants';
+import { LEARNING_FRAMES, FEATURES, LEARNING_EVERY_N_FRAMES } from '../constants';
 import { assert, everyNthReversed } from '../utils';
 import { Queue } from '../math/queue';
-
-const MAX_VALUE: number = SENSORS_RANGE + 1;
+import { getFeatures } from '../learning/features';
 
 export default class AIShip extends Ship {
     public neuralNetwork: FeedForwardNetwork;
@@ -24,22 +23,8 @@ export default class AIShip extends Ship {
         this.inputMatrix = new Matrix2D(1, this.neuralNetwork.inputWidth, this.features);
     }
 
-    private getFeatures(sensorsState: SensorsState): Float32Array {
-        const result = new Float32Array(FEATURES);
-        let idx = 0;
-        for (const sensorState of sensorsState) {
-            const sensorValue: number = sensorState === null ? MAX_VALUE : sensorState;
-            const value: number = sensorValue / MAX_VALUE; // <0, 1> distribution
-            result[idx++] = value;
-        }
-        result[idx++] = this.velocity.x / MAX_VELOCITY; // <0, 1> distribution
-        result[idx++] = this.velocity.y / MAX_VELOCITY; // <0, 1> distribution
-        assert(idx === FEATURES);
-        return result;
-    }
-
     public getControls(sensorsState: SensorsState): Action {
-        this.featuresQueue.push(this.getFeatures(sensorsState));
+        this.featuresQueue.push(getFeatures(this.velocity, sensorsState));
         this.buildInputMatrix();
         const output = this.neuralNetwork.calculate(this.inputMatrix);
         const maxIdx = argmax(output.getRow(0));

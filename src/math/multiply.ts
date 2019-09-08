@@ -169,3 +169,22 @@ export function argmax(array: Float32Array): number {
     }
     return bestIdx!;
 }
+
+
+export function argmax2D(input: Matrix2D): Uint8Array {
+    const output = new Uint8Array(input.rows);
+    for (let idx = 0; idx < input.rows; idx++) {
+        output[idx] = argmax(input.getRow(idx));
+    }
+    return output;
+}
+
+
+export function getMatchingAccuracy(predictions: Uint8Array, expectations: Uint8Array): number {
+    assert(predictions.length === expectations.length);
+    const correctPredictions: number = predictions.reduce(
+        (acc, prediction, idx) => (acc + (prediction === expectations[idx] ? 1 : 0)),
+        0
+    )
+    return correctPredictions / predictions.length;
+}

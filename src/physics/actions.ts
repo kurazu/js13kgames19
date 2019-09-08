@@ -8,6 +8,10 @@ export class Action {
         this.left = left;
         this.right = right;
     }
+
+    public equals(other: Action) {
+        return this.up === other.up && this.left === other.left && this.right === other.right;
+    }
 }
 
 export const ACTIONS = [

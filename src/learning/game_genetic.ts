@@ -1,28 +1,9 @@
-import GeneticAlgorithm from './genetic';
-import { SENSORS_COUNT, DEFAULT_LEVEL_LENGTH, DEFAULT_PLAYER_POSITION, FEATURES, LEARNING_FRAMES } from '../constants';
-import { ACTIONS } from '../physics/actions';
-import { Layer, DenseLayer, ReluLayer, SoftmaxLayer, FeedForwardNetwork } from '../math/net';
-import { uniformRandom, range } from '../utils';
+import NeuralGeneticAlgorithm from './neural_genetic';
+import { FeedForwardNetwork } from '../math/net';
+import { range } from '../utils';
 import World, { ShipAndPosition } from '../physics/world';
 import AIShip from '../ships/ai_ship';
 
-const VELOCITIES_COUNT = 2;
-const INPUTS_WIDTH = SENSORS_COUNT + VELOCITIES_COUNT;
-
-function createLayers(): Layer[] {
-    return [
-        new DenseLayer(64),
-        new ReluLayer(),
-        new DenseLayer(16),
-        new ReluLayer(),
-        new DenseLayer(ACTIONS.length),
-        new SoftmaxLayer()
-    ];
-}
-
-export function createNetwork(buffer: Float32Array | null = null) {
-    return new FeedForwardNetwork(FEATURES * LEARNING_FRAMES, createLayers(), buffer);
-}
 
 class PlayerScore {
     public readonly score: number;
@@ -38,7 +19,7 @@ class PlayerScore {
     }
 }
 
-export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedForwardNetwork, PlayerScore> {
+export default class GameNetworkGeneticOptimizer extends NeuralGeneticAlgorithm<PlayerScore> {
     private world: World;
     private minFrames: number;
     private maxFrames: number;
@@ -62,10 +43,6 @@ export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedFo
         this.maxFrames = maxFrames;
         this.generationsWon = [];
         this.consecutiveWinsForEarlyStopping = consecutiveWinsForEarlyStopping;
-    }
-
-    protected createInitialSolution(): FeedForwardNetwork {
-        return createNetwork();
     }
 
     protected evaluateFitness(population: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, PlayerScore][] {
@@ -105,17 +82,5 @@ export default class GameNetworkGeneticOptimizer extends GeneticAlgorithm<FeedFo
             this.world.reset();
         }
         return shouldTerminateEarly;
-    }
-
-    protected getGenes(solution: FeedForwardNetwork): Float32Array {
-        return solution.weights;
-    }
-
-    protected constructSolution(genes: Float32Array): FeedForwardNetwork {
-        return createNetwork(genes);
-    }
-
-    protected constructGene(geneIdx: number): number {
-        return uniformRandom();
     }
 }
