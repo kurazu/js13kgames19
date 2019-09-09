@@ -51,6 +51,14 @@ export function assert(condition: boolean, msg: string = ''): void {
     }
 }
 
+export function assertEqual(a: any, b: any, msg: string = `${a} !== ${b}`): void {
+    assert(a === b, msg);
+}
+
+export function assertDoubleRange(lowerRange: any, x: any, upperRange: any, msg: string = `${x} not in [${lowerRange};${upperRange}]`): void {
+    assert(lowerRange <= x < upperRange);
+}
+
 export function zip(...arrays: Float32Array[]): Float32Array[] {
     const first: Float32Array = arrays[0];
     for (const array of arrays) {
