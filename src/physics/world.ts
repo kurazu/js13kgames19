@@ -1,5 +1,6 @@
 import Box from './box';
 import Vector from './vector';
+import Tile from './tile';
 import {
     BLOCK_SIZE,
     GRAVITY_ACCELERATION,
@@ -12,7 +13,8 @@ import {
     SENSORS_COUNT,
     SENSORS_RANGE,
     DEFAULT_LEVEL_LENGTH,
-    DEFAULT_PLAYER_POSITION
+    DEFAULT_PLAYER_POSITION,
+    Tiles
 } from '../constants';
 import { areColliding, SensorsState } from './collision';
 import Ship from '../ships/ship';
@@ -20,11 +22,8 @@ import { minBy } from '../utils';
 import { getSensors, Sensor } from './sensors';
 import generateLevel from './level_generator';
 
-const BOX_SIZE = new Vector(BLOCK_SIZE, BLOCK_SIZE);
 
-const COLLISION_STEPS = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0];
-
-function movedBox(box: Box, newPosition: Vector) {
+function movedBox<T extends Box>(box: T, newPosition: Vector): T {
     const movedObject = Object.create(box);
     movedObject.position = newPosition;
     return movedObject;
@@ -32,7 +31,7 @@ function movedBox(box: Box, newPosition: Vector) {
 
 export type ShipAndPosition = [Ship, number];
 
-type BoxColumn = Map<number, Box>
+type BoxColumn = Map<number, Tile>;
 const EMPTY_MAP: BoxColumn = new Map();
 
 export default class World {
@@ -46,8 +45,8 @@ export default class World {
         this.boxes = new Map();
         this.ships = [];
         this.finishX = levelLength * BLOCK_SIZE;
-        for (const [column, row] of generateLevel(levelLength)) {
-            this.addBox(column, row);
+        for (const [column, row, spriteIdx] of generateLevel(levelLength)) {
+            this.addBox(column, row, spriteIdx);
         }
     }
 
@@ -55,9 +54,9 @@ export default class World {
         this.ships = [];
     }
 
-    public addBox(column: number, row: number): Box {
+    public addBox(column: number, row: number, tile: Tiles): Tile {
         const position = new Vector((column + 0.5) * BLOCK_SIZE, (row + 0.5) * BLOCK_SIZE);
-        const box = new Box(position, BOX_SIZE);
+        const box = new Tile(position, tile);
         let columnMap = this.boxes.get(column);
         if (!columnMap) {
             columnMap = new Map();
@@ -67,8 +66,8 @@ export default class World {
         return box;
     }
 
-    public getBoxes(minX: number, maxX: number): Box[] {
-        const result: Box[] = [];
+    public getBoxes(minX: number, maxX: number): Tile[] {
+        const result: Tile[] = [];
         const minXIndex = ~~(minX / BLOCK_SIZE) - 1;
         const maxXIndex = ~~(maxX / BLOCK_SIZE) + 1;
         for (let idx = minXIndex; idx < maxXIndex; idx++) {
@@ -80,7 +79,7 @@ export default class World {
         return result;
     }
 
-    public getBox(position: Vector): Box | undefined {
+    public getBox(position: Vector): Tile | undefined {
         const column = ~~(position.x / BLOCK_SIZE);
         const row = ~~(position.y / BLOCK_SIZE);
         const columnBoxes = this.boxes.get(column);
@@ -185,7 +184,7 @@ export default class World {
         }
     }
 
-    private checkCollisions(ship: Ship, boxes: Box[] = this.getBoxes(ship.left, ship.right)): Box[] {
+    private checkCollisions(ship: Ship, boxes: Tile[] = this.getBoxes(ship.left, ship.right)): Tile[] {
         return boxes.filter(box => areColliding(box, ship));
     }
 }

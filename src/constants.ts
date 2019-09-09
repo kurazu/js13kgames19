@@ -25,3 +25,16 @@ export const FEATURES: number = SENSORS_COUNT + 2;
 export const LEARNING_FRAMES: number = 1;
 export const LEARNING_EVERY_N_FRAMES: number = 40;
 export const DENSE_LAYERS = [64];
+
+export enum Tiles {
+    MIDDLE_WALL = 0,
+    BOTTOM_WALL = 1,
+    TOP_WALL = 2,
+    STEM = 3,
+    RED_CAP_LEFT = 4,
+    RED_CAP_MIDDLE = 5,
+    RED_CAP_RIGHT = 6,
+    BROWN_CAP_LEFT = 7,
+    BROWN_CAP_MIDDLE = 8,
+    BROWN_CAP_RIGHT = 9
+}

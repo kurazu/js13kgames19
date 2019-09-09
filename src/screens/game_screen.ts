@@ -1,6 +1,7 @@
 import { WIDTH, HEIGHT, MAX_VELOCITY, BLOCK_SIZE } from '../constants';
 import Vector from '../physics/vector';
 import Box from '../physics/box';
+import Tile from '../physics/tile';
 import World from '../physics/world';
 import Ship from '../ships/ship';
 import PlayerShip from '../ships/player_ship';
@@ -105,11 +106,12 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         }
     }
 
-    private drawBox(ctx: CanvasRenderingContext2D, box: Box, color: string): void {
+    private drawBox(ctx: CanvasRenderingContext2D, box: Tile, color: string): void {
         ctx.fillStyle = color;
         const {x, y} = this.camera!.getScreenPosition(box);
         const {x: w, y: h} = box.size;
-        ctx.fillRect(x, y, w, h);
+        ctx.drawImage(this.tilesImage!, box.tile * w, 0, w, h, x, y, w, h);
+        // ctx.fillRect(x, y, w, h);
     }
 
     private drawShip(ctx: CanvasRenderingContext2D, ship: Ship): void {
@@ -121,7 +123,7 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
             g = 255;
         }
         const color = `rgb(${r}, ${g}, ${b})`;
-        this.drawBox(ctx, ship, color);
+        // this.drawBox(ctx, ship, color);
         const {x, y} = this.camera!.getScreenPosition(ship);
         ctx.drawImage(this.shipImage!, x, y);
         this.drawMarkers(ctx, ship);
