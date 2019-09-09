@@ -33,7 +33,7 @@ export default abstract class NeuralGeneticAlgorithm<Score> extends GeneticAlgor
         return createNetwork(genes);
     }
 
-    protected constructGene(geneIdx: number): number {
-        return uniformRandom();
+    protected mutateGene(gene: number): number {
+        return gene + uniformRandom();
     }
 }

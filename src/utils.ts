@@ -6,6 +6,10 @@ export function randRange(n: number): number {
     return ~~(Math.random() * n);
 }
 
+export function randRange2(start: number, end: number): number {
+    return randRange(end + 1- start) + start;
+}
+
 export function randomSample(n: number, k: number): number[] {
     const choices = range(n);
     return range(k).map(_ => {

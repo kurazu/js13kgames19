@@ -48,6 +48,7 @@ class Camera {
 
 export default abstract class GameScreen<Options, PlayerType extends PlayerShip> extends Screen<Options> {
     protected shipImage: HTMLImageElement | undefined;
+    protected tilesImage: HTMLImageElement | undefined;
     protected camera: Camera | undefined;
     protected world: World | undefined;
     protected player: PlayerType | undefined;
@@ -55,6 +56,7 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
 
     public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
         this.shipImage = await loadImage('img/ship.png');
+        this.tilesImage = await loadImage('img/tiles.png');
         this.world = new World(this.levelLength);
 
         this.player = this.createPlayer(keyboard);

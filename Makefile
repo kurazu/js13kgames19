@@ -43,7 +43,7 @@ clean:
 	rm -vf game.zip
 
 zip: min
-	zip -r game.zip index.html dist/bundle.min.js dist/worker.min.js img/*
+	zip -r game.zip index.html dist/bundle.min.js dist/worker.min.js img/*.png
 	ls -lh game.zip
 
 serve:

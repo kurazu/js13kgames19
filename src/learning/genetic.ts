@@ -43,7 +43,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
     protected abstract evaluateFitness(population: Solution[], generation: number): [Solution, Score][];
     protected abstract getGenes(solution: Solution): Float32Array;
     protected abstract constructSolution(genes: Float32Array): Solution;
-    protected abstract constructGene(geneIdx: number): number;
+    protected abstract mutateGene(gene: number): number;
 
     protected onGenerationStart(generation: number): void {
         console.log(`Generation ${generation + 1}/${this.maxGenerations}`);
@@ -101,7 +101,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
         const numberOfMutations = ~~(genes.length * this.mutationFactor);
         const mutationIndices = randomSample(genes.length, numberOfMutations);
         for (const idx of mutationIndices) {
-            genes[idx] = this.constructGene(idx);
+            genes[idx] = this.mutateGene(genes[idx]);
         }
     }
 
