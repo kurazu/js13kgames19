@@ -22,7 +22,7 @@ export const SENSORS_RANGE: number = 15;
 export const DEFAULT_PLAYER_POSITION = new Vector(BLOCK_SIZE * 4, BLOCK_SIZE * ROWS / 2);
 
 export const FEATURES: number = SENSORS_COUNT + 2;
-export const LEARNING_FRAMES: number = 1;
+export const LEARNING_FRAMES: number = 6;
 export const LEARNING_EVERY_N_FRAMES: number = 40;
 export const DENSE_LAYERS = [64];
 

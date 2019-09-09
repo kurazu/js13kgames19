@@ -26,6 +26,9 @@ min: compile
 run: compile
 	$(NODE_PATH)/node --experimental-modules build/sim.js
 
+debug: compile
+	$(NODE_PATH)/node --inspect-brk --experimental-modules build/sim.js
+
 query: compile
 	$(NODE_PATH)/node --experimental-modules build/query.js
 
@@ -35,8 +38,8 @@ perf: compile
 install:
 	$(NODE_PATH)/npm install .
 
-test: compile
-	$(NODE_PATH)/node --experimental-modules build/test.js
+# test: compile
+# 	$(NODE_PATH)/node --experimental-modules build/test.js
 
 clean:
 	rm -vf build/**/*.js build/*.js build/*.css
@@ -48,3 +51,6 @@ zip: min
 
 serve:
 	python2.7 -m SimpleHTTPServer
+
+test:
+	${NODE_PATH}/npx jest

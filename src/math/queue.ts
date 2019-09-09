@@ -1,18 +1,26 @@
 import { assert } from '../utils';
 
 export class Queue<T> extends Array<T> {
-    private maxLength: number;
+    private readonly maxLength: number;
 
     public constructor(maxLength: number) {
         super();
         this.maxLength = maxLength;
     }
 
+    public isFull(): boolean {
+        return this.length === this.maxLength;
+    }
+
     public push(...items: T[]): number {
         while (this.length + items.length > this.maxLength) {
             this.shift();
         }
-        return super.push(...items);
+        super.push(...items);
+        while (!this.isFull()) {
+            this.unshift(this[0]);
+        }
+        return this.length;
     }
 }
 
