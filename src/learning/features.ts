@@ -1,5 +1,5 @@
 import { SENSORS_RANGE, MAX_VELOCITY, LEARNING_FRAMES, FEATURES, LEARNING_EVERY_N_FRAMES } from '../constants';
-import { Action, ACTIONS } from '../physics/actions';
+import { Action, ACTIONS, Actions } from '../physics/actions';
 import { SensorsState } from '../physics/collision';
 import Vector from '../physics/vector';
 import { assert } from '../utils';
@@ -21,14 +21,14 @@ export function getFeatures(velocity: Vector, sensorsState: SensorsState): Float
     return result;
 }
 
-export function getLabel(action: Action): number {
+export function getLabel(action: Action): Actions {
     const actionIdx = ACTIONS.findIndex(predefinedAction => predefinedAction.equals(action));
     if (actionIdx !== -1) {
         return actionIdx;
     } else if (action.up) {
-        return 1; // pull up
+        return Actions.UP; // pull up
     } else {
-        return 0; // drift
+        return Actions.DRIFT; // drift
     }
 }
 

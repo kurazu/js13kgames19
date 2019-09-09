@@ -14,6 +14,15 @@ export class Action {
     }
 }
 
+export enum Actions {
+    DRIFT = 0,
+    UP = 1,
+    LEFT = 2,
+    RIGHT = 3,
+    UP_AND_LEFT = 4,
+    UP_AND_RIGHT = 5
+}
+
 export const ACTIONS = [
     new Action(false, false, false), // drift
     new Action(true, false, false), // pull up
