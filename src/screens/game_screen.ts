@@ -10,6 +10,7 @@ import Screen from '../screens/screen';
 import Keyboard from '../game/keyboard';
 import Topic from '../observable';
 import WorkerCommunicator from '../worker_communication';
+import { generateForeground, generateBackground } from '../game/backgroundGenerator';
 
 const PLAYER_X_AT = 1 / 3;
 
@@ -50,6 +51,8 @@ class Camera {
 export default abstract class GameScreen<Options, PlayerType extends PlayerShip> extends Screen<Options> {
     protected shipImage: HTMLImageElement | undefined;
     protected tilesImage: HTMLImageElement | undefined;
+    protected foregroundImage: CanvasImageSource | undefined;
+    protected backgroundImage: CanvasImageSource | undefined;
     protected camera: Camera | undefined;
     protected world: World | undefined;
     protected player: PlayerType | undefined;
@@ -58,6 +61,8 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
     public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
         this.shipImage = await loadImage('img/ship.png');
         this.tilesImage = await loadImage('img/tiles.png');
+        this.foregroundImage = await generateForeground();
+        this.backgroundImage = await generateBackground();
         this.world = new World(this.levelLength);
 
         this.player = this.createPlayer(keyboard);
@@ -84,6 +89,15 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         this.clear(ctx);
         const screenLeft = this.camera!.getScreenLeft();
         const screenRight = this.camera!.getScreenRight();
+        const foregroundFactor = - 1 / 1.4;
+        const backgroundFactor = - 1 / 1.2;
+        const fgIndex = ~~(screenLeft * foregroundFactor % WIDTH);
+        const bgIndex = ~~(screenLeft * backgroundFactor % WIDTH);
+        ctx.drawImage(this.backgroundImage!, bgIndex, 0);
+        ctx.drawImage(this.backgroundImage!, bgIndex + WIDTH, 0);
+        ctx.drawImage(this.foregroundImage!, fgIndex, 0);
+        ctx.drawImage(this.foregroundImage!, fgIndex + WIDTH, 0);
+
         for (const box of this.world!.getBoxes(screenLeft, screenRight)) {
             this.drawBox(ctx, box, '#0000ff');
         }
