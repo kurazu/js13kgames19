@@ -87,16 +87,11 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
 
     private render(ctx: CanvasRenderingContext2D): void {
         this.clear(ctx);
+
         const screenLeft = this.camera!.getScreenLeft();
         const screenRight = this.camera!.getScreenRight();
-        const foregroundFactor = - 1 / 1.4;
-        const backgroundFactor = - 1 / 1.2;
-        const fgIndex = ~~(screenLeft * foregroundFactor % WIDTH);
-        const bgIndex = ~~(screenLeft * backgroundFactor % WIDTH);
-        ctx.drawImage(this.backgroundImage!, bgIndex, 0);
-        ctx.drawImage(this.backgroundImage!, bgIndex + WIDTH, 0);
-        ctx.drawImage(this.foregroundImage!, fgIndex, 0);
-        ctx.drawImage(this.foregroundImage!, fgIndex + WIDTH, 0);
+
+        this.drawBackground(ctx, screenLeft);
 
         for (const box of this.world!.getBoxes(screenLeft, screenRight)) {
             this.drawBox(ctx, box, '#0000ff');
@@ -105,6 +100,17 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
             this.drawShip(ctx, ship);
         }
         this.drawHUD(ctx);
+    }
+
+    private drawBackground(ctx: CanvasRenderingContext2D, screenLeft: number): void {
+        const foregroundFactor = - 1 / 3;
+        const backgroundFactor = - 1 / 12;
+        const fgIndex = ~~(screenLeft * foregroundFactor % WIDTH);
+        const bgIndex = ~~(screenLeft * backgroundFactor % WIDTH);
+        ctx.drawImage(this.backgroundImage!, bgIndex, 0);
+        ctx.drawImage(this.backgroundImage!, bgIndex + WIDTH, 0);
+        ctx.drawImage(this.foregroundImage!, fgIndex, 0);
+        ctx.drawImage(this.foregroundImage!, fgIndex + WIDTH, 0);
     }
 
     private drawMarkers(ctx: CanvasRenderingContext2D, ship: Ship): void {

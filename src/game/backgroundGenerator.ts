@@ -55,9 +55,9 @@ async function generateSine(
 }
 
 export async function generateForeground(): Promise<CanvasImageSource> {
-    return generateSine(4, 100, 200, GREEN, 5, 50, 28);
+    return generateSine(3, 100, 200, GREEN, 5, 50, 28);
 }
 
 export async function generateBackground(): Promise<CanvasImageSource> {
-    return generateSine(3, 50, 400, BLUE, 3, 26, 16);
+    return generateSine(4, 50, 400, BLUE, 3, 26, 16);
 }
