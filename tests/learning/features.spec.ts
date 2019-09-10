@@ -4,6 +4,7 @@ import Vector from '../../src/physics/vector';
 import { SensorsState } from '../../src/physics/collision';
 import { SENSORS_RANGE, MAX_VELOCITY } from '../../src/constants';
 import { Queue } from '../../src/math/queue';
+import { Matrix2D } from '../../src/math/multiply';
 
 interface MatcherResult {
     message: () => string,
@@ -365,16 +366,55 @@ describe('getFeaturesQueueSize', () => {
 });
 
 describe('buildInputMatrix', () => {
+    const nFeatures = 3;
+    const frames: Float32Array[] = [
+        Float32Array.from([1,  2,  3]),
+        Float32Array.from([4,  5,  6]),
+        Float32Array.from([7,  8,  9]),
+        Float32Array.from([10, 11, 12]),
+        Float32Array.from([13, 14, 15]),
+        Float32Array.from([16, 17, 18]),
+        Float32Array.from([19, 20, 21]),
+        Float32Array.from([22, 23, 24]),
+    ];
+
     function getQueue(n: number, e: number): Queue<Float32Array> {
         const q: Queue<Float32Array> = new Queue(getFeaturesQueueSize(n, e));
-        q.push(Float32Array.from([1,  2,  3]));
-        q.push(Float32Array.from([4,  5,  6]));
-        q.push(Float32Array.from([7,  8,  9]));
-        q.push(Float32Array.from([10, 11, 12]));
-        q.push(Float32Array.from([13, 14, 15]));
-        q.push(Float32Array.from([16, 17, 18]));
-        q.push(Float32Array.from([19, 20, 21]));
-        q.push(Float32Array.from([22, 23, 24]));
+        for (const features of frames) {
+            q.push(features);
+        }
         return q;
+    }
+
+    const testData: [number, number, Float32Array][] = [
+        [1, 1, Float32Array.from([...frames[7]])],
+        [1, 2, Float32Array.from([...frames[7]])],
+        [1, 3, Float32Array.from([...frames[7]])],
+        [1, 4, Float32Array.from([...frames[7]])],
+
+        [2, 1, Float32Array.from([...frames[6], ...frames[7]])],
+        [2, 2, Float32Array.from([...frames[5], ...frames[7]])],
+        [2, 3, Float32Array.from([...frames[4], ...frames[7]])],
+        [2, 4, Float32Array.from([...frames[3], ...frames[7]])],
+
+        [3, 1, Float32Array.from([...frames[5], ...frames[6], ...frames[7]])],
+        [3, 2, Float32Array.from([...frames[3], ...frames[5], ...frames[7]])],
+        [3, 3, Float32Array.from([...frames[1], ...frames[4], ...frames[7]])],
+        [3, 4, Float32Array.from([...frames[0], ...frames[3], ...frames[7]])],
+
+        [4, 1, Float32Array.from([...frames[4], ...frames[5], ...frames[6], ...frames[7]])],
+        [4, 2, Float32Array.from([...frames[1], ...frames[3], ...frames[5], ...frames[7]])],
+        [4, 3, Float32Array.from([...frames[0], ...frames[1], ...frames[4], ...frames[7]])],
+        [4, 4, Float32Array.from([...frames[0], ...frames[0], ...frames[3], ...frames[7]])],
+    ];
+
+    for (const [n, e, expectedArray] of testData) {
+        test(`builds inputs correctly for n=${n} e=${e}`, () => {
+            const queue = getQueue(n, e);
+            const actualMatrix = buildInputMatrix(queue, nFeatures, n, e);
+            expect(actualMatrix.columns).toEqual(n * nFeatures);
+            expect(actualMatrix.rows).toEqual(1);
+            expect(actualMatrix.buffer).toEqualFloat32Array(expectedArray);
+        });
     }
 });
