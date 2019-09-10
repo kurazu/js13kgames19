@@ -1,7 +1,7 @@
 import { assert } from '../utils';
 
 export class Queue<T> extends Array<T> {
-    private readonly maxLength: number;
+    public readonly maxLength: number;
 
     public constructor(maxLength: number) {
         super();
@@ -16,11 +16,7 @@ export class Queue<T> extends Array<T> {
         while (this.length + items.length > this.maxLength) {
             this.shift();
         }
-        super.push(...items);
-        while (!this.isFull()) {
-            this.unshift(this[0]);
-        }
-        return this.length;
+        return super.push(...items);
     }
 }
 

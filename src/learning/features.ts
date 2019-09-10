@@ -2,7 +2,7 @@ import { SENSORS_RANGE, MAX_VELOCITY, LEARNING_FRAMES, FEATURES, LEARNING_EVERY_
 import { Action, ACTIONS, Actions } from '../physics/actions';
 import { SensorsState } from '../physics/collision';
 import Vector from '../physics/vector';
-import { assertEqual, assertDoubleRange } from '../utils';
+import { assert, assertEqual, assertDoubleRange } from '../utils';
 import { Matrix2D } from '../math/multiply';
 import { Queue } from '../math/queue';
 
@@ -78,15 +78,23 @@ export function buildInputMatrix(
     learningFrames:number = LEARNING_FRAMES,
     learningEveryNFrames:number = LEARNING_EVERY_N_FRAMES
 ): Matrix2D {
-    assertEqual(queue.isFull(), true);
-    assertEqual(queue.length, getFeaturesQueueSize(learningFrames, learningEveryNFrames));
+    assertEqual(queue.maxLength, getFeaturesQueueSize(learningFrames, learningEveryNFrames));
+    assert(queue.length > 0);
+    while (!queue.isFull()) {
+        queue.unshift(queue[0]);
+    }
     const inputMatrix = new Matrix2D(1, nFeatures * learningFrames);
     let sampleIdx: number = 0;
     for (let frame = 0; frame < learningFrames; frame++) {
-        assertDoubleRange(0, sampleIdx, queue.length);
+        const sampleIdx: number = frame * learningEveryNFrames;
+        try {
+            assertDoubleRange(0, sampleIdx, queue.length);
+        } catch (e) {
+            console.log('sampleIdx', sampleIdx, 'q', queue.length);
+            throw e;
+        }
         const sample: Float32Array = queue[sampleIdx];
         inputMatrix.buffer.set(sample, frame * nFeatures);
-        sampleIdx += learningEveryNFrames;
     }
     return inputMatrix;
 }

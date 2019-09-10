@@ -56,7 +56,7 @@ export function assertEqual(a: any, b: any, msg: string = `${a} !== ${b}`): void
 }
 
 export function assertDoubleRange(lowerRange: any, x: any, upperRange: any, msg: string = `${x} not in [${lowerRange};${upperRange}]`): void {
-    assert(lowerRange <= x < upperRange);
+    assert(lowerRange <= x && x < upperRange);
 }
 
 export function zip(...arrays: Float32Array[]): Float32Array[] {
