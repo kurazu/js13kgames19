@@ -39,7 +39,7 @@ export default class SupervisedLearningScreen extends GameScreen<SupervidedLearn
     }
 
     private createBot(network: FeedForwardNetwork, generation: number): AIShip {
-        return new AIShip(network, generation, 0.005, 30);
+        return new AIShip(network, generation, 0.005, 60);
     }
 
     public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {

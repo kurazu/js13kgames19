@@ -94,17 +94,10 @@ export function dot(A: Matrix2D, B: Matrix2D): Matrix2D {
 }
 
 export function addBias(matrix: Matrix2D, biasVector: Float32Array) {
-    assert(matrix.columns == biasVector.length);
-    const result = new Matrix2D(matrix.rows, matrix.columns);
-    let address = 0;
-
-    for (let column = 0; column < matrix.columns; column++) {
-        for (const biasValue of biasVector) {
-            result.buffer[address] = matrix.buffer[address] + biasValue;
-            address++;
-        }
-    }
-    return result;
+    assert(matrix.columns === biasVector.length);
+    return new Matrix2D(matrix.rows, matrix.columns, matrix.buffer.map(
+        (item, idx) => item + biasVector[idx % matrix.columns]
+    ));
 }
 
 export function relu(matrix: Matrix2D): Matrix2D {
@@ -117,7 +110,7 @@ export function sigmoid(matrix: Matrix2D): Matrix2D {
 
 function softmaxArray(array: Float32Array): Float32Array {
     const exponents = array.map(item => Math.exp(item));
-    const sum = exponents.reduce((acc, item) => acc + item);
+    const sum = exponents.reduce((acc, item) => acc + item, 0);
     return exponents.map(exponent => exponent / sum);
 }
 

@@ -21,6 +21,7 @@ export default class WorkerCommunicator {
 
     private onMessage(event: MessageEvent): void {
         const response: WorkerResponse = event.data;
+        console.log(`Got ${response.type} message from worker`);
         const topic: Topic<[FeedForwardNetwork, number]> = (
             response.type === RequestType.SUPERVISED ? this.supervisedTopic : this.unsupervisedTopic
         );

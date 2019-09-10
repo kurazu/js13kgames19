@@ -10,22 +10,22 @@ const FONT_SIZE_PX = 64;
 
 export default class ComputingScreen extends Screen<void> {
     private network: FeedForwardNetwork | undefined = undefined;
-    private topic: Topic<[FeedForwardNetwork, number]> | undefined = undefined;
 
     public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
-        this.topic = workerCommunicator.supervisedTopic;
+        const topic = workerCommunicator.unsupervisedTopic;
         const listener = ([network, generation]: [FeedForwardNetwork, number]) => {
             console.log(`Obtained first neural network from generation ${generation}`);
-            this.topic!.unsubscribe(listener);
+            topic.unsubscribe(listener);
             this.network = network;
         };
-        this.topic.subscribe(listener);
+        topic.subscribe(listener);
+        workerCommunicator.startUnsupervisedLearning();
     }
 
     public update(ctx: CanvasRenderingContext2D): Screen<any> | undefined {
         this.render(ctx);
         if (this.network) {
-            return new UnsupervisedLearningScreen({ neuralNetwork: this.network, networkUpdatesTopic: this.topic! });
+            return new UnsupervisedLearningScreen({ neuralNetwork: this.network });
         } else {
             return undefined;
         }

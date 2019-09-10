@@ -2,6 +2,17 @@ import NeuralGeneticAlgorithm from './neural_genetic';
 import { FeedForwardNetwork } from '../math/net';
 import { Matrix2D, argmax2D, getMatchingAccuracy } from '../math/multiply';
 
+function getHistogram(input: Uint8Array): Map<number, number> {
+    const map: Map<number, number> = new Map();
+    for (const i of input) {
+        if (!map.has(i)) {
+            map.set(i, 1);
+        } else {
+            map.set(i, map.get(i)! + 1);
+        }
+    }
+    return map;
+}
 
 export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<number> {
     private expectedAccuracy: number;
@@ -28,7 +39,12 @@ export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<n
     private evaluateAccuracy(network: FeedForwardNetwork): number {
         const outputs: Matrix2D = network.calculate(this.inputs);
         const predictions = argmax2D(outputs);
-        return getMatchingAccuracy(predictions, this.labels);
+
+        const accuracy = getMatchingAccuracy(predictions, this.labels);
+
+        console.log('PREDITIONS', getHistogram(predictions));
+        console.log('accuracy', accuracy);
+        return accuracy;
     }
 
     protected evaluateFitness(population: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, number][] {

@@ -11,8 +11,8 @@ export function getUnsupervisedOptimizer(): GameNetworkGeneticOptimizer {
     const eliteSize = 3;
     const asexualReproductionSize = 3;
     const mutationFactor = 0.05;
-    const minFrames = 60 * 5;
-    const maxFrames = 60 * 5;
+    const minFrames = 60 * 10;
+    const maxFrames = 60 * 60;
     const consecutiveWinsForEarlyStopping = 5;
     const optimizer = new GameNetworkGeneticOptimizer(
         maxGenerations,

@@ -7,7 +7,8 @@ import RecordingScreen from './screens/recording_screen';
 function onLoad(): void {
     const canvas = document.querySelector<HTMLCanvasElement>('canvas')!;
     const recordingScreen = new RecordingScreen({});
-    const game = new Game(canvas, recordingScreen);
+    const computingScreen = new ComputingScreen();
+    const game = new Game(canvas, computingScreen);
     game.start().catch(err => { console.error('Failed to start the game', err); });
 }
 

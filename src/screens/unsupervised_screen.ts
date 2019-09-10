@@ -9,7 +9,6 @@ import WorkerCommunicator from '../worker_communication';
 
 interface UnsupervidedLearningScreenOptions {
     neuralNetwork: FeedForwardNetwork,
-    networkUpdatesTopic: Topic<[FeedForwardNetwork, number]>
 }
 
 export default class UnsupervisedLearningScreen extends GameScreen<UnsupervidedLearningScreenOptions, PlayerShip> {
@@ -19,7 +18,6 @@ export default class UnsupervisedLearningScreen extends GameScreen<UnsupervidedL
     public constructor(options: UnsupervidedLearningScreenOptions) {
         super(options);
         this.networkUpdateListener = this.onNetworkUpdated.bind(this);
-        this.options.networkUpdatesTopic.subscribe(this.networkUpdateListener);
     }
 
     protected createPlayer(keyboard: Keyboard): PlayerShip {
@@ -27,21 +25,22 @@ export default class UnsupervisedLearningScreen extends GameScreen<UnsupervidedL
     }
 
     public onNetworkUpdated([network, generation]: [FeedForwardNetwork, number]): void {
-        console.log(`GameScreen obtained updated neural network from generation ${generation + 1}`);
+        console.log(`UnsupervisedScreen obtained updated neural network from generation ${generation + 1}`);
         this.bot!.neuralNetwork = network;
+        this.bot!.generation = generation + 1;
     }
 
     public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
         await super.load(keyboard, workerCommunicator);
-        this.bot = new AIShip(this.options.neuralNetwork, 0);
+        this.bot = new AIShip(this.options.neuralNetwork, 1, 0.005, 60);
         this.world!.addShip(this.bot);
+        workerCommunicator.unsupervisedTopic.subscribe(this.networkUpdateListener);
     }
 
-    protected getNextScreen(): Screen<any> {
-        this.options.networkUpdatesTopic.unsubscribe(this.networkUpdateListener);
+    protected getNextScreen(workerCommunicator: WorkerCommunicator): Screen<any> {
+        workerCommunicator.unsupervisedTopic.unsubscribe(this.networkUpdateListener);
         return new UnsupervisedLearningScreen({
             neuralNetwork: this.bot!.neuralNetwork,
-            networkUpdatesTopic: this.options.networkUpdatesTopic
         });
     }
 }
