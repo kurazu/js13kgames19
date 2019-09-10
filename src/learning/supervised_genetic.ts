@@ -40,11 +40,7 @@ export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<n
         const outputs: Matrix2D = network.calculate(this.inputs);
         const predictions = argmax2D(outputs);
 
-        const accuracy = getMatchingAccuracy(predictions, this.labels);
-
-        console.log('PREDITIONS', getHistogram(predictions));
-        console.log('accuracy', accuracy);
-        return accuracy;
+        return getMatchingAccuracy(predictions, this.labels);
     }
 
     protected evaluateFitness(population: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, number][] {

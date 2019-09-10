@@ -24,7 +24,7 @@ export const DEFAULT_PLAYER_POSITION = new Vector(BLOCK_SIZE * 4, BLOCK_SIZE * R
 export const FEATURES: number = SENSORS_COUNT + 2;
 export const LEARNING_FRAMES: number = 6;
 export const LEARNING_EVERY_N_FRAMES: number = 40;
-export const DENSE_LAYERS: number[] = [64];
+export const DENSE_LAYERS: number[] = [128];
 
 export enum Tiles {
     MIDDLE_WALL = 0,
