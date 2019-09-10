@@ -29,12 +29,12 @@ export function getUnsupervisedOptimizer(): GameNetworkGeneticOptimizer {
 }
 
 export function getSupervisedOptimizer(inputs: Float32Array, labels: Uint8Array): SupervisedGeneticOptimizer {
-    const maxGenerations = 5;
+    const maxGenerations = 10;
     const populationSize = 100;
     const matingPoolSize = 10;
     const eliteSize = 3;
     const asexualReproductionSize = 3;
-    const mutationFactor = 0.1;
+    const mutationFactor = 0.05;
     const expectedAccuracy = 0.9;
     const inputMatrix = new Matrix2D(labels.length, FEATURES * LEARNING_FRAMES, inputs);
     const optimizer = new SupervisedGeneticOptimizer(

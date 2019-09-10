@@ -12,13 +12,28 @@ export interface RecordingScreenOptions {
 
 }
 
+function store(inputMatrix: Matrix2D, labels: Uint8Array) {
+    const blob = new Blob([inputMatrix.buffer.buffer, labels.buffer], {type: 'application/octet-stream'});
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.innerText = 'DOWNLOAD';
+    document.body.appendChild(a);
+
+    a.href = url;
+    a.download = `samples.${+new Date}.${labels.length}.bin`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
 export default class RecordingScreen extends GameScreen<RecordingScreenOptions, RecordingShip> {
-    protected levelLength: number = ~~(DEFAULT_LEVEL_LENGTH * 10);
+    protected levelLength: number = ~~(DEFAULT_LEVEL_LENGTH * 1);
 
     protected getNextScreen(workerCommunicator: WorkerCommunicator): Screen<any> {
         const records = this.player!.records;
         console.log(`Gathered ${records.length} records`);
         const [inputMatrix, labels]: [Matrix2D, Uint8Array] = getStackedFeatures(records);
+        store(inputMatrix, labels);
         workerCommunicator.startSupervisedLearning(inputMatrix, labels);
         return new SupervisedLearningScreen({
             neuralNetwork: null,

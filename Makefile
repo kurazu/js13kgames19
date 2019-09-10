@@ -26,6 +26,9 @@ min: compile
 run: compile
 	$(NODE_PATH)/node --experimental-modules build/sim.js
 
+sup: compile
+	$(NODE_PATH)/node --experimental-modules build/sup.js
+
 debug: compile
 	$(NODE_PATH)/node --inspect-brk --experimental-modules build/sim.js
 
