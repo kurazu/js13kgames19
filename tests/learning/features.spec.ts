@@ -1,8 +1,9 @@
-import { getLabel, getStackedFeatures, getStackedFeaturesRowCount } from '../../src/learning/features';
+import { getLabel, getStackedFeatures, getStackedFeaturesRowCount, getFeaturesQueueSize, buildInputMatrix } from '../../src/learning/features';
 import { Action, Actions } from '../../src/physics/actions';
 import Vector from '../../src/physics/vector';
 import { SensorsState } from '../../src/physics/collision';
 import { SENSORS_RANGE, MAX_VELOCITY } from '../../src/constants';
+import { Queue } from '../../src/math/queue';
 
 interface MatcherResult {
     message: () => string,
@@ -332,3 +333,48 @@ describe('getStackedFeaturesRowCount', () => {
         });
     }
 })
+
+
+describe('getFeaturesQueueSize', () => {
+    const testData: [number, number, number][] = [
+        [1, 1, 1],
+        [1, 2, 1],
+        [1, 3, 1],
+        [1, 4, 1],
+
+        [2, 1, 2],
+        [2, 2, 3],
+        [2, 3, 4],
+        [2, 4, 5],
+
+        [3, 1, 3],
+        [3, 2, 5],
+        [3, 3, 7],
+        [3, 4, 9],
+
+        [4, 1, 4],
+        [4, 2, 7],
+        [4, 3, 10],
+        [4, 4, 13]
+    ];
+    for (const [n, e, expectedSize] of testData) {
+        test(`computes size correctly for n=${n} e=${e}`, () => {
+            expect(getFeaturesQueueSize(n, e)).toEqual(expectedSize);
+        });
+    }
+});
+
+describe('buildInputMatrix', () => {
+    function getQueue(n: number, e: number): Queue<Float32Array> {
+        const q: Queue<Float32Array> = new Queue(getFeaturesQueueSize(n, e));
+        q.push(Float32Array.from([1,  2,  3]));
+        q.push(Float32Array.from([4,  5,  6]));
+        q.push(Float32Array.from([7,  8,  9]));
+        q.push(Float32Array.from([10, 11, 12]));
+        q.push(Float32Array.from([13, 14, 15]));
+        q.push(Float32Array.from([16, 17, 18]));
+        q.push(Float32Array.from([19, 20, 21]));
+        q.push(Float32Array.from([22, 23, 24]));
+        return q;
+    }
+});

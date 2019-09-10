@@ -4,6 +4,7 @@ import { SensorsState } from '../physics/collision';
 import Vector from '../physics/vector';
 import { assertEqual, assertDoubleRange } from '../utils';
 import { Matrix2D } from '../math/multiply';
+import { Queue } from '../math/queue';
 
 const MAX_VALUE: number = SENSORS_RANGE;
 
@@ -62,4 +63,30 @@ export function getStackedFeatures(
         labels[row] = label;
     }
     return [inputs, labels];
+}
+
+export function getFeaturesQueueSize(
+    learningFrames:number = LEARNING_FRAMES,
+    learningEveryNFrames:number = LEARNING_EVERY_N_FRAMES
+): number {
+    return learningFrames + (learningFrames - 1) * (learningEveryNFrames - 1);
+}
+
+export function buildInputMatrix(
+    queue: Queue<Float32Array>,
+    nFeatures: number = FEATURES,
+    learningFrames:number = LEARNING_FRAMES,
+    learningEveryNFrames:number = LEARNING_EVERY_N_FRAMES
+): Matrix2D {
+    assertEqual(queue.isFull(), true);
+    assertEqual(queue.length, getFeaturesQueueSize(learningFrames, learningEveryNFrames));
+    const inputMatrix = new Matrix2D(1, nFeatures * learningFrames);
+    let sampleIdx: number = 0;
+    for (let frame = 0; frame < learningFrames; frame++) {
+        assertDoubleRange(0, sampleIdx, queue.length);
+        const sample: Float32Array = queue[sampleIdx];
+        inputMatrix.buffer.set(sample, frame * nFeatures);
+        sampleIdx += learningEveryNFrames;
+    }
+    return inputMatrix;
 }
