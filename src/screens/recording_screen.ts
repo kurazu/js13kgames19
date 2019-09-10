@@ -27,7 +27,7 @@ function store(inputMatrix: Matrix2D, labels: Uint8Array) {
 }
 
 export default class RecordingScreen extends GameScreen<RecordingScreenOptions, RecordingShip> {
-    protected levelLength: number = ~~(DEFAULT_LEVEL_LENGTH * 1);
+    protected levelLength: number = ~~(DEFAULT_LEVEL_LENGTH * 5);
 
     protected getNextScreen(workerCommunicator: WorkerCommunicator): Screen<any> {
         const records = this.player!.records;

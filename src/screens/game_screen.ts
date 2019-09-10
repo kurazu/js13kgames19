@@ -7,10 +7,10 @@ import Ship from '../ships/ship';
 import PlayerShip from '../ships/player_ship';
 import { loadImage } from '../game/resources';
 import Screen from '../screens/screen';
+import BackgroundScreen from '../screens/background_screen';
 import Keyboard from '../game/keyboard';
 import Topic from '../observable';
 import WorkerCommunicator from '../worker_communication';
-import { generateForeground, generateBackground } from '../game/backgroundGenerator';
 
 const PLAYER_X_AT = 1 / 3;
 
@@ -48,21 +48,18 @@ class Camera {
     }
 }
 
-export default abstract class GameScreen<Options, PlayerType extends PlayerShip> extends Screen<Options> {
+export default abstract class GameScreen<Options, PlayerType extends PlayerShip> extends BackgroundScreen<Options> {
     protected shipImage: HTMLImageElement | undefined;
     protected tilesImage: HTMLImageElement | undefined;
-    protected foregroundImage: CanvasImageSource | undefined;
-    protected backgroundImage: CanvasImageSource | undefined;
     protected camera: Camera | undefined;
     protected world: World | undefined;
     protected player: PlayerType | undefined;
     protected levelLength: number | undefined = undefined;
 
     public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
+        await super.load(keyboard, workerCommunicator);
         this.shipImage = await loadImage('img/ship.png');
         this.tilesImage = await loadImage('img/tiles.png');
-        this.foregroundImage = await generateForeground();
-        this.backgroundImage = await generateBackground();
         this.world = new World(this.levelLength);
 
         this.player = this.createPlayer(keyboard);
@@ -100,17 +97,6 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
             this.drawShip(ctx, ship);
         }
         this.drawHUD(ctx);
-    }
-
-    private drawBackground(ctx: CanvasRenderingContext2D, screenLeft: number): void {
-        const foregroundFactor = - 1 / 3;
-        const backgroundFactor = - 1 / 12;
-        const fgIndex = ~~(screenLeft * foregroundFactor % WIDTH);
-        const bgIndex = ~~(screenLeft * backgroundFactor % WIDTH);
-        ctx.drawImage(this.backgroundImage!, bgIndex, 0);
-        ctx.drawImage(this.backgroundImage!, bgIndex + WIDTH, 0);
-        ctx.drawImage(this.foregroundImage!, fgIndex, 0);
-        ctx.drawImage(this.foregroundImage!, fgIndex + WIDTH, 0);
     }
 
     private drawMarkers(ctx: CanvasRenderingContext2D, ship: Ship): void {
@@ -156,26 +142,6 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
             'center',
             ship.isThinking ? undefined : 'grey',
         );
-    }
-
-    private drawText(
-        ctx: CanvasRenderingContext2D,
-        text: string, fontSize: number,
-        x: number, y: number,
-        textAlign: CanvasTextAlign = 'left',
-        textColor: string = 'white', bgColor: string = 'black'
-    ): void{
-        ctx.font = `${fontSize}px monospace`;
-        ctx.textAlign = textAlign;
-        ctx.fillStyle = bgColor;
-        const range = [-1, 0, 1];
-        for (const xDiff of range) {
-            for (const yDiff of range) {
-                ctx.fillText(text, x - xDiff, y - yDiff);
-            }
-        }
-        ctx.fillStyle = textColor;
-        ctx.fillText(text, x, y);
     }
 
     private drawHUD(ctx: CanvasRenderingContext2D): void {

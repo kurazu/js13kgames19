@@ -38,7 +38,7 @@ export default class Game {
     }
 
     private loop(): void {
-        const nextScreen: Screen<any> | undefined = this.screen.update(this.ctx, this.workerCommunicator);
+        const nextScreen: Screen<any> | undefined = this.screen.loop(this.ctx, this.workerCommunicator, this.keyboard);
         if (nextScreen) {
             this.loadScreen(nextScreen);
         } else {

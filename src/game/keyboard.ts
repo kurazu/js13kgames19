@@ -24,4 +24,8 @@ export default class Keyboard {
     public isPressed(key: string): boolean {
         return this.states[key] === true;
     }
+
+    public isAnyPressed(): boolean {
+        return Object.keys(KEYS).some(key => this.isPressed(key));
+    }
 }
