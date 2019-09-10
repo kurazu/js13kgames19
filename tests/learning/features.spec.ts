@@ -4,6 +4,46 @@ import Vector from '../../src/physics/vector';
 import { SensorsState } from '../../src/physics/collision';
 import { SENSORS_RANGE, MAX_VELOCITY } from '../../src/constants';
 
+interface MatcherResult {
+    message: () => string,
+    pass: boolean
+}
+
+expect.extend({
+    toEqualFloat32Array(received: any, expected: Float32Array): MatcherResult {
+        if (!(received instanceof Float32Array)) {
+            return {
+                message: () => `expected Float32Array, but got ${received.constructor}`,
+                pass: false
+            };
+        } else if (received.length !== expected.length) {
+            return {
+                message: () => `expected length ${expected.length}, but got ${received.length}`,
+                pass: false
+            }
+        }
+        for (const [idx, actual] of received.entries()) {
+            const exp = expected[idx];
+            if (Math.abs(exp - actual) > 1e-10) {
+                return {
+                    message: () => `expected element at ${idx} to be close to ${exp} but got ${actual}`,
+                    pass: false
+                }
+            }
+        }
+
+        return {pass: true, message: () => ''};
+    }
+});
+
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toEqualFloat32Array(expected: Float32Array): R;
+    }
+  }
+}
+
 describe('getLabel', () => {
     const testData: [boolean, boolean, boolean, Actions][] = [
         [false, false, false, Actions.DRIFT],
@@ -61,7 +101,7 @@ describe('getStackedFeatures', () => {
             const [inputs, labels] = getStackedFeatures(samples, nFeatures, 1, e);
             expect(inputs.columns).toEqual(nFeatures);
             expect(inputs.rows).toEqual(8);
-            expect(inputs.buffer).toEqual(Float32Array.from([
+            expect(inputs.buffer).toEqualFloat32Array(Float32Array.from([
                 ...expectedFeatures[0],
                 ...expectedFeatures[1],
                 ...expectedFeatures[2],
@@ -89,7 +129,7 @@ describe('getStackedFeatures', () => {
         const [inputs, labels] = getStackedFeatures(samples, nFeatures, 2, 2);
         expect(inputs.columns).toEqual(nFeatures * 2);
         expect(inputs.rows).toEqual(6);
-        expect(inputs.buffer).toEqual(Float32Array.from([
+        expect(inputs.buffer).toEqualFloat32Array(Float32Array.from([
             ...expectedFeatures[0], ...expectedFeatures[2],
             ...expectedFeatures[1], ...expectedFeatures[3],
             ...expectedFeatures[2], ...expectedFeatures[4],
@@ -111,7 +151,7 @@ describe('getStackedFeatures', () => {
         const [inputs, labels] = getStackedFeatures(samples, nFeatures, 3, 2);
         expect(inputs.columns).toEqual(nFeatures * 3);
         expect(inputs.rows).toEqual(4);
-        expect(inputs.buffer).toEqual(Float32Array.from([
+        expect(inputs.buffer).toEqualFloat32Array(Float32Array.from([
             ...expectedFeatures[0], ...expectedFeatures[2], ...expectedFeatures[4],
             ...expectedFeatures[1], ...expectedFeatures[3], ...expectedFeatures[5],
             ...expectedFeatures[2], ...expectedFeatures[4], ...expectedFeatures[6],
@@ -129,7 +169,7 @@ describe('getStackedFeatures', () => {
         const [inputs, labels] = getStackedFeatures(samples, nFeatures, 4, 2);
         expect(inputs.columns).toEqual(nFeatures * 4);
         expect(inputs.rows).toEqual(2);
-        expect(inputs.buffer).toEqual(Float32Array.from([
+        expect(inputs.buffer).toEqualFloat32Array(Float32Array.from([
             ...expectedFeatures[0], ...expectedFeatures[2], ...expectedFeatures[4], ...expectedFeatures[6],
             ...expectedFeatures[1], ...expectedFeatures[3], ...expectedFeatures[5], ...expectedFeatures[7],
         ]));
@@ -143,7 +183,7 @@ describe('getStackedFeatures', () => {
         const [inputs, labels] = getStackedFeatures(samples, nFeatures, 4, 3);
         expect(inputs.columns).toEqual(nFeatures * 4);
         expect(inputs.rows).toEqual(0);
-        expect(inputs.buffer).toEqual(Float32Array.from([]));
+        expect(inputs.buffer).toEqualFloat32Array(Float32Array.from([]));
         expect(labels).toEqual(Uint8Array.from([]));
     });
 
@@ -151,7 +191,7 @@ describe('getStackedFeatures', () => {
         const [inputs, labels] = getStackedFeatures(samples, nFeatures, 2, 3);
         expect(inputs.columns).toEqual(nFeatures * 2);
         expect(inputs.rows).toEqual(5);
-        expect(inputs.buffer).toEqual(Float32Array.from([
+        expect(inputs.buffer).toEqualFloat32Array(Float32Array.from([
             ...expectedFeatures[0], ...expectedFeatures[3],
             ...expectedFeatures[1], ...expectedFeatures[4],
             ...expectedFeatures[2], ...expectedFeatures[5],
@@ -171,7 +211,7 @@ describe('getStackedFeatures', () => {
         const [inputs, labels] = getStackedFeatures(samples, nFeatures, 2, 4);
         expect(inputs.columns).toEqual(nFeatures * 2);
         expect(inputs.rows).toEqual(4);
-        expect(inputs.buffer).toEqual(Float32Array.from([
+        expect(inputs.buffer).toEqualFloat32Array(Float32Array.from([
             ...expectedFeatures[0], ...expectedFeatures[4],
             ...expectedFeatures[1], ...expectedFeatures[5],
             ...expectedFeatures[2], ...expectedFeatures[6],
@@ -189,7 +229,7 @@ describe('getStackedFeatures', () => {
         const [inputs, labels] = getStackedFeatures(samples, nFeatures, 3, 3);
         expect(inputs.columns).toEqual(nFeatures * 3);
         expect(inputs.rows).toEqual(2);
-        expect(inputs.buffer).toEqual(Float32Array.from([
+        expect(inputs.buffer).toEqualFloat32Array(Float32Array.from([
             ...expectedFeatures[0], ...expectedFeatures[3], ...expectedFeatures[6],
             ...expectedFeatures[1], ...expectedFeatures[4], ...expectedFeatures[7],
         ]));
@@ -203,7 +243,7 @@ describe('getStackedFeatures', () => {
         const [inputs, labels] = getStackedFeatures(samples, nFeatures, 2, 1);
         expect(inputs.columns).toEqual(nFeatures * 2);
         expect(inputs.rows).toEqual(7);
-        expect(inputs.buffer).toEqual(Float32Array.from([
+        expect(inputs.buffer).toEqualFloat32Array(Float32Array.from([
             ...expectedFeatures[0], ...expectedFeatures[1],
             ...expectedFeatures[1], ...expectedFeatures[2],
             ...expectedFeatures[2], ...expectedFeatures[3],
@@ -227,7 +267,7 @@ describe('getStackedFeatures', () => {
         const [inputs, labels] = getStackedFeatures(samples, nFeatures, 3, 1);
         expect(inputs.columns).toEqual(nFeatures * 3);
         expect(inputs.rows).toEqual(6);
-        expect(inputs.buffer).toEqual(Float32Array.from([
+        expect(inputs.buffer).toEqualFloat32Array(Float32Array.from([
             ...expectedFeatures[0], ...expectedFeatures[1], ...expectedFeatures[2],
             ...expectedFeatures[1], ...expectedFeatures[2], ...expectedFeatures[3],
             ...expectedFeatures[2], ...expectedFeatures[3], ...expectedFeatures[4],
@@ -249,7 +289,7 @@ describe('getStackedFeatures', () => {
         const [inputs, labels] = getStackedFeatures(samples, nFeatures, 4, 1);
         expect(inputs.columns).toEqual(nFeatures * 4);
         expect(inputs.rows).toEqual(5);
-        expect(inputs.buffer).toEqual(Float32Array.from([
+        expect(inputs.buffer).toEqualFloat32Array(Float32Array.from([
             ...expectedFeatures[0], ...expectedFeatures[1], ...expectedFeatures[2], ...expectedFeatures[3],
             ...expectedFeatures[1], ...expectedFeatures[2], ...expectedFeatures[3], ...expectedFeatures[4],
             ...expectedFeatures[2], ...expectedFeatures[3], ...expectedFeatures[4], ...expectedFeatures[5],

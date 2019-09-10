@@ -5,7 +5,7 @@ import Vector from '../physics/vector';
 import { assertEqual, assertDoubleRange } from '../utils';
 import { Matrix2D } from '../math/multiply';
 
-const MAX_VALUE: number = SENSORS_RANGE + 1;
+const MAX_VALUE: number = SENSORS_RANGE;
 
 export function getFeatures(velocity: Vector, sensorsState: SensorsState, nFeatures: number = FEATURES): Float32Array {
     const result = new Float32Array(nFeatures);
@@ -44,19 +44,21 @@ export function getStackedFeatures(
     learningFrames: number = LEARNING_FRAMES,
     learningEveryNFrames: number = LEARNING_EVERY_N_FRAMES
 ): [Matrix2D, Uint8Array] {
+    const featureSamples: [Float32Array, Actions][] = samples.map(
+        ([sensors, velocity, action]: [SensorsState, Vector, Action]) => [getFeatures(velocity, sensors, nFeatures), getLabel(action)]
+    );
     const rows = getStackedFeaturesRowCount(samples.length, learningFrames, learningEveryNFrames);
     const inputs: Matrix2D = new Matrix2D(rows, learningFrames * nFeatures);
     const labels: Uint8Array = new Uint8Array(rows);
     for (let row = 0; row < rows; row++) {
-        const [,, action]: [SensorsState, Vector, Action] = samples[samples.length - 1 - row];
         for (let frame = 0; frame < learningFrames; frame++) {
-            const sampleIdx = samples.length - 1 - row - (learningFrames - 1 - frame) * learningEveryNFrames;
+            const sampleIdx = row + frame * learningEveryNFrames;
             assertDoubleRange(0, sampleIdx, samples.length);
-            const [sensors, velocity,]: [SensorsState, Vector, Action] = samples[sampleIdx];
-            const features: Float32Array = getFeatures(velocity, sensors, nFeatures);
+            const [features, ]: [Float32Array, Actions] = featureSamples[sampleIdx];
             inputs.buffer.set(features, row * inputs.columns + nFeatures * frame);
         }
-        const label: number = getLabel(action);
+
+        const [, label]: [Float32Array, Actions] = featureSamples[row + (learningFrames - 1) * learningEveryNFrames];
         labels[row] = label;
     }
     return [inputs, labels];
