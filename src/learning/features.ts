@@ -32,13 +32,19 @@ export function getLabel(action: Action): Actions {
     }
 }
 
+export function getStackedFeaturesRowCount(
+    samplesCount: number, learningFrames: number, learningEveryNFrames: number
+): number {
+    return samplesCount - (learningFrames - 1) * learningEveryNFrames;
+}
+
 export function getStackedFeatures(
     samples: [SensorsState, Vector, Action][],
     nFeatures: number = FEATURES,
     learningFrames: number = LEARNING_FRAMES,
     learningEveryNFrames: number = LEARNING_EVERY_N_FRAMES
 ): [Matrix2D, Uint8Array] {
-    const rows = samples.length - 1 - (learningFrames - 1) * learningEveryNFrames;
+    const rows = getStackedFeaturesRowCount(samples.length, learningFrames, learningEveryNFrames);
     const inputs: Matrix2D = new Matrix2D(rows, learningFrames * nFeatures);
     const labels: Uint8Array = new Uint8Array(rows);
     for (let row = 0; row < rows; row++) {

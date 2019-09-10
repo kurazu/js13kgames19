@@ -1,4 +1,4 @@
-import { getLabel, getStackedFeatures } from '../../src/learning/features';
+import { getLabel, getStackedFeatures, getStackedFeaturesRowCount } from '../../src/learning/features';
 import { Action, Actions } from '../../src/physics/actions';
 import Vector from '../../src/physics/vector';
 import { SensorsState } from '../../src/physics/collision';
@@ -44,30 +44,251 @@ describe('getStackedFeatures', () => {
         [4 / SENSORS_RANGE,  SENSORS_RANGE / SENSORS_RANGE, 6 / SENSORS_RANGE,             0.7 / MAX_VELOCITY, 0.75 / MAX_VELOCITY],
         [7 / SENSORS_RANGE,  SENSORS_RANGE / SENSORS_RANGE, 9 / SENSORS_RANGE,             0.8 / MAX_VELOCITY, 0.85 / MAX_VELOCITY],
     ];
-    test('stacks features correctly', () => {
-        const [inputs, labels] = getStackedFeatures(samples, 3 + 2, 1, 2);
-        expect(inputs.rows).toEqual(8);
-        expect(inputs.columns).toEqual(3 + 2);
-        expect(inputs.buffer).toEqual(Float32Array.from([
-            ...expectedFeatures[0],
-            ...expectedFeatures[1],
-            ...expectedFeatures[2],
-            ...expectedFeatures[3],
-            ...expectedFeatures[4],
-            ...expectedFeatures[5],
-            ...expectedFeatures[6],
-            ...expectedFeatures[7]
+    const expectedActions: Actions[] = [
+        Actions.DRIFT,
+        Actions.UP,
+        Actions.LEFT,
+        Actions.UP_AND_LEFT,
+        Actions.RIGHT,
+        Actions.UP,
+        Actions.DRIFT,
+        Actions.UP_AND_RIGHT
+    ];
+    const nFeatures = 3 + 2;
 
+    for (const e of [1, 2, 3, 4, 5]) {
+        test(`stacks features correctly for n=1 e=${e}`, () => {
+            const [inputs, labels] = getStackedFeatures(samples, nFeatures, 1, e);
+            expect(inputs.columns).toEqual(nFeatures);
+            expect(inputs.rows).toEqual(8);
+            expect(inputs.buffer).toEqual(Float32Array.from([
+                ...expectedFeatures[0],
+                ...expectedFeatures[1],
+                ...expectedFeatures[2],
+                ...expectedFeatures[3],
+                ...expectedFeatures[4],
+                ...expectedFeatures[5],
+                ...expectedFeatures[6],
+                ...expectedFeatures[7]
+
+            ]));
+            expect(labels).toEqual(Uint8Array.from([
+                expectedActions[0],
+                expectedActions[1],
+                expectedActions[2],
+                expectedActions[3],
+                expectedActions[4],
+                expectedActions[5],
+                expectedActions[6],
+                expectedActions[7]
+            ]));
+        });
+    }
+
+    test('stacks features correctly for n=2 e=2', () => {
+        const [inputs, labels] = getStackedFeatures(samples, nFeatures, 2, 2);
+        expect(inputs.columns).toEqual(nFeatures * 2);
+        expect(inputs.rows).toEqual(6);
+        expect(inputs.buffer).toEqual(Float32Array.from([
+            ...expectedFeatures[0], ...expectedFeatures[2],
+            ...expectedFeatures[1], ...expectedFeatures[3],
+            ...expectedFeatures[2], ...expectedFeatures[4],
+            ...expectedFeatures[3], ...expectedFeatures[5],
+            ...expectedFeatures[4], ...expectedFeatures[6],
+            ...expectedFeatures[5], ...expectedFeatures[7]
         ]));
         expect(labels).toEqual(Uint8Array.from([
-            Actions.DRIFT,
-            Actions.UP,
-            Actions.LEFT,
-            Actions.UP_AND_LEFT,
-            Actions.RIGHT,
-            Actions.UP,
-            Actions.DRIFT,
-            Actions.UP_AND_RIGHT
+            expectedActions[2],
+            expectedActions[3],
+            expectedActions[4],
+            expectedActions[5],
+            expectedActions[6],
+            expectedActions[7]
+        ]));
+    });
+
+    test('stacks features correctly for n=3 e=2', () => {
+        const [inputs, labels] = getStackedFeatures(samples, nFeatures, 3, 2);
+        expect(inputs.columns).toEqual(nFeatures * 3);
+        expect(inputs.rows).toEqual(4);
+        expect(inputs.buffer).toEqual(Float32Array.from([
+            ...expectedFeatures[0], ...expectedFeatures[2], ...expectedFeatures[4],
+            ...expectedFeatures[1], ...expectedFeatures[3], ...expectedFeatures[5],
+            ...expectedFeatures[2], ...expectedFeatures[4], ...expectedFeatures[6],
+            ...expectedFeatures[3], ...expectedFeatures[5], ...expectedFeatures[7],
+        ]));
+        expect(labels).toEqual(Uint8Array.from([
+            expectedActions[4],
+            expectedActions[5],
+            expectedActions[6],
+            expectedActions[7]
+        ]));
+    });
+
+    test('stacks features correctly for n=4 e=2', () => {
+        const [inputs, labels] = getStackedFeatures(samples, nFeatures, 4, 2);
+        expect(inputs.columns).toEqual(nFeatures * 4);
+        expect(inputs.rows).toEqual(2);
+        expect(inputs.buffer).toEqual(Float32Array.from([
+            ...expectedFeatures[0], ...expectedFeatures[2], ...expectedFeatures[4], ...expectedFeatures[6],
+            ...expectedFeatures[1], ...expectedFeatures[3], ...expectedFeatures[5], ...expectedFeatures[7],
+        ]));
+        expect(labels).toEqual(Uint8Array.from([
+            expectedActions[6],
+            expectedActions[7]
+        ]));
+    });
+
+    test('stacks features correctly for n=4 e=3', () => {
+        const [inputs, labels] = getStackedFeatures(samples, nFeatures, 4, 3);
+        expect(inputs.columns).toEqual(nFeatures * 4);
+        expect(inputs.rows).toEqual(0);
+        expect(inputs.buffer).toEqual(Float32Array.from([]));
+        expect(labels).toEqual(Uint8Array.from([]));
+    });
+
+    test('stacks features correctly for n=2, e=3', () => {
+        const [inputs, labels] = getStackedFeatures(samples, nFeatures, 2, 3);
+        expect(inputs.columns).toEqual(nFeatures * 2);
+        expect(inputs.rows).toEqual(5);
+        expect(inputs.buffer).toEqual(Float32Array.from([
+            ...expectedFeatures[0], ...expectedFeatures[3],
+            ...expectedFeatures[1], ...expectedFeatures[4],
+            ...expectedFeatures[2], ...expectedFeatures[5],
+            ...expectedFeatures[3], ...expectedFeatures[6],
+            ...expectedFeatures[4], ...expectedFeatures[7],
+        ]));
+        expect(labels).toEqual(Uint8Array.from([
+            expectedActions[3],
+            expectedActions[4],
+            expectedActions[5],
+            expectedActions[6],
+            expectedActions[7]
+        ]));
+    });
+
+    test('stacks features correctly for n=2, e=4', () => {
+        const [inputs, labels] = getStackedFeatures(samples, nFeatures, 2, 4);
+        expect(inputs.columns).toEqual(nFeatures * 2);
+        expect(inputs.rows).toEqual(4);
+        expect(inputs.buffer).toEqual(Float32Array.from([
+            ...expectedFeatures[0], ...expectedFeatures[4],
+            ...expectedFeatures[1], ...expectedFeatures[5],
+            ...expectedFeatures[2], ...expectedFeatures[6],
+            ...expectedFeatures[3], ...expectedFeatures[7],
+        ]));
+        expect(labels).toEqual(Uint8Array.from([
+            expectedActions[4],
+            expectedActions[5],
+            expectedActions[6],
+            expectedActions[7]
+        ]));
+    });
+
+    test('stacks features correctly for n=3, e=3', () => {
+        const [inputs, labels] = getStackedFeatures(samples, nFeatures, 3, 3);
+        expect(inputs.columns).toEqual(nFeatures * 3);
+        expect(inputs.rows).toEqual(2);
+        expect(inputs.buffer).toEqual(Float32Array.from([
+            ...expectedFeatures[0], ...expectedFeatures[3], ...expectedFeatures[6],
+            ...expectedFeatures[1], ...expectedFeatures[4], ...expectedFeatures[7],
+        ]));
+        expect(labels).toEqual(Uint8Array.from([
+            expectedActions[6],
+            expectedActions[7]
+        ]));
+    });
+
+    test('stacks features correctly for n=2, e=1', () => {
+        const [inputs, labels] = getStackedFeatures(samples, nFeatures, 2, 1);
+        expect(inputs.columns).toEqual(nFeatures * 2);
+        expect(inputs.rows).toEqual(7);
+        expect(inputs.buffer).toEqual(Float32Array.from([
+            ...expectedFeatures[0], ...expectedFeatures[1],
+            ...expectedFeatures[1], ...expectedFeatures[2],
+            ...expectedFeatures[2], ...expectedFeatures[3],
+            ...expectedFeatures[3], ...expectedFeatures[4],
+            ...expectedFeatures[4], ...expectedFeatures[5],
+            ...expectedFeatures[5], ...expectedFeatures[6],
+            ...expectedFeatures[6], ...expectedFeatures[7],
+        ]));
+        expect(labels).toEqual(Uint8Array.from([
+            expectedActions[1],
+            expectedActions[2],
+            expectedActions[3],
+            expectedActions[4],
+            expectedActions[5],
+            expectedActions[6],
+            expectedActions[7]
+        ]));
+    });
+
+    test('stacks features correctly for n=3, e=1', () => {
+        const [inputs, labels] = getStackedFeatures(samples, nFeatures, 3, 1);
+        expect(inputs.columns).toEqual(nFeatures * 3);
+        expect(inputs.rows).toEqual(6);
+        expect(inputs.buffer).toEqual(Float32Array.from([
+            ...expectedFeatures[0], ...expectedFeatures[1], ...expectedFeatures[2],
+            ...expectedFeatures[1], ...expectedFeatures[2], ...expectedFeatures[3],
+            ...expectedFeatures[2], ...expectedFeatures[3], ...expectedFeatures[4],
+            ...expectedFeatures[3], ...expectedFeatures[4], ...expectedFeatures[5],
+            ...expectedFeatures[4], ...expectedFeatures[5], ...expectedFeatures[6],
+            ...expectedFeatures[5], ...expectedFeatures[6], ...expectedFeatures[7]
+        ]));
+        expect(labels).toEqual(Uint8Array.from([
+            expectedActions[2],
+            expectedActions[3],
+            expectedActions[4],
+            expectedActions[5],
+            expectedActions[6],
+            expectedActions[7]
+        ]));
+    });
+
+    test('stacks features correctly for n=4, e=1', () => {
+        const [inputs, labels] = getStackedFeatures(samples, nFeatures, 4, 1);
+        expect(inputs.columns).toEqual(nFeatures * 4);
+        expect(inputs.rows).toEqual(5);
+        expect(inputs.buffer).toEqual(Float32Array.from([
+            ...expectedFeatures[0], ...expectedFeatures[1], ...expectedFeatures[2], ...expectedFeatures[3],
+            ...expectedFeatures[1], ...expectedFeatures[2], ...expectedFeatures[3], ...expectedFeatures[4],
+            ...expectedFeatures[2], ...expectedFeatures[3], ...expectedFeatures[4], ...expectedFeatures[5],
+            ...expectedFeatures[3], ...expectedFeatures[4], ...expectedFeatures[5], ...expectedFeatures[6],
+            ...expectedFeatures[4], ...expectedFeatures[5], ...expectedFeatures[6], ...expectedFeatures[7]
+        ]));
+        expect(labels).toEqual(Uint8Array.from([
+            expectedActions[3],
+            expectedActions[4],
+            expectedActions[5],
+            expectedActions[6],
+            expectedActions[7]
         ]));
     });
 });
+
+
+describe('getStackedFeaturesRowCount', () => {
+    const expectation: [number, number, number][] = [
+        [4, 1, 5],
+        [3, 1, 6],
+        [2, 1, 7],
+        [1, 1, 8],
+        [4, 2, 2],
+        [3, 2, 4],
+        [2, 2, 6],
+        [1, 2, 8],
+        [4, 3, 0],
+        [3, 3, 2],
+        [2, 3, 5],
+        [1, 3, 8],
+        [4, 4, 0],
+        [3, 4, 0],
+        [2, 4, 4],
+        [1, 4, 8]
+    ];
+    for (const [n, e, rows] of expectation) {
+        test('computes number of rows correctly for n=${n} e=${e}', () => {
+            expect(getStackedFeaturesRowCount(8, n, e)).toEqual(rows);
+        });
+    }
+})
