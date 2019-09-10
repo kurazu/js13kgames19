@@ -287,7 +287,7 @@ describe('getStackedFeaturesRowCount', () => {
         [1, 4, 8]
     ];
     for (const [n, e, rows] of expectation) {
-        test('computes number of rows correctly for n=${n} e=${e}', () => {
+        test(`computes number of rows correctly for n=${n} e=${e}`, () => {
             expect(getStackedFeaturesRowCount(8, n, e)).toEqual(rows);
         });
     }

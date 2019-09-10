@@ -35,7 +35,7 @@ export function getLabel(action: Action): Actions {
 export function getStackedFeaturesRowCount(
     samplesCount: number, learningFrames: number, learningEveryNFrames: number
 ): number {
-    return samplesCount - (learningFrames - 1) * learningEveryNFrames;
+    return Math.max(0, samplesCount - (learningFrames - 1) * learningEveryNFrames);
 }
 
 export function getStackedFeatures(
