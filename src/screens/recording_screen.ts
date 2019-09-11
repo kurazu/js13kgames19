@@ -1,10 +1,9 @@
+import { Toolbox } from '../game/toolbox';
 import { Matrix2D } from '../math/multiply';
 import Screen from './screen';
 import GameScreen from './game_screen';
 import RecordingShip from '../ships/recording_ship';
 import SupervisedLearningScreen from './supervised_screen';
-import Keyboard from '../game/keyboard';
-import WorkerCommunicator from '../worker_communication';
 import { getStackedFeatures } from '../learning/features';
 import { DEFAULT_LEVEL_LENGTH } from '../constants';
 
@@ -13,11 +12,10 @@ function store(inputMatrix: Matrix2D, labels: Uint8Array) {
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
-    a.innerText = 'DOWNLOAD';
-    document.body.appendChild(a);
-
+    a.style.display = 'none';
     a.href = url;
     a.download = `samples.${+new Date}.${labels.length}.bin`;
+    document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
 }
@@ -25,19 +23,19 @@ function store(inputMatrix: Matrix2D, labels: Uint8Array) {
 export default class RecordingScreen extends GameScreen<void, RecordingShip> {
     protected levelLength: number = ~~(DEFAULT_LEVEL_LENGTH * 5);
 
-    protected getNextScreen(workerCommunicator: WorkerCommunicator): Screen<any> {
+    protected getNextScreen(toolbox: Toolbox): Screen<any> {
         const records = this.player!.records;
         console.log(`Gathered ${records.length} records`);
         const [inputMatrix, labels]: [Matrix2D, Uint8Array] = getStackedFeatures(records);
         store(inputMatrix, labels);
-        workerCommunicator.startSupervisedLearning(inputMatrix, labels);
+        toolbox.workerCommunicator.startSupervisedLearning(inputMatrix, labels);
         return new SupervisedLearningScreen({
             neuralNetwork: null,
             generation: 0
         });
     }
 
-    protected createPlayer(keyboard: Keyboard): RecordingShip {
-        return new RecordingShip(keyboard);
+    protected createPlayer(toolbox: Toolbox): RecordingShip {
+        return new RecordingShip(toolbox.keyboard);
     }
 }

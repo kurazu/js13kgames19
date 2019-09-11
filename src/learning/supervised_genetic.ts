@@ -32,9 +32,9 @@ class SupervisedScore {
 }
 
 export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<SupervisedScore> {
-    private inputs: Matrix2D;
-    private labels: Matrix2D;
-    private batchSize: number;
+    private readonly inputs: Matrix2D;
+    private readonly labels: Matrix2D;
+    private readonly batchSize: number | undefined;
 
     public constructor(
         maxGenerations: number,
@@ -45,7 +45,7 @@ export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<S
         mutationFactor: number,
         inputs: Matrix2D,
         labels: Uint8Array,
-        batchSize: number,
+        batchSize: number | undefined = undefined,
     ) {
         super(maxGenerations, populationSize, matingPoolSize, eliteSize, asexualReproductionSize, mutationFactor);
         this.inputs = inputs;
@@ -63,7 +63,13 @@ export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<S
     }
 
     protected evaluateFitness(population: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, SupervisedScore][] {
-        const [inputsSubset, labelsSubset] = getRandomSubset(this.inputs, this.labels, this.batchSize);
+        let inputsSubset: Matrix2D;
+        let labelsSubset: Matrix2D;
+        if (this.batchSize === undefined) {
+            [inputsSubset, labelsSubset] = [this.inputs, this.labels];
+        } else {
+            [inputsSubset, labelsSubset] = getRandomSubset(this.inputs, this.labels, this.batchSize);
+        }
         return population.map((network: FeedForwardNetwork) => [network, this.evaluate(network, inputsSubset, labelsSubset)]);
     }
 

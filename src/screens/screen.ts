@@ -2,6 +2,7 @@ import { WIDTH, HEIGHT } from '../constants';
 import Keyboard from '../game/keyboard';
 import WorkerCommunicator from '../worker_communication';
 import { sum } from '../utils';
+import { Toolbox } from '../game/toolbox';
 
 export default abstract class Screen<Options> {
     protected options: Options;
@@ -11,28 +12,29 @@ export default abstract class Screen<Options> {
         this.options = options;
     }
 
-    public abstract async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void>;
-    protected abstract update(ctx: CanvasRenderingContext2D, workerCommunicator: WorkerCommunicator, keyboard: Keyboard): Screen<any> | undefined;
+    public abstract init(toolbox: Toolbox): void;
+    public abstract update(toolbox: Toolbox): Screen<any> | undefined;
 
-    public loop(ctx: CanvasRenderingContext2D, workerCommunicator: WorkerCommunicator, keyboard: Keyboard): Screen<any> | undefined {
+    public loop(toolbox: Toolbox): Screen<any> | undefined {
         try {
-            return this.update(ctx, workerCommunicator, keyboard);
+            return this.update(toolbox);
         } finally {
             this.frames++;
         }
     }
 
-    protected clear(ctx: CanvasRenderingContext2D): void {
-        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    protected clear(toolbox: Toolbox): void {
+        toolbox.ctx.clearRect(0, 0, WIDTH, HEIGHT);
     }
 
     protected drawText(
-        ctx: CanvasRenderingContext2D,
+        toolbox: Toolbox,
         text: string, fontSize: number,
         x: number, y: number,
         textAlign: CanvasTextAlign = 'left',
         textColor: string = 'white', bgColor: string = 'black'
     ): void{
+        const { ctx } = toolbox;
         ctx.font = `${fontSize}px monospace`;
         ctx.textAlign = textAlign;
         ctx.fillStyle = bgColor;
@@ -46,13 +48,14 @@ export default abstract class Screen<Options> {
         ctx.fillText(text, x, y);
     }
 
-    protected drawColoredText(ctx: CanvasRenderingContext2D, texts: [string, string][], fontSize: number, x: number, y: number) {
+    protected drawColoredText(toolbox: Toolbox, texts: [string, string][], fontSize: number, x: number, y: number) {
+        const { ctx } = toolbox;
         ctx.font = `${fontSize}px monospace`;
         const measures = texts.map(([text, color]) => ctx.measureText(text).width);
         const totalMeasure = sum(measures);
         let currentX = x - totalMeasure / 2;
         for (const [idx, [text, color]] of texts.entries()) {
-            this.drawText(ctx, text, fontSize, currentX, y, 'left', color);
+            this.drawText(toolbox, text, fontSize, currentX, y, 'left', color);
             currentX += measures[idx];
         }
     }

@@ -1,5 +1,3 @@
-TS_SOURCES = src/body.ts src/box.ts src/collision.ts src/constants.ts src/keyboard.ts src/player_ship.ts src/renderer.ts src/utils.ts src/vector.ts src/world.ts src/level_generator.ts
-JS_SOURCES = build/*.js
 COMPILER = java -jar ~/Downloads/compiler-latest/closure-compiler-v20190819.jar
 COMPILER_FLAGS_DEV = -O BUNDLE
 COMPILER_FLAGS_PROD = -O ADVANCED
@@ -15,11 +13,11 @@ compile:
 	$(NODE_PATH)/npx ttsc
 
 dev: compile
-	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_DEV) --entry_point build/scripts.js --js_output_file=dist/bundle.js
+	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_DEV) --entry_point build/main.js --js_output_file=dist/bundle.js
 	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_DEV) --entry_point build/worker.js --js_output_file=dist/worker.js
 
 min: compile
-	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_PROD) --entry_point build/scripts.js --js_output_file=dist/bundle.min.js
+	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_PROD) --entry_point build/main.js --js_output_file=dist/bundle.min.js
 	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_PROD) --entry_point build/worker.js --js_output_file=dist/worker.min.js
 	ls -lh dist/*.js
 

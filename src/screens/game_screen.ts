@@ -5,12 +5,9 @@ import Tile from '../physics/tile';
 import World from '../physics/world';
 import Ship from '../ships/ship';
 import PlayerShip from '../ships/player_ship';
-import { loadImage } from '../game/resources';
 import Screen from '../screens/screen';
 import BackgroundScreen from '../screens/background_screen';
-import Keyboard from '../game/keyboard';
-import Topic from '../observable';
-import WorkerCommunicator from '../worker_communication';
+import { Toolbox } from '../game/toolbox';
 
 const PLAYER_X_AT = 1 / 3;
 
@@ -49,102 +46,101 @@ class Camera {
 }
 
 export default abstract class GameScreen<Options, PlayerType extends PlayerShip> extends BackgroundScreen<Options> {
-    protected shipImage: HTMLImageElement | undefined;
-    protected tilesImage: HTMLImageElement | undefined;
     protected camera: Camera | undefined;
     protected world: World | undefined;
     protected player: PlayerType | undefined;
     protected levelLength: number | undefined = undefined;
 
-    public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
-        await super.load(keyboard, workerCommunicator);
-        this.shipImage = await loadImage('img/ship.png');
-        this.tilesImage = await loadImage('img/tiles.png');
+    public init(toolbox: Toolbox): void {
         this.world = new World(this.levelLength);
 
-        this.player = this.createPlayer(keyboard);
+        this.player = this.createPlayer(toolbox);
         this.world.addShip(this.player);
 
         this.camera = new Camera(this.player, this.world.finishX);
     }
 
-    protected abstract createPlayer(keyboard: Keyboard): PlayerType;
-    protected abstract getNextScreen(workerCommunicator: WorkerCommunicator): Screen<any>;
+    protected abstract createPlayer(toolbox: Toolbox): PlayerType;
+    protected abstract getNextScreen(toolbox: Toolbox): Screen<any>;
 
-    public update(ctx: CanvasRenderingContext2D, workerCommunicator: WorkerCommunicator): Screen<any> | undefined {
+    public update(toolbox: Toolbox): Screen<any> | undefined {
         const sortedShips = this.world!.update();
-        this.render(ctx);
+        this.render(toolbox);
 
         if (sortedShips) {
-            return this.getNextScreen(workerCommunicator);
+            return this.getNextScreen(toolbox);
         } else {
             return undefined;
         }
     }
 
-    private render(ctx: CanvasRenderingContext2D): void {
-        this.clear(ctx);
+    private render(toolbox: Toolbox): void {
+        this.clear(toolbox);
+        const camera = this.camera!;
 
-        const screenLeft = this.camera!.getScreenLeft();
-        const screenRight = this.camera!.getScreenRight();
+        const screenLeft = camera.getScreenLeft();
+        const screenRight = camera.getScreenRight();
 
-        this.drawBackground(ctx, screenLeft);
+        this.drawBackground(toolbox, screenLeft);
 
-        for (const box of this.world!.getBoxes(screenLeft, screenRight)) {
-            this.drawBox(ctx, box, '#0000ff');
+        const world = this.world!;
+        for (const box of world.getBoxes(screenLeft, screenRight)) {
+            this.drawBox(toolbox, box);
         }
-        for (const ship of this.world!.ships) {
-            this.drawShip(ctx, ship);
+        for (const ship of world.ships) {
+            this.drawShip(toolbox, ship);
         }
-        this.drawHUD(ctx);
+        this.drawHUD(toolbox);
     }
 
-    private drawMarkers(ctx: CanvasRenderingContext2D, ship: Ship): void {
-        for (const sensors of this.world!.sensors) {
+    private drawMarkers(toolbox: Toolbox, ship: Ship): void {
+        const { ctx } = toolbox;
+        const world = this.world!;
+        const camera = this.camera!;
+        for (const sensors of world.sensors) {
             for (const sensor of sensors) {
                 const markerPosition = sensor.getCurrentPosition(ship);
-                const collides = this.world!.getBox(markerPosition) !== undefined;
+                const collides = world.getBox(markerPosition) !== undefined;
                 ctx.fillStyle = collides ? 'red' : 'green';
                 ctx.beginPath();
-                ctx.arc(this.camera!.getScreenX(markerPosition.x), this.camera!.getScreenY(markerPosition.y), 2, 0, Math.PI * 2);
+                ctx.arc(
+                    camera.getScreenX(markerPosition.x),
+                    camera!.getScreenY(markerPosition.y),
+                    2, 0, Math.PI * 2
+                );
                 ctx.fill();
             }
         }
     }
 
-    private drawBox(ctx: CanvasRenderingContext2D, box: Tile, color: string): void {
-        ctx.fillStyle = color;
+    private drawBox(toolbox: Toolbox, box: Tile): void {
+        const { ctx } = toolbox;
         const {x, y} = this.camera!.getScreenPosition(box);
         const {x: w, y: h} = box.size;
-        ctx.drawImage(this.tilesImage!, box.tile * w, 0, w, h, x, y, w, h);
-        // ctx.fillRect(x, y, w, h);
+        ctx.drawImage(toolbox.tilesImage, box.tile * w, 0, w, h, x, y, w, h);
     }
 
-    private drawShip(ctx: CanvasRenderingContext2D, ship: Ship): void {
-        const intensity = ~~(255 * ship.velocity.getLength() / MAX_VELOCITY);
-        let r = 0, g = 0, b = intensity;
-        if (ship.touching) {
-            r = 255;
-        } else {
-            g = 255;
-        }
-        const color = `rgb(${r}, ${g}, ${b})`;
-        // this.drawBox(ctx, ship, color);
-        const {x, y} = this.camera!.getScreenPosition(ship);
-        ctx.drawImage(this.shipImage!, x, y);
-        this.drawMarkers(ctx, ship);
+    private drawShip(toolbox: Toolbox, ship: Ship): void {
+        const { ctx } = toolbox;
+        const camera = this.camera!;
+        // TODO: visual differentiation
+        // if (ship.touching) {
+        // const intensity = ~~(255 * ship.velocity.getLength() / MAX_VELOCITY);
+        const {x, y} = camera.getScreenPosition(ship);
+        ctx.drawImage(toolbox.shipImage, x, y);
+        this.drawMarkers(toolbox, ship);
         this.drawText(
-            ctx,
+            toolbox,
             ship.name,
             12,
-            this.camera!.getScreenX(ship.position.x),
-            this.camera!.getScreenY(ship.top + 2),
+            camera.getScreenX(ship.position.x),
+            camera.getScreenY(ship.top + 2),
             'center',
             ship.isThinking ? undefined : 'grey',
         );
     }
 
-    private drawHUD(ctx: CanvasRenderingContext2D): void {
+    private drawHUD(toolbox: Toolbox): void {
         // RISKY - sort mutates data we don't own
         const PADDING = 4;
         const FONT_SIZE = 16;
@@ -153,7 +149,7 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
             const initialOffset = BLOCK_SIZE + ship.halfWidth;
             const progression = (ship.position.x - initialOffset) / (this.world!.finishX - initialOffset) * 100;
             const text = `🏁 ${ship.name} ${progression.toFixed(0)}%`;
-            this.drawText(ctx, text, FONT_SIZE, PADDING, (FONT_SIZE + PADDING) * (idx + 1));
+            this.drawText(toolbox, text, FONT_SIZE, PADDING, (FONT_SIZE + PADDING) * (idx + 1));
         }
     }
 }

@@ -1,3 +1,4 @@
+import { Toolbox } from '../game/toolbox';
 import GameScreen from './game_screen';
 import Topic from '../observable';
 import { FeedForwardNetwork } from '../math/net';
@@ -20,8 +21,8 @@ export default class UnsupervisedLearningScreen extends GameScreen<UnsupervidedL
         this.networkUpdateListener = this.onNetworkUpdated.bind(this);
     }
 
-    protected createPlayer(keyboard: Keyboard): PlayerShip {
-        return new PlayerShip(keyboard);
+    protected createPlayer(toolbox: Toolbox): PlayerShip {
+        return new PlayerShip(toolbox.keyboard);
     }
 
     public onNetworkUpdated([network, generation]: [FeedForwardNetwork, number]): void {
@@ -30,15 +31,15 @@ export default class UnsupervisedLearningScreen extends GameScreen<UnsupervidedL
         this.bot!.generation = generation + 1;
     }
 
-    public async load(keyboard: Keyboard, workerCommunicator: WorkerCommunicator): Promise<void> {
-        await super.load(keyboard, workerCommunicator);
+    public init(toolbox: Toolbox): void {
+        super.init(toolbox);
         this.bot = new AIShip(this.options.neuralNetwork, 1, 0.005, 60);
         this.world!.addShip(this.bot);
-        workerCommunicator.unsupervisedTopic.subscribe(this.networkUpdateListener);
+        toolbox.workerCommunicator.unsupervisedTopic.subscribe(this.networkUpdateListener);
     }
 
-    protected getNextScreen(workerCommunicator: WorkerCommunicator): Screen<any> {
-        workerCommunicator.unsupervisedTopic.unsubscribe(this.networkUpdateListener);
+    protected getNextScreen(toolbox: Toolbox): Screen<any> {
+        toolbox.workerCommunicator.unsupervisedTopic.unsubscribe(this.networkUpdateListener);
         return new UnsupervisedLearningScreen({
             neuralNetwork: this.bot!.neuralNetwork,
         });
