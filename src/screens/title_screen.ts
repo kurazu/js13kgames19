@@ -5,6 +5,7 @@ import WorkerCommunicator from '../worker_communication';
 import Screen from './screen';
 import MenuScreen, { ItemCallback } from './menu_screen';
 import IntroScreen from './intro_screen';
+import { normal as N, emphasis as E, standout as S } from './text';
 
 const FONT_SIZE_PX = 64;
 
@@ -37,11 +38,11 @@ export default class TitleScreen extends MenuScreen<void> {
         this.clear(toolbox);
         this.drawBackground(toolbox, this.frames * 10);
         this.drawColoredText(
-            toolbox, [['THE ', 'white'], ['BACK', 'red'], ['-UP', 'white']],
+            toolbox, [N('THE '), E('BACK'), N('-UP OF '), E('YOU')],
             FONT_SIZE_PX, WIDTH / 2, centerY + yOffset
         );
         this.drawColoredText(
-            toolbox, [['by ', 'white'], ['kurazu', 'red']],
+            toolbox, [N('by '), S('kurazu')],
             FONT_SIZE_PX / 2, WIDTH / 2, centerY + yOffset + 50
         );
         this.renderItems(toolbox, FONT_SIZE_PX / 2, 10, HEIGHT / 2 + 50);

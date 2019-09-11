@@ -3,6 +3,7 @@ import BackgroundScreen from './background_screen';
 import Screen from './screen';
 import { Key } from '../game/keyboard';
 import { WIDTH } from '../constants';
+import { normal as N, emphasis as E, standout as S, inactive as I, transparent as T, TextFormatter } from './text';
 
 export type ItemCallback = (toolbox: Toolbox) => (Screen<any> | undefined);
 export type ItemType = [string, boolean, ItemCallback];
@@ -49,10 +50,10 @@ export default abstract class MenuScreen<Options> extends BackgroundScreen<Optio
         const x = WIDTH / 2;
         for (const [idx, [text, active, ]] of this.items.entries()) {
             const isSelected = idx === this.selectedIdx;
-            const color = isSelected ? 'red' : (active ? 'white' : 'grey');
+            const textFormatter: TextFormatter =  isSelected ? E : (active ? N : I);
             const itemY = y + idx * (fontSize + padding);
-            const arrowColor = isSelected ? 'orange' : 'transparent';
-            const texts: [string, string][] = [[text, color], [' ➜', arrowColor]];
+            const arrowFormatter: TextFormatter = isSelected ? S : T;
+            const texts: [string, string][] = [textFormatter(text), arrowFormatter(' ➜')];
             this.drawColoredText(toolbox, texts, fontSize, x, itemY);
         }
     }
@@ -60,17 +61,11 @@ export default abstract class MenuScreen<Options> extends BackgroundScreen<Optio
     protected renderHelp(toolbox: Toolbox, fontSize: number, y: number): void {
         const x = WIDTH / 2;
         const firstLine: [string, string][] = [
-            ['USE ', 'white'],
-            ['ARROW UP ', 'orange'],
-            ['AND ', 'white'],
-            ['ARROW DOWN ', 'orange'],
-            ['TO CHANGE OPTION.', 'white']
+            N('USE '), S('ARROW UP '), N('AND '), S('ARROW DOWN '), N('TO CHANGE OPTION.')
         ];
         this.drawColoredText(toolbox, firstLine, fontSize, x, y);
         const secondLine: [string, string][] = [
-            ['USE ', 'white'],
-            ['ARROW RIGHT ', 'orange'],
-            ['TO SELECT.', 'white']
+            N('USE '), S('ARROW RIGHT '), N('TO SELECT.')
         ];
         this.drawColoredText(toolbox, secondLine, fontSize, x, y + fontSize + 10);
     }
