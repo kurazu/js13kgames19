@@ -1,5 +1,5 @@
 import Vector from '../physics/vector';
-import Keyboard from '../game/keyboard';
+import Keyboard, { Key } from '../game/keyboard';
 import { Action } from '../physics/actions';
 import Ship from './ship';
 import { SensorsState } from '../physics/collision';
@@ -13,9 +13,9 @@ export default class PlayerShip extends Ship {
     }
 
     public queryControls(sensorsState: SensorsState): Action {
-        const right = this.keyboard.isPressed('ArrowRight');
-        const left = this.keyboard.isPressed('ArrowLeft');
-        const up = this.keyboard.isPressed('ArrowUp');
+        const right = this.keyboard.isPressed(Key.RIGHT);
+        const left = this.keyboard.isPressed(Key.LEFT);
+        const up = this.keyboard.isPressed(Key.UP);
         return new Action(up, left, right);
     }
 

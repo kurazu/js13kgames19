@@ -55,7 +55,9 @@ export default abstract class Screen<Options> {
         const totalMeasure = sum(measures);
         let currentX = x - totalMeasure / 2;
         for (const [idx, [text, color]] of texts.entries()) {
-            this.drawText(toolbox, text, fontSize, currentX, y, 'left', color);
+            if (color !== 'transparent') {
+                this.drawText(toolbox, text, fontSize, currentX, y, 'left', color);
+            }
             currentX += measures[idx];
         }
     }

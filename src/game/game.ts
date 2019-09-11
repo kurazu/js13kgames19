@@ -4,6 +4,7 @@ import { Toolbox, loadToolbox } from './toolbox';
 export default async function start(canvas: HTMLCanvasElement, initialScreen: Screen<any>): Promise<void> {
     const toolbox: Toolbox = await loadToolbox(canvas);
     let screen: Screen<any> = initialScreen;
+    screen.init(toolbox);
 
     requestAnimationFrame(loop);
 
