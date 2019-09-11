@@ -204,3 +204,14 @@ export function softmax_derivate(input: Matrix2D): Matrix2D {
     }
     return result;
 }
+
+export function add(matrices: Matrix2D[]): Matrix2D {
+    const first = matrices[0];
+    const result = new Matrix2D(first.rows, first.columns);
+    for (let address = 0; address < result.buffer.length; address++) {
+        for (const matrix of matrices) {
+            result.buffer[address] += matrix.buffer[address];
+        }
+    }
+    return result;
+}

@@ -61,6 +61,7 @@ export function getSupervisedOptimizer(inputs: Float32Array, labels: Uint8Array)
     const eliteSize = 3;
     const asexualReproductionSize = 3;
     const mutationFactor = 0.05;
+    const batchSize = 2000;
     const inputMatrix = new Matrix2D(labels.length, FEATURES * LEARNING_FRAMES, inputs);
     const optimizer = new SupervisedGeneticOptimizer(
         maxGenerations,
@@ -70,7 +71,8 @@ export function getSupervisedOptimizer(inputs: Float32Array, labels: Uint8Array)
         asexualReproductionSize,
         mutationFactor,
         inputMatrix,
-        labels
+        labels,
+        batchSize
     );
     return optimizer;
 }

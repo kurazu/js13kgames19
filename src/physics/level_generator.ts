@@ -19,8 +19,8 @@ function* generateLevelStart(levelLength: number): TileIterable {
 
 const PLATFORM_MIN_LENGTH = 8;
 const PLATFORM_MAX_LENGTH = 20;
-const MUSHROOM_MIN_HEIGHT = 2;
-const MUSHROOM_MAX_HEIGHT = ROWS - 2 - 1;
+const MUSHROOM_MIN_HEIGHT = 3;
+const MUSHROOM_MAX_HEIGHT = ROWS - 2 - 4;
 const MUSHROOM_MIN_RADIUS = 1;
 const MUSHROOM_MAX_RADIUS = 3;
 const MIN_HORIZONTAL_SPACE = MUSHROOM_MAX_RADIUS * 2 + 3;

@@ -1,6 +1,7 @@
 import NeuralGeneticAlgorithm from './neural_genetic';
 import { FeedForwardNetwork } from '../math/net';
 import { Matrix2D, argmax2D } from '../math/multiply';
+import { getRandomSubset } from './batch';
 import { getMatchingAccuracy, getCrossCategoricalEntropyLoss, oneHotEncode } from './loss';
 import { ACTIONS } from '../physics/actions';
 
@@ -33,6 +34,7 @@ class SupervisedScore {
 export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<SupervisedScore> {
     private inputs: Matrix2D;
     private labels: Matrix2D;
+    private batchSize: number;
 
     public constructor(
         maxGenerations: number,
@@ -42,29 +44,32 @@ export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<S
         asexualReproductionSize: number,
         mutationFactor: number,
         inputs: Matrix2D,
-        labels: Uint8Array
+        labels: Uint8Array,
+        batchSize: number,
     ) {
         super(maxGenerations, populationSize, matingPoolSize, eliteSize, asexualReproductionSize, mutationFactor);
         this.inputs = inputs;
         this.labels = oneHotEncode(labels, ACTIONS.length);
+        this.batchSize = batchSize;
     }
 
-    private evaluate(network: FeedForwardNetwork): SupervisedScore {
-        const outputs: Matrix2D = network.calculate(this.inputs);
+    private evaluate(network: FeedForwardNetwork, inputs: Matrix2D, labels: Matrix2D): SupervisedScore {
+        const outputs: Matrix2D = network.calculate(inputs);
 
-        const accuracy = getMatchingAccuracy(outputs, this.labels);
-        const loss = getCrossCategoricalEntropyLoss(outputs, this.labels);
+        const accuracy = getMatchingAccuracy(outputs, labels);
+        const loss = getCrossCategoricalEntropyLoss(outputs, labels);
 
         return new SupervisedScore(accuracy, loss);
     }
 
     protected evaluateFitness(population: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, SupervisedScore][] {
-        return population.map((network: FeedForwardNetwork) => [network, this.evaluate(network)]);
+        const [inputsSubset, labelsSubset] = getRandomSubset(this.inputs, this.labels, this.batchSize);
+        return population.map((network: FeedForwardNetwork) => [network, this.evaluate(network, inputsSubset, labelsSubset)]);
     }
 
     protected onGenerationEnd(generation: number, bestSolution: FeedForwardNetwork, bestScore: SupervisedScore): boolean {
         const shouldTerminateEarly = super.onGenerationEnd(generation, bestSolution, bestScore);
-        console.log(`Generation ${generation} loss=${bestScore.loss} acc=${bestScore.accuracy}`);
+        console.log(`Generation ${generation + 1} loss=${bestScore.loss} acc=${bestScore.accuracy}`);
         return shouldTerminateEarly;
     }
 }
