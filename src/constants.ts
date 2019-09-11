@@ -39,3 +39,5 @@ export enum Tiles {
     BROWN_CAP_MIDDLE = 8,
     BROWN_CAP_RIGHT = 9
 }
+
+export const RECORDING_TARGET_TIME = 30;

@@ -8,7 +8,7 @@ import PlayerShip from '../ships/player_ship';
 import Screen from '../screens/screen';
 import BackgroundScreen from '../screens/background_screen';
 import { Toolbox } from '../game/toolbox';
-import { normal as N, standout as S, emphasis as E, TextFormatter } from './text';
+import { normal as N, standout as S, emphasis as E, TextFormatter, formatTime } from './text';
 
 const PLAYER_X_AT = 1 / 3;
 
@@ -151,38 +151,28 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
 
     private drawPlayerNames(toolbox: Toolbox): void {
         // RISKY - sort mutates data we don't own
-        const PADDING = 4;
         const ships = this.world!.ships.sort((aShip, bShip) => bShip.position.x - aShip.position.x);
         const page: [string, string][][] = ships.map(ship => {
             const initialOffset = BLOCK_SIZE + ship.halfWidth;
             const progression = (ship.position.x - initialOffset) / (this.world!.finishX - initialOffset) * 100;
             return [S(ship.name), N(' 🏁 '), S(progression.toFixed(0)), N('%')];
         })
-        this.drawColoredTexts(toolbox, page, fontSizePx, PADDING, PADDING, 0, 'left');
-    }
-
-    private formatTime(totalSeconds: number, formatter: TextFormatter): [string, string][] {
-        const seconds = ~~(totalSeconds % 60);
-        const minutes = ~~(totalSeconds / 60);
-        return [formatter(String(minutes).padStart(2, '0')), N('m:'), formatter(String(seconds).padStart(2, '0')), N('s')]
+        this.drawColoredTexts(toolbox, page, fontSizePx, 4, 2, 0, 'left');
     }
 
     private drawTime(toolbox: Toolbox): void {
         const totalSeconds = this.frames / FPS;
 
-        const padding = 4;
-        const fontSize = 24;
-
         let isTimeFine = this.targetTime === undefined ? true : totalSeconds < this.targetTime;
 
-        const texts = this.formatTime(totalSeconds, isTimeFine ? S : E);
+        const texts = formatTime(totalSeconds, isTimeFine ? S : E);
         if (this.targetTime !== undefined) {
-            texts.push(N('/'), ...this.formatTime(this.targetTime, N));
+            texts.push(N('/'), ...formatTime(this.targetTime, N));
         }
         this.drawColoredText(
             toolbox,
             texts,
-            fontSizePx, WIDTH - padding, padding + fontSize, 'right'
+            fontSizePx, WIDTH - 2, fontSizePx, 'right'
         );
     }
 }

@@ -71,7 +71,7 @@ export default abstract class Screen<Options> {
 
     protected drawColoredTexts(toolbox: Toolbox, page: [string, string][][], fontSize: number, padding: number, x: number, y: number, textAlign: CanvasTextAlign = 'center'): void {
         for (const [idx, line] of page.entries()) {
-            this.drawColoredText(toolbox, line, fontSize, x, (idx + 1) * (fontSize + padding), textAlign);
+            this.drawColoredText(toolbox, line, fontSize, x, (idx + 1) * (fontSize + padding) - padding, textAlign);
         }
     }
 }

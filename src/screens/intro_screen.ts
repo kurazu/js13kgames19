@@ -1,8 +1,9 @@
-import { normal as N, emphasis as E } from './text';
+import { normal as N, emphasis as E, formatTime } from './text';
 import { Toolbox } from '../game/toolbox';
 import TextScreen, { Page } from './text_screen';
 import RecordingScreen from './recording_screen';
 import Screen from './screen';
+import { RECORDING_TARGET_TIME } from '../constants';
 
 export default class IntroScreen extends TextScreen {
     protected getPages(toolbox: Toolbox): Page[] {
@@ -17,7 +18,7 @@ export default class IntroScreen extends TextScreen {
             [N('with one of our '), E('hoverloaders'), N('.')]
         ];
         const page3: Page = [
-            [N('Finish a delivery round under '), E('XXm:YYs'), N('!')]
+            [N('Finish a delivery round under '), ...formatTime(RECORDING_TARGET_TIME, E), N('!')]
         ];
         return [page1, page2, page3];
     }

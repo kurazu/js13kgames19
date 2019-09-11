@@ -19,3 +19,15 @@ export function inactive(text: string): [string, string] {
 export function transparent(text: string): [string, string] {
     return [text, 'transparent'];
 }
+
+
+export function formatTime(totalSeconds: number, formatter: TextFormatter): [string, string][] {
+    const seconds = ~~(totalSeconds % 60);
+    const minutes = ~~(totalSeconds / 60);
+    return [
+        formatter(String(minutes).padStart(2, '0')),
+        normal('m:'),
+        formatter(String(seconds).padStart(2, '0')),
+        normal('s')
+    ];
+}
