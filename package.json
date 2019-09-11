@@ -18,7 +18,10 @@
     "url": "https://github.com/kurazu/js13kgames19/issues"
   },
   "homepage": "https://github.com/kurazu/js13kgames19#readme",
-  "dependencies": {},
+  "dependencies": {
+    "@tensorflow/tfjs": "^1.2.9",
+    "@tensorflow/tfjs-node": "^1.2.9"
+  },
   "devDependencies": {
     "@babel/parser": "^7.5.5",
     "@babel/types": "^7.6.1",

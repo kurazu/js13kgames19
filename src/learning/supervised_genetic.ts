@@ -1,5 +1,5 @@
 import NeuralGeneticAlgorithm from './neural_genetic';
-import { FeedForwardNetwork } from '../math/net';
+import { FeedForwardNetwork, getCrossCategoricalEntropyLoss } from '../math/net';
 import { Matrix2D, argmax2D, getMatchingAccuracy } from '../math/multiply';
 
 function getHistogram(input: Uint8Array): Map<number, number> {
@@ -14,7 +14,21 @@ function getHistogram(input: Uint8Array): Map<number, number> {
     return map;
 }
 
-export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<number> {
+class SupervisedScore {
+    public accuracy: number;
+    public loss: number;
+
+    public constructor(accuracy: number, loss: number) {
+        this.accuracy = accuracy;
+        this.loss = loss;
+    }
+
+    valueOf(): number {
+        return -this.loss;
+    }
+}
+
+export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<SupervisedScore> {
     private expectedAccuracy: number;
     private inputs: Matrix2D;
     private labels: Uint8Array;
@@ -36,19 +50,23 @@ export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<n
         this.labels = labels;
     }
 
-    private evaluateAccuracy(network: FeedForwardNetwork): number {
+    private evaluate(network: FeedForwardNetwork): SupervisedScore {
         const outputs: Matrix2D = network.calculate(this.inputs);
+
         const predictions = argmax2D(outputs);
+        const accuracy = getMatchingAccuracy(predictions, this.labels);
+        const loss = getCrossCategoricalEntropyLoss(outputs, this.labels);
 
-        return getMatchingAccuracy(predictions, this.labels);
+        return new SupervisedScore(accuracy, loss);
     }
 
-    protected evaluateFitness(population: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, number][] {
-        return population.map((network: FeedForwardNetwork) => [network, this.evaluateAccuracy(network)]);
+    protected evaluateFitness(population: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, SupervisedScore][] {
+        return population.map((network: FeedForwardNetwork) => [network, this.evaluate(network)]);
     }
 
-    protected onGenerationEnd(generation: number, bestSolution: FeedForwardNetwork, bestScore: number): boolean {
+    protected onGenerationEnd(generation: number, bestSolution: FeedForwardNetwork, bestScore: SupervisedScore): boolean {
         const shouldTerminateEarly = super.onGenerationEnd(generation, bestSolution, bestScore);
-        return shouldTerminateEarly || bestScore > this.expectedAccuracy;
+        console.log(`Generation ${generation} loss ${bestScore.loss} acc ${bestScore.accuracy}`);
+        return shouldTerminateEarly || bestScore.accuracy > this.expectedAccuracy;
     }
 }
