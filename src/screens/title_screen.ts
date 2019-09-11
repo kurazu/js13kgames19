@@ -4,18 +4,15 @@ import Keyboard from '../game/keyboard';
 import WorkerCommunicator from '../worker_communication';
 import Screen from './screen';
 import MenuScreen, { ItemCallback } from './menu_screen';
-import RecordingScreen from './recording_screen';
+import IntroScreen from './intro_screen';
 
 const FONT_SIZE_PX = 64;
-const SECONDS_OF_ANIMATION = 3;
-const FRAMES_OF_ANIMATION = SECONDS_OF_ANIMATION * FPS;
 
 export default class TitleScreen extends MenuScreen<void> {
     protected getItems(toolbox: Toolbox): [string, boolean, ItemCallback][] {
         return [
             ['CONTINUE', false, this.onContinue.bind(this)],
             ['NEW GAME', true, this.onNewGame.bind(this)],
-            ['CREDITS', true, this.onCredits.bind(this)]
         ];
     }
 
@@ -24,11 +21,7 @@ export default class TitleScreen extends MenuScreen<void> {
     }
 
     onNewGame(toolbox: Toolbox): Screen<any> | undefined {
-        return new RecordingScreen();
-    }
-
-    onCredits(toolbox: Toolbox): Screen<any> | undefined {
-        throw new Error('Not implemented');
+        return new IntroScreen({ page: 0});
     }
 
     public update(toolbox: Toolbox): Screen<any> | undefined {
@@ -55,8 +48,3 @@ export default class TitleScreen extends MenuScreen<void> {
         this.renderHelp(toolbox, ~~(FONT_SIZE_PX / 3), HEIGHT - 70);
     }
 }
-
-
-
-
-

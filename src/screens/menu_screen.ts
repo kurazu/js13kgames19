@@ -5,17 +5,22 @@ import { Key } from '../game/keyboard';
 import { WIDTH } from '../constants';
 
 export type ItemCallback = (toolbox: Toolbox) => (Screen<any> | undefined);
+export type ItemType = [string, boolean, ItemCallback];
 
 export default abstract class MenuScreen<Options> extends BackgroundScreen<Options> {
     private selectedIdx: number = 0;
-    protected items: [string, boolean, ItemCallback][] = [];
+    protected items: ItemType[] = [];
 
-    public init(toolbox: Toolbox): void {
+    protected refreshOptions(toolbox: Toolbox): void {
         this.items = this.getItems(toolbox);
         this.selectedIdx = this.items.findIndex(([, active, ]) => active);
     }
 
-    protected abstract getItems(toolbox: Toolbox): [string, boolean, ItemCallback][];
+    public init(toolbox: Toolbox): void {
+        this.refreshOptions(toolbox);
+    }
+
+    protected abstract getItems(toolbox: Toolbox): ItemType[];
 
     public update(toolbox: Toolbox): Screen<any> | undefined {
         if (toolbox.keyboard.wasPressed(Key.RIGHT)) {
@@ -65,7 +70,7 @@ export default abstract class MenuScreen<Options> extends BackgroundScreen<Optio
         const secondLine: [string, string][] = [
             ['USE ', 'white'],
             ['ARROW RIGHT ', 'orange'],
-            ['TO SELECT.', 'orange']
+            ['TO SELECT.', 'white']
         ];
         this.drawColoredText(toolbox, secondLine, fontSize, x, y + fontSize + 10);
     }
