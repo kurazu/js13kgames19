@@ -106,3 +106,9 @@ export function* everyNthReversed<T>(iterable: T[], n: number): Iterable<T> {
         yield item;
     }
 }
+
+export function* reverse<T>(items: T[]): Iterable<T> {
+    for (let i = items.length - 1; i >= 0; i--) {
+        yield items[i];
+    }
+}

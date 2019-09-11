@@ -1,8 +1,8 @@
-import { FeedForwardNetwork } from '../math/net';
-import { assertEqual } from '../utils';
+import { FeedForwardNetwork, Layer } from '../math/net';
+import { assertEqual, reverse } from '../utils';
 import { shuffleArrays } from './shuffle';
 import { createNetwork } from './neural_genetic';
-import { Matrix2D, argmax2D } from '../math/multiply';
+import { Matrix2D, argmax2D, multiplyByScalar } from '../math/multiply';
 import { getBatches, trainTestSplit } from './batch';
 import { getCrossCategoricalEntropyLoss, getMatchingAccuracy } from './loss';
 
@@ -43,10 +43,24 @@ export default class SGDOptimizer {
         return this.network;
     }
 
+    private trainBatch(batchX: Matrix2D, batchY: Matrix2D): void {
+        const layersAndResults: [Layer, Matrix2D][] = [];
+        let outputs: Matrix2D = batchX;
+        for (const layer of this.network.layers) {
+            outputs = layer.calculate(outputs);
+            layersAndResults.push([layer, outputs]);
+        }
+        const totalLoss = getCrossCategoricalEntropyLoss(outputs, batchY);
+        const lossPerItem = totalLoss / this.batchSize;
+
+        for (const [layer, outputs] of layersAndResults) {
+            const errorTerm = multiplyByScalar(layer.derivate(outputs), lossPerItem);
+        }
+    }
+
     private trainEpoch(epoch: number): void {
         for (const [batchX, batchY] of getBatches(this.trainX, this.trainY, this.batchSize)) {
-            const outputs = this.network.calculate(batchX);
-            const loss = getCrossCategoricalEntropyLoss(outputs, batchY);
+            this.trainBatch(batchX, batchY);
         }
     }
 

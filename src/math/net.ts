@@ -1,4 +1,4 @@
-import { Matrix2D, dot, addBias, relu, softmax, sigmoid, uniformRandomDistribution } from './multiply';
+import { Matrix2D, dot, addBias, relu, softmax, sigmoid, uniformRandomDistribution, relu_derivate, sigmoid_derivate, softmax_derivate } from './multiply';
 import { assert } from '../utils';
 
 export abstract class Layer {
@@ -6,6 +6,7 @@ export abstract class Layer {
     public abstract getWeightsSize(inputWidth: number): number;
     public abstract setWeights(inputWidth: number, weights: Float32Array): void;
     public abstract calculate(inputMatrix: Matrix2D): Matrix2D;
+    public abstract derivate(outputMatrix: Matrix2D): Matrix2D;
 }
 
 export class DenseLayer extends Layer {
@@ -55,6 +56,10 @@ export class DenseLayer extends Layer {
     public calculate(inputMatrix: Matrix2D): Matrix2D {
         return addBias(dot(inputMatrix, this.kernel), this.bias);
     }
+
+    public derivate(outputMatrix: Matrix2D): Matrix2D {
+        throw new Error('Not implemented');
+    }
 }
 
 abstract class ActivationLayer extends Layer {
@@ -75,11 +80,19 @@ export class ReluLayer extends ActivationLayer {
     public calculate(inputMatrix: Matrix2D): Matrix2D {
         return relu(inputMatrix);
     }
+
+    public derivate(outputMatrix: Matrix2D): Matrix2D {
+        return relu_derivate(outputMatrix);
+    }
 }
 
 export class SigmoidLayer extends ActivationLayer {
     public calculate(inputMatrix: Matrix2D): Matrix2D {
         return sigmoid(inputMatrix);
+    }
+
+    public derivate(outputMatrix: Matrix2D): Matrix2D {
+        return sigmoid_derivate(outputMatrix);
     }
 }
 
@@ -87,10 +100,14 @@ export class SoftmaxLayer extends ActivationLayer {
     public calculate(inputMatrix: Matrix2D): Matrix2D {
         return softmax(inputMatrix);
     }
+
+    public derivate(outputMatrix: Matrix2D): Matrix2D {
+        return softmax_derivate(outputMatrix);
+    }
 }
 
 export class FeedForwardNetwork {
-    private layers: Layer[];
+    public readonly layers: Layer[];
     public readonly inputWidth: number;
     public readonly weights: Float32Array;
 

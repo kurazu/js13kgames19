@@ -20,7 +20,7 @@ export function getMatchingAccuracy(predictions: Matrix2D, oneHotExpectations: M
         (acc, predictedClass, idx) => (acc + (predictedClass === expectedClasses[idx] ? 1 : 0)),
         0
     )
-    return correctPredictions / predictions.length;
+    return correctPredictions / predictions.rows;
 }
 
 export function getCrossCategoricalEntropyLoss(predictions: Matrix2D, oneHotExpectations: Matrix2D): number {
@@ -30,12 +30,8 @@ export function getCrossCategoricalEntropyLoss(predictions: Matrix2D, oneHotExpe
     const columns = predictions.columns;
 
     let loss = 0;
-    for (let rowIdx = 0; rowIdx < rows; rowIdx++) {
-        const predictionRow: Float32Array = predictions.getRow(rowIdx);
-        const expectationRow: Float32Array = oneHotExpectations.getRow(rowIdx);
-        for (let columnIdx = 0; columnIdx < columns; columnIdx++) {
-            loss += -expectationRow[columnIdx] * Math.log(predictionRow[columnIdx])
-        }
+    for (let address = 0; address < predictions.buffer.length; address++) {
+        loss += -oneHotExpectations.buffer[address] * Math.log(predictions.buffer[address]);
     }
     return loss;
 }

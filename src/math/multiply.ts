@@ -1,4 +1,4 @@
-import { range, zip, assert, sum, uniformRandom } from '../utils';
+import { range, zip, assert, sum, uniformRandom, assertEqual } from '../utils';
 
 export class Matrix2D {
     public readonly buffer: Float32Array;
@@ -170,4 +170,37 @@ export function argmax2D(input: Matrix2D): Uint8Array {
         output[idx] = argmax(input.getRow(idx));
     }
     return output;
+}
+
+export function multiply(a: Matrix2D, b: Matrix2D): Matrix2D {
+    assertEqual(a.rows, b.rows);
+    assertEqual(a.columns, b.columns);
+    return new Matrix2D(
+        a.rows, a.columns,
+        a.buffer.map((aValue, idx) => aValue * b.buffer[idx])
+    );
+}
+
+export function addScalar(input: Matrix2D, scalar: number): Matrix2D {
+    return new Matrix2D(input.rows, input.columns, input.buffer.map(x => x * scalar));
+}
+
+export function multiplyByScalar(input: Matrix2D, factor: number): Matrix2D {
+    return new Matrix2D(input.rows, input.columns, input.buffer.map(x => x * factor));
+}
+
+export function relu_derivate(input: Matrix2D): Matrix2D {
+    return new Matrix2D(input.rows, input.columns, input.buffer.map(x => Number(x > 0)));
+}
+
+export function sigmoid_derivate(input: Matrix2D): Matrix2D {
+    return multiply(input, addScalar(multiplyByScalar(input, -1), 1));
+}
+
+export function softmax_derivate(input: Matrix2D): Matrix2D {
+    const result = new Matrix2D(input.rows, input.columns);
+    for (let rowIdx = 0; rowIdx < input.rows; rowIdx++) {
+        throw new Error("Not implemented");
+    }
+    return result;
 }
