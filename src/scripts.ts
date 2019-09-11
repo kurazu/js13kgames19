@@ -7,7 +7,7 @@ import TitleScreen from './screens/title_screen';
 
 function onLoad(): void {
     const canvas = document.querySelector<HTMLCanvasElement>('canvas')!;
-    const recordingScreen = new RecordingScreen({});
+    const recordingScreen = new RecordingScreen();
     const computingScreen = new ComputingScreen();
     const titleScreen = new TitleScreen();
     const game = new Game(canvas, titleScreen);

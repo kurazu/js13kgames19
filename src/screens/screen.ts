@@ -1,6 +1,7 @@
 import { WIDTH, HEIGHT } from '../constants';
 import Keyboard from '../game/keyboard';
 import WorkerCommunicator from '../worker_communication';
+import { sum } from '../utils';
 
 export default abstract class Screen<Options> {
     protected options: Options;
@@ -43,5 +44,16 @@ export default abstract class Screen<Options> {
         }
         ctx.fillStyle = textColor;
         ctx.fillText(text, x, y);
+    }
+
+    protected drawColoredText(ctx: CanvasRenderingContext2D, texts: [string, string][], fontSize: number, x: number, y: number) {
+        ctx.font = `${fontSize}px monospace`;
+        const measures = texts.map(([text, color]) => ctx.measureText(text).width);
+        const totalMeasure = sum(measures);
+        let currentX = x - totalMeasure / 2;
+        for (const [idx, [text, color]] of texts.entries()) {
+            this.drawText(ctx, text, fontSize, currentX, y, 'left', color);
+            currentX += measures[idx];
+        }
     }
 }

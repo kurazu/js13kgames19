@@ -3,6 +3,7 @@ import Keyboard from '../game/keyboard';
 import WorkerCommunicator from '../worker_communication';
 import Screen from './screen';
 import BackgroundScreen from './background_screen';
+import RecordingScreen from './recording_screen';
 
 const FONT_SIZE_PX = 64;
 const SECONDS_OF_ANIMATION = 3;
@@ -15,7 +16,7 @@ export default class TitleScreen extends BackgroundScreen<void> {
         this.render(ctx);
         if (this.wasPressedFrame) {
             if ( this.frames > this.wasPressedFrame + FRAMES_OF_ANIMATION) {
-                return new TitleScreen();
+                return new RecordingScreen();
             }
         } else if (keyboard.isAnyPressed()) {
             this.wasPressedFrame = this.frames;
@@ -30,19 +31,19 @@ export default class TitleScreen extends BackgroundScreen<void> {
         this.clear(ctx);
         const frameOfAnimation: number = this.wasPressedFrame ? this.frames - this.wasPressedFrame : 0;
         this.drawBackground(ctx, this.frames * (10 + frameOfAnimation / FRAMES_OF_ANIMATION * 30));
-        this.drawText(
-            ctx, 'THE BACKUP PILOT', FONT_SIZE_PX,
-            WIDTH / 2, centerY + yOffset, 'center',
+        this.drawColoredText(
+            ctx, [['THE ', 'white'], ['BACK', 'red'], ['-UP', 'white']],
+            FONT_SIZE_PX, WIDTH / 2, centerY + yOffset
         );
-        this.drawText(
-            ctx, 'by kurazu', FONT_SIZE_PX / 2,
-            WIDTH / 2, centerY + yOffset + 50, 'center'
+        this.drawColoredText(
+            ctx, [['by ', 'white'], ['kurazu', 'red']],
+            FONT_SIZE_PX / 2, WIDTH / 2, centerY + yOffset + 50
         );
         if (!this.wasPressedFrame) {
             if ((~~(this.frames / FPS * 2)) % 2) {
-                this.drawText(
-                    ctx, 'PRESS ANY ARROW TO START', FONT_SIZE_PX / 2,
-                    WIDTH / 2, HEIGHT - 50, 'center'
+                this.drawColoredText(
+                    ctx, [['PRESS ANY ', 'white'], ['ARROW', 'red'], [' TO START', 'white']],
+                    FONT_SIZE_PX / 2, WIDTH / 2, HEIGHT - 50
                 );
             }
         }

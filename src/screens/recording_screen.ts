@@ -8,10 +8,6 @@ import WorkerCommunicator from '../worker_communication';
 import { getStackedFeatures } from '../learning/features';
 import { DEFAULT_LEVEL_LENGTH } from '../constants';
 
-export interface RecordingScreenOptions {
-
-}
-
 function store(inputMatrix: Matrix2D, labels: Uint8Array) {
     const blob = new Blob([inputMatrix.buffer.buffer, labels.buffer], {type: 'application/octet-stream'});
     const url = URL.createObjectURL(blob);
@@ -26,7 +22,7 @@ function store(inputMatrix: Matrix2D, labels: Uint8Array) {
     window.URL.revokeObjectURL(url);
 }
 
-export default class RecordingScreen extends GameScreen<RecordingScreenOptions, RecordingShip> {
+export default class RecordingScreen extends GameScreen<void, RecordingShip> {
     protected levelLength: number = ~~(DEFAULT_LEVEL_LENGTH * 5);
 
     protected getNextScreen(workerCommunicator: WorkerCommunicator): Screen<any> {
