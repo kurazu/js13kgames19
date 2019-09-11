@@ -32,6 +32,9 @@ sup: compile
 ten: compile
 	$(NODE_PATH)/node --experimental-modules build/ten.js
 
+chain: compile
+	$(NODE_PATH)/node --experimental-modules build/chain.js
+
 debug: compile
 	$(NODE_PATH)/node --inspect-brk --experimental-modules build/sim.js
 

@@ -1,6 +1,8 @@
 import NeuralGeneticAlgorithm from './neural_genetic';
-import { FeedForwardNetwork, getCrossCategoricalEntropyLoss } from '../math/net';
-import { Matrix2D, argmax2D, getMatchingAccuracy } from '../math/multiply';
+import { FeedForwardNetwork } from '../math/net';
+import { Matrix2D, argmax2D } from '../math/multiply';
+import { getMatchingAccuracy, getCrossCategoricalEntropyLoss, oneHotEncode } from './loss';
+import { ACTIONS } from '../physics/actions';
 
 function getHistogram(input: Uint8Array): Map<number, number> {
     const map: Map<number, number> = new Map();
@@ -29,9 +31,8 @@ class SupervisedScore {
 }
 
 export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<SupervisedScore> {
-    private expectedAccuracy: number;
     private inputs: Matrix2D;
-    private labels: Uint8Array;
+    private labels: Matrix2D;
 
     public constructor(
         maxGenerations: number,
@@ -40,21 +41,18 @@ export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<S
         eliteSize: number,
         asexualReproductionSize: number,
         mutationFactor: number,
-        expectedAccuracy: number,
         inputs: Matrix2D,
         labels: Uint8Array
     ) {
         super(maxGenerations, populationSize, matingPoolSize, eliteSize, asexualReproductionSize, mutationFactor);
-        this.expectedAccuracy = expectedAccuracy;
         this.inputs = inputs;
-        this.labels = labels;
+        this.labels = oneHotEncode(labels, ACTIONS.length);
     }
 
     private evaluate(network: FeedForwardNetwork): SupervisedScore {
         const outputs: Matrix2D = network.calculate(this.inputs);
 
-        const predictions = argmax2D(outputs);
-        const accuracy = getMatchingAccuracy(predictions, this.labels);
+        const accuracy = getMatchingAccuracy(outputs, this.labels);
         const loss = getCrossCategoricalEntropyLoss(outputs, this.labels);
 
         return new SupervisedScore(accuracy, loss);
@@ -62,11 +60,5 @@ export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<S
 
     protected evaluateFitness(population: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, SupervisedScore][] {
         return population.map((network: FeedForwardNetwork) => [network, this.evaluate(network)]);
-    }
-
-    protected onGenerationEnd(generation: number, bestSolution: FeedForwardNetwork, bestScore: SupervisedScore): boolean {
-        const shouldTerminateEarly = super.onGenerationEnd(generation, bestSolution, bestScore);
-        console.log(`Generation ${generation} loss ${bestScore.loss} acc ${bestScore.accuracy}`);
-        return shouldTerminateEarly || bestScore.accuracy > this.expectedAccuracy;
     }
 }

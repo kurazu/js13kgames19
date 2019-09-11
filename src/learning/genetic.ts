@@ -39,7 +39,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
         this.topic = new Topic();
     }
 
-    protected abstract createInitialSolution(): Solution;
+    protected abstract createInitialSolution(idx: number): Solution;
     protected abstract evaluateFitness(population: Solution[], generation: number): [Solution, Score][];
     protected abstract getGenes(solution: Solution): Float32Array;
     protected abstract constructSolution(genes: Float32Array): Solution;
@@ -115,7 +115,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
     }
 
     public evolve(): Solution[] {
-        let population: Solution[] = range(this.populationSize).map(_ => this.createInitialSolution());
+        let population: Solution[] = range(this.populationSize).map(idx => this.createInitialSolution(idx));
         for (let generation = 0; generation < this.maxGenerations; generation++) {
             this.onGenerationStart(generation);
             const scoredPopulation: [Solution, Score][] = this.evaluateFitness(population, generation);

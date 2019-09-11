@@ -132,13 +132,3 @@ export class FeedForwardNetwork {
         return this.layers.reduce((acc: Matrix2D, layer: Layer) => layer.calculate(acc), inputMatrix);
     }
 }
-
-export function getCrossCategoricalEntropyLoss(outputs: Matrix2D, labels: Uint8Array): number {
-    let loss = 0;
-    for (const [rowIdx, label] of labels.entries()) {
-        const row: Float32Array = outputs.getRow(rowIdx);
-        const predictionForTrueClass = row[label];
-        loss += -Math.log(predictionForTrueClass);
-    }
-    return loss;
-}

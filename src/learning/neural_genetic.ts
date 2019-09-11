@@ -21,7 +21,7 @@ export function createNetwork(buffer: Float32Array | null = null) {
 }
 
 export default abstract class NeuralGeneticAlgorithm<Score> extends GeneticAlgorithm<FeedForwardNetwork, Score> {
-    protected createInitialSolution(): FeedForwardNetwork {
+    protected createInitialSolution(idx: number): FeedForwardNetwork {
         return createNetwork();
     }
 

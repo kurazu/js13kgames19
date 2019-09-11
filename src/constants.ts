@@ -10,6 +10,7 @@ export const UPWARD_THRUST_ACCELERATION = new Vector(0, BLOCK_SIZE * 12);
 export const LEFT_THRUST_ACCELERATION = new Vector(-BLOCK_SIZE * 8, 0);
 export const RIGHT_THRUST_ACCELERATION = LEFT_THRUST_ACCELERATION.multiplyByScalar(-1);
 export const FRICTION = 1 - 0.05;
+export const AIR_FRICTION = 1 - 0.005;
 
 export const WIDTH = 1024;
 export const HEIGHT = 576;
@@ -24,7 +25,7 @@ export const DEFAULT_PLAYER_POSITION = new Vector(BLOCK_SIZE * 4, BLOCK_SIZE * R
 export const FEATURES: number = SENSORS_COUNT + 2;
 export const LEARNING_FRAMES: number = 6;
 export const LEARNING_EVERY_N_FRAMES: number = 40;
-export const DENSE_LAYERS: number[] = [128];
+export const DENSE_LAYERS: number[] = [64];
 
 export enum Tiles {
     MIDDLE_WALL = 0,

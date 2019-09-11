@@ -10,6 +10,7 @@ import {
     TIME_DELTA,
     MAX_VELOCITY,
     FRICTION,
+    AIR_FRICTION,
     SENSORS_COUNT,
     SENSORS_RANGE,
     DEFAULT_LEVEL_LENGTH,
@@ -119,6 +120,7 @@ export default class World {
         const acceleration = Vector.add(accelerations);
         const velocityChange = acceleration.multiplyByScalar(TIME_DELTA);
         ship.velocity.addInplace(velocityChange);
+        ship.velocity.multiplyInplace(new Vector(AIR_FRICTION, 1));
         ship.velocity.trim(MAX_VELOCITY);
         const desiredPositionChange = ship.velocity.multiplyByScalar(TIME_DELTA);
         const desiredPosition = ship.position.add(desiredPositionChange);

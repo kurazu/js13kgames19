@@ -47,6 +47,11 @@ export default class Vector extends Float32Array {
         return new Vector(this[0] * other[0], this[1] * other[1]);
     }
 
+    public multiplyInplace(other: Vector): void {
+        this[0] *= other[0];
+        this[1] *= other[1];
+    }
+
     public static add(vectors: Iterable<Vector>): Vector {
         const result = new Vector();
         for (const vector of vectors) {
