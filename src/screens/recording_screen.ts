@@ -6,6 +6,7 @@ import RecordingShip from '../ships/recording_ship';
 import SupervisedLearningScreen from './supervised_screen';
 import { getStackedFeatures } from '../learning/features';
 import { DEFAULT_LEVEL_LENGTH } from '../constants';
+import { emphasis as E, TextFormatter } from './text';
 
 function store(inputMatrix: Matrix2D, labels: Uint8Array) {
     const blob = new Blob([inputMatrix.buffer.buffer, labels.buffer], {type: 'application/octet-stream'});
@@ -22,6 +23,7 @@ function store(inputMatrix: Matrix2D, labels: Uint8Array) {
 
 export default class RecordingScreen extends GameScreen<void, RecordingShip> {
     protected levelLength: number = ~~(DEFAULT_LEVEL_LENGTH * 5);
+    protected targetTime: number = 30;
 
     protected getNextScreen(toolbox: Toolbox): Screen<any> {
         const records = this.player!.records;

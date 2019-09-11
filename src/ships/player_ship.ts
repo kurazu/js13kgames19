@@ -20,6 +20,6 @@ export default class PlayerShip extends Ship {
     }
 
     public get name() {
-        return 'PLAYER';
+        return 'ROOKIE';
     }
 }

@@ -57,10 +57,7 @@ export default abstract class TextScreen extends MenuScreen<TextScreenOptions> {
         this.drawBackground(toolbox, this.frames * 10);
         const page = this.pages[this.options.page];
         const padding = 10;
-        for (const [idx, line] of page.entries()) {
-            this.drawColoredText(toolbox, line, FONT_SIZE_PX, WIDTH / 2, (idx + 2) * (FONT_SIZE_PX + padding));
-        }
-
+        this.drawColoredTexts(toolbox, page, FONT_SIZE_PX, padding, WIDTH / 2, FONT_SIZE_PX + padding);
         this.renderItems(toolbox, ~~(FONT_SIZE_PX) / 2, 10, HEIGHT - 150);
         this.renderHelp(toolbox, ~~(FONT_SIZE_PX / 2), HEIGHT - 50);
     }
