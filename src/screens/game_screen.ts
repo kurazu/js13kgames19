@@ -129,12 +129,13 @@ export default abstract class GameScreen<PlayerType extends PlayerShip> extends 
 
     private drawShip(ship: Ship): void {
         const { toolbox, camera } = this;
-        const { ctx, shipImage } = toolbox;
+        const { ctx, tilesImage } = toolbox;
         // TODO: visual differentiation
         // if (ship.touching) {
         // const intensity = ~~(255 * ship.velocity.getLength() / MAX_VELOCITY);
         const {x, y} = camera.getScreenPosition(ship);
-        ctx.drawImage(shipImage, x, y);
+        ctx.drawImage(tilesImage, 320, 0, 64, 32, x, y, 64, 32);
+        // ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
         this.drawMarkers(ship);
         this.drawText(
             ship.name,

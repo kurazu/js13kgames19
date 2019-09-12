@@ -9,7 +9,6 @@ export interface Toolbox {
     readonly keyboard: Keyboard;
     readonly foregroundImage: CanvasImageSource;
     readonly backgroundImage: CanvasImageSource;
-    readonly shipImage: CanvasImageSource;
     readonly tilesImage: CanvasImageSource;
     readonly workerCommunicator: WorkerCommunicator;
     readonly canvas: HTMLCanvasElement;
@@ -25,7 +24,7 @@ export async function loadToolbox(canvas: HTMLCanvasElement): Promise<Toolbox> {
     const keyboard = new Keyboard();
     const foregroundImage = await generateForeground();
     const backgroundImage = await generateBackground();
-    const [shipImage, tilesImage] = await Promise.all([loadImage('img/ship.png'), loadImage('img/tiles.png')])
+    const tilesImage = await loadImage('img/tiles.png');
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
     const ctx = canvas.getContext('2d')!;
@@ -35,7 +34,7 @@ export async function loadToolbox(canvas: HTMLCanvasElement): Promise<Toolbox> {
     const toolbox: Toolbox = {
         canvas, ctx,
         workerCommunicator, keyboard,
-        foregroundImage, backgroundImage, shipImage, tilesImage,
+        foregroundImage, backgroundImage, tilesImage,
         neuralNetwork: undefined,
         generation: 0,
         step: 0,

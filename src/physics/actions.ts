@@ -14,7 +14,7 @@ export class Action {
     }
 }
 
-export enum Actions {
+export const enum Actions {
     DRIFT = 0,
     UP = 1,
     LEFT = 2,

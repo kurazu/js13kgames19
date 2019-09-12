@@ -34,9 +34,8 @@ export default class WaitingScreen extends GameScreen<PlayerShip> {
     private drawAirmiles(): void {
         const fontSizePx: number = 24;
         const texts: Line = [
-            N('Airmiles: '),
             S(this.getAirmiles().toFixed(1).padStart(3, '0')),
-            N(`/${TARGET_AIRMILES}`),
+            N(`/${TARGET_AIRMILES} airmiles`),
         ]
         this.drawColoredText(
             texts,

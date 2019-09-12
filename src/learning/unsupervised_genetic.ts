@@ -23,8 +23,7 @@ export default class UnsupervisedGameGeneticOptimizer extends NeuralGeneticAlgor
     private world: World;
     private minFrames: number;
     private maxFrames: number;
-    private generationsWon: number[];
-    private consecutiveWinsForEarlyStopping: number;
+    private initialNetwork: FeedForwardNetwork;
 
     public constructor(
         maxGenerations: number,
@@ -35,14 +34,13 @@ export default class UnsupervisedGameGeneticOptimizer extends NeuralGeneticAlgor
         mutationFactor: number,
         minFrames: number,
         maxFrames: number,
-        consecutiveWinsForEarlyStopping: number,
+        initialNetwork: FeedForwardNetwork
     ) {
         super(maxGenerations, populationSize, matingPoolSize, eliteSize, asexualReproductionSize, mutationFactor);
         this.world = new World();
         this.minFrames = minFrames;
         this.maxFrames = maxFrames;
-        this.generationsWon = [];
-        this.consecutiveWinsForEarlyStopping = consecutiveWinsForEarlyStopping;
+        this.initialNetwork = initialNetwork;
     }
 
     protected evaluateFitness(population: FeedForwardNetwork[], generation: number): [FeedForwardNetwork, PlayerScore][] {
@@ -58,7 +56,6 @@ export default class UnsupervisedGameGeneticOptimizer extends NeuralGeneticAlgor
                 continue;
             } else { // we have a winner
                 console.log('Somebody won the race!');
-                this.generationsWon.push(generation);
                 break;
             }
         }
@@ -68,26 +65,25 @@ export default class UnsupervisedGameGeneticOptimizer extends NeuralGeneticAlgor
         ]);
     }
 
-    protected isReadyForEarlyStopping(generation: number): boolean {
-        return range(this.consecutiveWinsForEarlyStopping).every(n => this.generationsWon[this.generationsWon.length - 1 - n] === generation - n);
-    }
-
-    protected onGenerationEnd(generation: number, bestSolution: FeedForwardNetwork, bestScore: PlayerScore): boolean {
-        const shouldTerminateEarly = super.onGenerationEnd(generation, bestSolution, bestScore);
-        if (this.isReadyForEarlyStopping(generation)) {
-            console.log(`${this.consecutiveWinsForEarlyStopping} last generations have won. Terminating early.`);
-            return true;
-        }
+    protected onGenerationEnd(generation: number, bestSolution: FeedForwardNetwork, bestScore: PlayerScore): void {
+        super.onGenerationEnd(generation, bestSolution, bestScore);
         if (bestScore.finished) {
             console.log('Creating a new level');
             this.world = new World();
         } else {
             this.world.reset();
         }
-        return shouldTerminateEarly;
     }
 
     protected isSatisfactory(generation: number, bestSolution: FeedForwardNetwork, bestScore: PlayerScore): boolean {
-        return generation === this.maxGenerations - 1 || bestScore.score > 5000 || this.isReadyForEarlyStopping(generation);
+        return generation === this.maxGenerations - 1 || bestScore.finished || bestScore.score > 5000;
+    }
+
+    protected createInitialSolution(idx: number): FeedForwardNetwork {
+        if (idx === 0) {
+            return this.initialNetwork;
+        } else {
+            return super.createInitialSolution(idx);
+        }
     }
 }

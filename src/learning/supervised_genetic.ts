@@ -73,10 +73,9 @@ export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<S
         return population.map((network: FeedForwardNetwork) => [network, this.evaluate(network, inputsSubset, labelsSubset)]);
     }
 
-    protected onGenerationEnd(generation: number, bestSolution: FeedForwardNetwork, bestScore: SupervisedScore): boolean {
-        const shouldTerminateEarly = super.onGenerationEnd(generation, bestSolution, bestScore);
+    protected onGenerationEnd(generation: number, bestSolution: FeedForwardNetwork, bestScore: SupervisedScore): void {
+        super.onGenerationEnd(generation, bestSolution, bestScore);
         console.log(`Generation ${generation + 1} loss=${bestScore.loss} acc=${bestScore.accuracy}`);
-        return shouldTerminateEarly;
     }
 
     protected isSatisfactory(generation: number, bestSolution: FeedForwardNetwork, bestScore: SupervisedScore): boolean {

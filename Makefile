@@ -27,9 +27,6 @@ min: compile min-styles min-html
 	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_PROD) --entry_point build/worker.js --js_output_file=dist/worker.min.js
 	ls -lh dist/*.js
 
-run: compile
-	$(NODE_PATH)/node --experimental-modules build/sim.js
-
 sup: compile
 	$(NODE_PATH)/node --experimental-modules build/sup.js
 
@@ -59,8 +56,9 @@ clean:
 	rm -vf game.zip
 
 zip: min
-	advzip -4 -i 20 -a game.zip dist/index.min.html dist/bundle.min.js dist/worker.min.js img/ship.png img/tiles.png dist/styles.min.css
+	advzip -4 -i 20 -a game.zip dist/index.min.html dist/bundle.min.js dist/worker.min.js img/tiles.png dist/styles.min.css
 	ls -lh game.zip
+	ls -l game.zip
 
 serve:
 	python2.7 -m SimpleHTTPServer

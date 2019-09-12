@@ -57,7 +57,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
         this.generationStartTS = +new Date;
     }
 
-    protected onGenerationEnd(generation: number, bestSolution: Solution, bestScore: Score): boolean {
+    protected onGenerationEnd(generation: number, bestSolution: Solution, bestScore: Score): void {
         const timeDiff = (+new Date) - this.generationStartTS;
         const currentScore = +bestScore;
         const improvement = currentScore - this.previousBestScore;
@@ -70,7 +70,6 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
         });
         console.log(`Generation ${generation + 1}/${this.maxGenerations} best score ${currentScore} (improvement ${improvement}) took ${(timeDiff / 1000).toFixed(1)} seconds.`);
         this.previousBestScore = currentScore;
-        return false;
     }
 
     protected selectParents(scoredPopulation: [Solution, Score][]): Solution[] {
@@ -132,13 +131,9 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
         for (let generation = 0; generation < this.maxGenerations; generation++) {
             this.onGenerationStart(generation);
             const scoredPopulation: [Solution, Score][] = this.evaluateFitness(population, generation);
-            // this.logScoredPopulation(generation, scoredPopulation);
             this.sortScoredPopulation(scoredPopulation);
             const [bestSolution, bestScore]: [Solution, Score] = scoredPopulation[0];
-            const shouldTerminateEarly = this.onGenerationEnd(generation, bestSolution, bestScore);
-            if (shouldTerminateEarly) {
-                break;
-            }
+            this.onGenerationEnd(generation, bestSolution, bestScore);
             if (generation < this.maxGenerations - 1) {
                 const matingPool: Solution[] = this.selectParents(scoredPopulation);
                 population = this.reproduce(matingPool);
@@ -148,13 +143,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
     }
 
     public evolveBest(): Solution {
-        const solutions: Solution[] = this.evolve();
-        return solutions[0];
-    }
-
-    private logScoredPopulation(generation: number, population: [Solution, Score][]): void {
-        for (const [idx, [solution, score]] of population.entries()) {
-            console.log(`GEN ${generation + 1} SOL ${idx} SCORE ${+score}`);
-        }
+        const [bestSolution,]: Solution[] = this.evolve();
+        return bestSolution;
     }
 }
