@@ -7,6 +7,8 @@ const enum ScreenType {
     WAITING,
     TRAINED,
     COMPETE,
+    WON,
+    LOST
 }
 
 export default ScreenType;

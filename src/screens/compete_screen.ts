@@ -22,7 +22,15 @@ export default class CompeteScreen extends GameScreen<PlayerShip> {
         return new PlayerShip(this.toolbox.keyboard);
     }
 
+    protected isPlayerWinning(): boolean {
+        return this.player.position.x >= this.bot.position.x;
+    }
+
     protected onLevelFinished(): ScreenType {
-        return ScreenType.COMPETE;
+        if (this.isPlayerWinning()) {
+            return ScreenType.WON;
+        } else {
+            return ScreenType.LOST;
+        }
     }
 }

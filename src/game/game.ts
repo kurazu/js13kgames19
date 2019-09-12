@@ -9,6 +9,8 @@ import RecordedScreen from '../screens/recorded_screen';
 import WaitingScreen from '../screens/waiting_screen';
 import CompeteScreen from '../screens/compete_screen';
 import TrainedScreen from '../screens/trained_screen';
+import LostScreen from '../screens/lost_screen';
+import WonScreen from '../screens/won_screen';
 
 type ScreenClass = {new(toolbox: Toolbox): Screen};
 
@@ -21,6 +23,8 @@ screenConstructors.set(ScreenType.RECORDED, RecordedScreen);
 screenConstructors.set(ScreenType.WAITING, WaitingScreen);
 screenConstructors.set(ScreenType.COMPETE, CompeteScreen);
 screenConstructors.set(ScreenType.TRAINED, TrainedScreen);
+screenConstructors.set(ScreenType.LOST, LostScreen);
+screenConstructors.set(ScreenType.WON, WonScreen);
 
 export default async function start(canvas: HTMLCanvasElement, initialScreenType: ScreenType): Promise<void> {
     const toolbox: Toolbox = await loadToolbox(canvas);
