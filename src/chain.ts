@@ -4,8 +4,8 @@ import { readFileSync } from 'fs';
 import { assertEqual } from './utils';
 import { Matrix2D } from './math/multiply';
 
-const path = '/home/kurazu/Downloads/samples.1568108766129.3097.bin';
-const rows = 3097;
+const path = '/home/kurazu/Downloads/samples.1568211892615.14995.bin';
+const rows = 14995;
 
 const buffer: ArrayBuffer = readFileSync(path).buffer;
 const featuresSize = FEATURES * LEARNING_FRAMES * rows * 4;
