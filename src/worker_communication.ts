@@ -1,5 +1,4 @@
 import Topic from './observable';
-import { assert } from './utils';
 import { FeedForwardNetwork } from './math/net';
 import { Matrix2D } from './math/multiply';
 import { createNetwork } from './learning/neural_genetic';
@@ -32,7 +31,6 @@ export default class WorkerCommunicator {
     }
 
     private onReadyMessage(response: ReadyResponse): void {
-        assert(response.weights instanceof Float32Array);
         const network: FeedForwardNetwork = createNetwork(response.weights);
         this.readyTopic.next([network, response.generation]);
     }

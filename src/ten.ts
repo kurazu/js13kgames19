@@ -2,7 +2,7 @@ import tf from '@tensorflow/tfjs-node';
 // const tf = require('@tensorflow/tfjs-node');
 import { FEATURES, LEARNING_FRAMES } from './constants';
 import { readFileSync } from 'fs';
-import { assertEqual, range } from './utils';
+import { range } from './utils';
 import { Matrix2D } from './math/multiply';
 import { ACTIONS } from './physics/actions';
 import { shuffleArrays } from './learning/shuffle';
@@ -31,8 +31,6 @@ function readData(): [Float32Array, Float32Array, number] {
         oneHotLabels[row * ACTIONS.length + column] = 1;
     }
 
-    assertEqual(inputsArray.length / (FEATURES * LEARNING_FRAMES), rows);
-    assertEqual(labelsArray.length, rows);
     return [inputsArray, oneHotLabels, rows];
 }
 

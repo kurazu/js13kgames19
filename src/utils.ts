@@ -45,25 +45,8 @@ export function maxBy<T>(items: T[], measureCallback: (item: T) => number): [T, 
     }, [first, firstMeasure]);
 }
 
-export function assert(condition: boolean, msg: string = ''): void {
-    if (!condition) {
-        throw new Error(msg);
-    }
-}
-
-export function assertEqual(a: any, b: any, msg: string = `${a} !== ${b}`): void {
-    assert(a === b, msg);
-}
-
-export function assertDoubleRange(lowerRange: any, x: any, upperRange: any, msg: string = `${x} not in [${lowerRange};${upperRange}]`): void {
-    assert(lowerRange <= x && x < upperRange);
-}
-
 export function zip(...arrays: Float32Array[]): Float32Array[] {
     const first: Float32Array = arrays[0];
-    for (const array of arrays) {
-        assert(array.length === first.length);
-    }
     return range(first.length).map((idx: number) => Float32Array.from(arrays.map(array => array[idx])));
 }
 
@@ -94,7 +77,6 @@ export function iterableMap<Input, Output>(
 
 
 export function* everyNthReversed<T>(iterable: T[], n: number): Iterable<T> {
-    assert(iterable.length > 0);
     let idx = iterable.length - 1;
     let item = iterable[idx];
     yield item;

@@ -1,4 +1,4 @@
-import { range, randomSample, uniformRandom, randRange, maxBy, assert, chain, iterableMap } from '../utils';
+import { range, randomSample, uniformRandom, randRange, maxBy, chain, iterableMap } from '../utils';
 import Topic from '../observable';
 
 export interface ProgressInfo<Solution> {
@@ -29,13 +29,6 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
         asexualReproductionSize: number,
         mutationFactor: number
     ) {
-        assert(maxGenerations > 0);
-        assert(populationSize > 2);
-        assert(matingPoolSize < populationSize);
-        assert(asexualReproductionSize + eliteSize < matingPoolSize);
-        assert(0 < mutationFactor);
-        assert(mutationFactor < 1);
-
         this.maxGenerations = maxGenerations;
         this.populationSize = populationSize;
         this.matingPoolSize = matingPoolSize;

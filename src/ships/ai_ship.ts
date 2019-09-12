@@ -5,7 +5,7 @@ import { SensorsState } from '../physics/collision';
 import { FeedForwardNetwork } from '../math/net';
 import { Matrix2D, argmax } from '../math/multiply';
 import { LEARNING_FRAMES, FEATURES, LEARNING_EVERY_N_FRAMES } from '../constants';
-import { assert, everyNthReversed, randRange } from '../utils';
+import { everyNthReversed, randRange } from '../utils';
 import { Queue } from '../math/queue';
 import { getFeatures, getFeaturesQueueSize, buildInputMatrix } from '../learning/features';
 
@@ -39,7 +39,6 @@ export default class AIShip extends Ship {
         } else { // take sensible action
             const inputMatrix: Matrix2D = buildInputMatrix(this.featuresQueue);
             const output = this.neuralNetwork.calculate(inputMatrix);
-            assert(output.rows === 1);
             actionIdx = argmax(output.getRow(0));
         }
         return ACTIONS[actionIdx];

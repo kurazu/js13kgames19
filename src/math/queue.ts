@@ -1,5 +1,3 @@
-import { assert } from '../utils';
-
 export class Queue<T> extends Array<T> {
     public readonly maxLength: number;
 
@@ -34,7 +32,6 @@ export class FeaturesQueue {
     }
 
     public push(features: Float32Array) {
-        assert(features.length === this.inputWidth);
         if (!this.initialized) {
             for (let i = 0; i < this.maxLength; i++) {
                 this.array.set(features, i * this.inputWidth);

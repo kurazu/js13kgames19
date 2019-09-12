@@ -1,5 +1,4 @@
 import { Matrix2D, dot, addBias, relu, softmax, sigmoid, uniformRandomDistribution, relu_derivate, sigmoid_derivate, softmax_derivate } from './multiply';
-import { assert } from '../utils';
 
 export abstract class Layer {
     public abstract getOutputSize(inputWidth: number): number;
@@ -37,7 +36,6 @@ export class DenseLayer extends Layer {
     }
 
     public setWeights(inputWidth: number, weights: Float32Array): void {
-        assert(weights.length === this.getWeightsSize(inputWidth));
         const kernelSize = this.getKernelSize(inputWidth);
         const kernelWeights = weights.subarray(0, kernelSize);
         const biasWeights = weights.subarray(kernelSize);
@@ -72,7 +70,6 @@ abstract class ActivationLayer extends Layer {
     }
 
     public setWeights(inputWidth: number, weights: Float32Array): void {
-        assert(weights.length === 0);
     }
 }
 
@@ -121,7 +118,6 @@ export class FeedForwardNetwork {
             this.weights = new Float32Array(weightsSize);
             uniformRandomDistribution(this.weights);
         } else {
-            assert(weights.length === weightsSize);
             this.weights = weights;
         }
 

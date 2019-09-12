@@ -1,4 +1,3 @@
-import { assertEqual } from '../utils';
 import { Matrix2D, argmax2D } from '../math/multiply';
 
 export function oneHotEncode(input: Uint8Array, nCategories: number): Matrix2D {
@@ -10,9 +9,6 @@ export function oneHotEncode(input: Uint8Array, nCategories: number): Matrix2D {
 }
 
 export function getMatchingAccuracy(predictions: Matrix2D, oneHotExpectations: Matrix2D): number {
-    assertEqual(predictions.rows, oneHotExpectations.rows);
-    assertEqual(predictions.columns, oneHotExpectations.columns);
-
     const predictedClasses = argmax2D(predictions);
     const expectedClasses = argmax2D(oneHotExpectations);
 
@@ -24,8 +20,6 @@ export function getMatchingAccuracy(predictions: Matrix2D, oneHotExpectations: M
 }
 
 export function getCrossCategoricalEntropyLoss(predictions: Matrix2D, oneHotExpectations: Matrix2D): number {
-    assertEqual(predictions.rows, oneHotExpectations.rows);
-    assertEqual(predictions.columns, oneHotExpectations.columns);
     const rows = predictions.rows;
     const columns = predictions.columns;
 

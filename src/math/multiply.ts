@@ -1,4 +1,4 @@
-import { range, zip, assert, sum, uniformRandom, assertEqual } from '../utils';
+import { range, zip, sum, uniformRandom } from '../utils';
 
 export class Matrix2D {
     public readonly buffer: Float32Array;
@@ -10,7 +10,6 @@ export class Matrix2D {
         this.rows = rows;
         this.columns = columns;
         if (buffer) {
-            assert(bufferLength === buffer.length);
             this.buffer = buffer;
         } else {
             this.buffer = new Float32Array(bufferLength);
@@ -18,8 +17,6 @@ export class Matrix2D {
     }
 
     public getAddress(row: number, column: number): number {
-        assert(0 <= row && row <= this.rows);
-        assert(0 <= column && column <= this.columns);
         return row * this.columns + column;
     }
 
@@ -29,16 +26,13 @@ export class Matrix2D {
     }
 
     public setRow(row: number, values: Float32Array): void {
-        assert(values.length == this.columns);
         const address = this.getAddress(row, 0);
         this.buffer.set(values, address);
     }
 
     public set(values: number[][]): void {
-        assert(values.length == this.rows);
         let address = 0;
         for (const row of values) {
-            assert(row.length == this.columns);
             for (const value of row) {
                 this.buffer[address++] = value;
             }
@@ -63,7 +57,6 @@ export class Matrix2D {
 }
 
 export function dot(A: Matrix2D, B: Matrix2D): Matrix2D {
-    assert(A.columns == B.rows, `${A.columns} != ${B.rows}`);
     const result = new Matrix2D(A.rows, B.columns);
     for (let row = 0; row < A.rows; row++) {
         for (let column = 0; column < B.columns; column++) {
@@ -78,7 +71,6 @@ export function dot(A: Matrix2D, B: Matrix2D): Matrix2D {
 }
 
 export function addBias(matrix: Matrix2D, biasVector: Float32Array) {
-    assert(matrix.columns === biasVector.length);
     return new Matrix2D(matrix.rows, matrix.columns, matrix.buffer.map(
         (item, idx) => item + biasVector[idx % matrix.columns]
     ));
@@ -107,26 +99,6 @@ export function softmax(matrix: Matrix2D): Matrix2D {
     })
     return result;
 }
-
-// const a = new Matrix2D(2, 3);
-// a.set([[2, 3, 4], [5, 6, 7]]);
-
-// const b = new Matrix2D(3, 2);
-// b.set([[1, 4], [2, 5], [3, 6]]);
-
-// const c = dot(a, b);
-// console.log(c.toString());
-
-// const d = addBias(c, [0.1, 0.2])
-// console.log(d.toString());
-
-// module.exports = {
-//     Matrix2D,
-//     dot,
-//     addBias,
-//     relu,
-//     softmax
-// };
 
 
 export function uniformRandomDistribution(array: Float32Array): void {
@@ -157,8 +129,6 @@ export function argmax2D(input: Matrix2D): Uint8Array {
 }
 
 export function multiply(a: Matrix2D, b: Matrix2D): Matrix2D {
-    assertEqual(a.rows, b.rows);
-    assertEqual(a.columns, b.columns);
     return new Matrix2D(
         a.rows, a.columns,
         a.buffer.map((aValue, idx) => aValue * b.buffer[idx])

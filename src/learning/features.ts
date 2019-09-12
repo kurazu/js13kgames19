@@ -2,7 +2,6 @@ import { SENSORS_RANGE, MAX_VELOCITY, LEARNING_FRAMES, FEATURES, LEARNING_EVERY_
 import { Action, ACTIONS, Actions } from '../physics/actions';
 import { SensorsState } from '../physics/collision';
 import Vector from '../physics/vector';
-import { assert, assertEqual, assertDoubleRange } from '../utils';
 import { Matrix2D } from '../math/multiply';
 import { Queue } from '../math/queue';
 
@@ -18,7 +17,6 @@ export function getFeatures(velocity: Vector, sensorsState: SensorsState, nFeatu
     }
     result[idx++] = velocity.x / MAX_VELOCITY; // <0, 1> distribution
     result[idx++] = velocity.y / MAX_VELOCITY; // <0, 1> distribution
-    assertEqual(idx, nFeatures);
     return result;
 }
 
@@ -54,7 +52,6 @@ export function getStackedFeatures(
     for (let row = 0; row < rows; row++) {
         for (let frame = 0; frame < learningFrames; frame++) {
             const sampleIdx = row + frame * learningEveryNFrames;
-            assertDoubleRange(0, sampleIdx, samples.length);
             const [features, ]: [Float32Array, Actions] = featureSamples[sampleIdx];
             inputs.buffer.set(features, row * inputs.columns + nFeatures * frame);
         }
@@ -78,8 +75,6 @@ export function buildInputMatrix(
     learningFrames:number = LEARNING_FRAMES,
     learningEveryNFrames:number = LEARNING_EVERY_N_FRAMES
 ): Matrix2D {
-    assertEqual(queue.maxLength, getFeaturesQueueSize(learningFrames, learningEveryNFrames));
-    assert(queue.length > 0);
     while (!queue.isFull()) {
         queue.unshift(queue[0]);
     }

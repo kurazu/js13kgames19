@@ -1,9 +1,8 @@
 import { Matrix2D } from '../math/multiply';
-import { assertEqual, range, randomSample } from '../utils';
+import { range, randomSample } from '../utils';
 import { shuffle, shuffleArrays } from './shuffle';
 
 export function* getBatches(x: Matrix2D, y: Matrix2D, batchSize: number): Iterable<[Matrix2D, Matrix2D]> {
-    assertEqual(x.rows, y.rows);
     const rows = x.rows;
     const indices = range(rows);
     shuffle(indices);
@@ -21,7 +20,6 @@ export function* getBatches(x: Matrix2D, y: Matrix2D, batchSize: number): Iterab
 
 
 export function trainTestSplit(inputs: Matrix2D, labels: Matrix2D, validationSplit: number): [Matrix2D, Matrix2D, Matrix2D, Matrix2D] {
-    assertEqual(inputs.rows, labels.rows);
     const rows: number = inputs.rows;
     shuffleArrays(inputs.buffer, labels.buffer, rows);
     const trainRows = ~~(validationSplit * rows);
@@ -34,7 +32,6 @@ export function trainTestSplit(inputs: Matrix2D, labels: Matrix2D, validationSpl
 }
 
 export function getRandomSubset(inputs: Matrix2D, labels: Matrix2D, size: number): [Matrix2D, Matrix2D] {
-    assertEqual(inputs.rows, labels.rows);
     const rows: number = inputs.rows;
     if (rows <= size) {
         // set too small
