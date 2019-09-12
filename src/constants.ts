@@ -40,5 +40,8 @@ export enum Tiles {
     BROWN_CAP_RIGHT = 9
 }
 
+export const TARGET_AIRMILES = 100;
 export const RECORDING_LEVEL_LENGTH_FACTOR = 0.25;
 export const RECORDING_TARGET_TIME = 60;
+export const SUPERVISED_GENERATIONS = 30;
+export const UNSUPERVISED_GENERATIONS = 100;

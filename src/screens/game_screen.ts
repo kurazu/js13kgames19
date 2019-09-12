@@ -146,7 +146,7 @@ export default abstract class GameScreen<PlayerType extends PlayerShip> extends 
         );
     }
 
-    private drawHUD(): void {
+    protected drawHUD(): void {
         this.drawPlayerNames();
         this.drawTime();
     }

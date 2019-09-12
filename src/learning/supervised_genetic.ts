@@ -78,4 +78,8 @@ export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<S
         console.log(`Generation ${generation + 1} loss=${bestScore.loss} acc=${bestScore.accuracy}`);
         return shouldTerminateEarly;
     }
+
+    protected isSatisfactory(generation: number, bestSolution: FeedForwardNetwork, bestScore: SupervisedScore): boolean {
+        return false;
+    }
 }

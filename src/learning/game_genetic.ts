@@ -68,9 +68,13 @@ export default class GameNetworkGeneticOptimizer extends NeuralGeneticAlgorithm<
         ]);
     }
 
+    protected isReadyForEarlyStopping(generation: number): boolean {
+        return range(this.consecutiveWinsForEarlyStopping).every(n => this.generationsWon[this.generationsWon.length - 1 - n] === generation - n);
+    }
+
     protected onGenerationEnd(generation: number, bestSolution: FeedForwardNetwork, bestScore: PlayerScore): boolean {
         const shouldTerminateEarly = super.onGenerationEnd(generation, bestSolution, bestScore);
-        if (range(this.consecutiveWinsForEarlyStopping).every(n => this.generationsWon[this.generationsWon.length - 1 - n] === generation - n)) {
+        if (this.isReadyForEarlyStopping(generation)) {
             console.log(`${this.consecutiveWinsForEarlyStopping} last generations have won. Terminating early.`);
             return true;
         }
@@ -81,5 +85,9 @@ export default class GameNetworkGeneticOptimizer extends NeuralGeneticAlgorithm<
             this.world.reset();
         }
         return shouldTerminateEarly;
+    }
+
+    protected isSatisfactory(generation: number, bestSolution: FeedForwardNetwork, bestScore: PlayerScore): boolean {
+        return this.isReadyForEarlyStopping(generation);
     }
 }

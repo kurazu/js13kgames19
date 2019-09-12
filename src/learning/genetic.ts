@@ -1,8 +1,14 @@
 import { range, randomSample, uniformRandom, randRange, maxBy, assert, chain, iterableMap } from '../utils';
 import Topic from '../observable';
 
+export interface ProgressInfo<Solution> {
+    bestSolution: Solution;
+    generation: number;
+    satisfactory: boolean;
+}
+
 export default abstract  class GeneticAlgorithm<Solution, Score> {
-    protected maxGenerations: number;
+    public readonly maxGenerations: number;
     protected populationSize: number;
     protected matingPoolSize: number;
     protected eliteSize: number;
@@ -12,7 +18,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
     }
     protected mutationFactor: number;
     protected generationStartTS: number = +new Date;
-    public readonly topic: Topic<[Solution, number]>;
+    public readonly topic: Topic<ProgressInfo<Solution>>;
     private previousBestScore: number = -Infinity;
 
     protected constructor(
@@ -44,6 +50,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
     protected abstract getGenes(solution: Solution): Float32Array;
     protected abstract constructSolution(genes: Float32Array): Solution;
     protected abstract mutateGene(gene: number): number;
+    protected abstract isSatisfactory(generation: number, solution: Solution, score: Score): boolean;
 
     protected onGenerationStart(generation: number): void {
         console.log(`Generation ${generation + 1}/${this.maxGenerations}`);
@@ -54,7 +61,13 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
         const timeDiff = (+new Date) - this.generationStartTS;
         const currentScore = +bestScore;
         const improvement = currentScore - this.previousBestScore;
-        this.topic.next([bestSolution, generation]);
+        // TODO move to the main loop
+        const satisfactory = this.isSatisfactory(generation, bestSolution, bestScore);
+        this.topic.next({
+            bestSolution,
+            generation,
+            satisfactory
+        });
         console.log(`Generation ${generation + 1}/${this.maxGenerations} best score ${currentScore} (improvement ${improvement}) took ${(timeDiff / 1000).toFixed(1)} seconds.`);
         this.previousBestScore = currentScore;
         return false;

@@ -1,48 +1,48 @@
-import { getSupervisedOptimizer, getUnsupervisedOptimizer } from './learning/learn';
+import { getSupervisedOptimizer, getInitializedUnsupervisedOptimizer } from './learning/learn';
 import NeuralGeneticAlgorithm from './learning/neural_genetic';
 import Topic from './observable';
 import { FeedForwardNetwork } from './math/net';
-import { WorkerResponse, WorkerRequest, RequestType, UnsupervisedWorkerRequest, SupervisedWorkerRequest } from './worker_interface';
+import { WorkerResponse, WorkerRequest, ResponseType, ProgressResponse, ReadyResponse } from './worker_interface';
+import { SUPERVISED_GENERATIONS, UNSUPERVISED_GENERATIONS } from './constants';
 
 const ctx: Worker = self as any;
 
-function optimize(requestType: RequestType, optimizer: NeuralGeneticAlgorithm<any>): void {
-    const topic: Topic<[FeedForwardNetwork, number]> = optimizer.topic;
-    topic.subscribe(([network, generation]: [FeedForwardNetwork, number]) => {
-        console.log(`Sending ${requestType} optimizer result from generation ${generation + 1}`);
-        const response: WorkerResponse = {
-            type: requestType,
-            weights: network.weights,
-            generation
+ctx.addEventListener('message', function(evt: MessageEvent) {
+    console.log('Worker received a message');
+    const request: WorkerRequest = evt.data;
+    const inputs = new Float32Array(request.inputs);
+    const labels = new Uint8Array(request.labels);
+    const totalSteps: number = SUPERVISED_GENERATIONS + UNSUPERVISED_GENERATIONS;
+
+    const supervisedOptimizer = getSupervisedOptimizer(inputs, labels);
+    supervisedOptimizer.topic.subscribe(update => {
+        const response: ProgressResponse = {
+            type: ResponseType.PROGRESS,
+            step: update.generation,
+            totalSteps,
+        };
+        ctx.postMessage(response);
+    });
+    const network = supervisedOptimizer.evolveBest();
+    const unsupervisedOptimizer = getInitializedUnsupervisedOptimizer(network);
+    unsupervisedOptimizer.topic.subscribe(update => {
+        let response: WorkerResponse;
+        const generation = SUPERVISED_GENERATIONS + update.generation
+        if (update.satisfactory) {
+            response = {
+                type: ResponseType.READY,
+                weights: update.bestSolution.weights,
+                generation
+            } as ReadyResponse;
+        } else {
+            response = {
+                type: ResponseType.PROGRESS,
+                step: generation,
+                totalSteps
+            } as ProgressResponse;
         }
         ctx.postMessage(response);
     });
-    optimizer.evolve();
-}
-
-function onUnsupervisedMessage(request: UnsupervisedWorkerRequest): void {
-    console.log('Starting supervised computations');
-    const optimizer = getUnsupervisedOptimizer();
-    optimize(request.type, optimizer);
-}
-
-
-function onSupervisedMessage(request: SupervisedWorkerRequest): void {
-    const inputs = new Float32Array(request.inputs);
-    const labels = new Uint8Array(request.labels);
-    console.log(`Starting supervised computations on ${labels.length} samples`);
-    const optimizer = getSupervisedOptimizer(inputs, labels);
-    optimize(request.type, optimizer);
-}
-
-ctx.addEventListener('message', function(evt: MessageEvent) {
-    const request: WorkerRequest = evt.data;
-    const { type } = request;
-    if (type === RequestType.SUPERVISED) {
-        onSupervisedMessage(request as SupervisedWorkerRequest);
-    } else if (type === RequestType.UNSUPERVISED) {
-        onUnsupervisedMessage(request as UnsupervisedWorkerRequest);
-    } else {
-        console.error('Unhandled message', request);
-    }
+    unsupervisedOptimizer.evolveBest();
+    console.log('Worker finished operation');
 });

@@ -1,20 +1,18 @@
 import Topic from './observable';
+import { assert } from './utils';
 import { FeedForwardNetwork } from './math/net';
 import { Matrix2D } from './math/multiply';
 import { createNetwork } from './learning/neural_genetic';
-import { WorkerResponse, SupervisedWorkerRequest, UnsupervisedWorkerRequest, RequestType } from './worker_interface';
+import { WorkerResponse, ResponseType, WorkerRequest, ProgressResponse, ReadyResponse } from './worker_interface';
 import { SensorsState } from './physics/collision';
 import { getStackedFeatures } from './learning/features';
 
 export default class WorkerCommunicator {
     private worker: Worker;
-    public readonly supervisedTopic: Topic<[FeedForwardNetwork, number]>;
-    public readonly unsupervisedTopic: Topic<[FeedForwardNetwork, number]>;
+    public readonly progressTopic: Topic<[number, number]> = new Topic();
+    public readonly readyTopic: Topic<[FeedForwardNetwork, number]> = new Topic();
 
     public constructor() {
-        this.supervisedTopic = new Topic();
-        this.unsupervisedTopic = new Topic();
-
         this.worker = new Worker('dist/worker.js');
         this.worker.addEventListener('message', this.onMessage.bind(this));
     }
@@ -22,26 +20,29 @@ export default class WorkerCommunicator {
     private onMessage(event: MessageEvent): void {
         const response: WorkerResponse = event.data;
         console.log(`Got ${response.type} message from worker`);
-        const topic: Topic<[FeedForwardNetwork, number]> = (
-            response.type === RequestType.SUPERVISED ? this.supervisedTopic : this.unsupervisedTopic
-        );
+        if (response.type === ResponseType.PROGRESS) {
+            this.onProgressMessage(response as ProgressResponse);
+        } else {
+            this.onReadyMessage(response as ReadyResponse);
+        }
+    }
+
+    private onProgressMessage(response: ProgressResponse): void {
+        this.progressTopic.next([response.step, response.totalSteps]);
+    }
+
+    private onReadyMessage(response: ReadyResponse): void {
+        assert(response.weights instanceof Float32Array);
         const network: FeedForwardNetwork = createNetwork(response.weights);
-        topic.next([network, response.generation]);
+        this.readyTopic.next([network, response.generation]);
     }
 
-    public startUnsupervisedLearning(): void {
-        const request: UnsupervisedWorkerRequest = {type: RequestType.UNSUPERVISED};
-        this.worker.postMessage(request);
-    }
-
-    public startSupervisedLearning(inputMatrix: Matrix2D, labelsArray: Uint8Array): void {
+    public startLearning(inputMatrix: Matrix2D, labelsArray: Uint8Array): void {
         const inputsArray: Float32Array = inputMatrix.buffer;
         const inputs: ArrayBuffer = inputsArray.buffer;
         const labels: ArrayBuffer = labelsArray.buffer;
-        const request: SupervisedWorkerRequest = {
-            type: RequestType.SUPERVISED,
-            inputs,
-            labels
+        const request: WorkerRequest = {
+            inputs, labels
         };
         this.worker.postMessage(request, [inputs, labels]);
     }

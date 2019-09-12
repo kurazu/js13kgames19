@@ -1,23 +1,25 @@
-export const enum RequestType {
-    SUPERVISED = 'supervised',
-    UNSUPERVISED = 'unsupervised'
+export interface WorkerRequest {
+    readonly inputs: ArrayBuffer;
+    readonly labels: ArrayBuffer;
 }
 
-export interface WorkerRequest {
-    readonly type: RequestType;
+export const enum ResponseType {
+    PROGRESS,
+    READY,
 }
 
 export interface WorkerResponse {
-    readonly type: RequestType;
+    readonly type: ResponseType;
+}
+
+export interface ProgressResponse extends WorkerResponse {
+    readonly type: ResponseType.PROGRESS;
+    readonly step: number;
+    readonly totalSteps: number;
+}
+
+export interface ReadyResponse extends WorkerResponse {
+    readonly type: ResponseType.READY;
     readonly weights: Float32Array;
     readonly generation: number;
-}
-
-export interface UnsupervisedWorkerRequest  extends WorkerRequest {
-
-}
-
-export interface SupervisedWorkerRequest extends WorkerRequest {
-    readonly inputs: ArrayBuffer;
-    readonly labels: ArrayBuffer;
 }

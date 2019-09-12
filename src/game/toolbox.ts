@@ -16,6 +16,8 @@ export interface Toolbox {
     readonly ctx: CanvasRenderingContext2D;
     neuralNetwork: FeedForwardNetwork | undefined;
     generation: number;
+    step: number;
+    totalSteps: number;
 }
 
 export async function loadToolbox(canvas: HTMLCanvasElement): Promise<Toolbox> {
@@ -30,10 +32,23 @@ export async function loadToolbox(canvas: HTMLCanvasElement): Promise<Toolbox> {
     keyboard.start();
     const neuralNetwork = undefined;
     const generation = 0;
-    return {
+    const toolbox: Toolbox = {
         canvas, ctx,
         workerCommunicator, keyboard,
         foregroundImage, backgroundImage, shipImage, tilesImage,
-        neuralNetwork, generation
+        neuralNetwork: undefined,
+        generation: 0,
+        step: 0,
+        totalSteps: 0
     };
+    workerCommunicator.progressTopic.subscribe(([step, totalSteps]) => {
+        toolbox.step = step;
+        toolbox.totalSteps = totalSteps;
+    });
+    workerCommunicator.readyTopic.subscribe(([network, generation]) => {
+        toolbox.step = toolbox.totalSteps;
+        toolbox.neuralNetwork = network;
+        toolbox.generation = generation;
+    });
+    return toolbox;
 }
