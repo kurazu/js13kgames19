@@ -19,7 +19,7 @@ class PlayerScore {
     }
 }
 
-export default class GameNetworkGeneticOptimizer extends NeuralGeneticAlgorithm<PlayerScore> {
+export default class UnsupervisedGameGeneticOptimizer extends NeuralGeneticAlgorithm<PlayerScore> {
     private world: World;
     private minFrames: number;
     private maxFrames: number;

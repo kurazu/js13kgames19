@@ -2,7 +2,7 @@ import GameNetworkGeneticOptimizer from './game_genetic';
 import { FeedForwardNetwork } from '../math/net';
 import { createNetwork } from './neural_genetic';
 
-export default class InitializedUnsupervisedGeneticOptimizer extends GameNetworkGeneticOptimizer {
+export default class InitializedUnsupervisedGameGeneticOptimizer extends GameNetworkGeneticOptimizer {
     private initialNetwork: FeedForwardNetwork;
 
     public constructor(
