@@ -16,9 +16,10 @@ export default abstract class TextScreen extends MenuScreen {
     }
 
     protected getItems(): ItemType[] {
+        const page = this.page || 0;
         const pages = this.getPages();
-        const isLastPage = this.page === pages.length - 1;
-        const isFirstPage = this.page === 0;
+        const isLastPage = page === pages.length - 1;
+        const isFirstPage = page === 0;
         return [
             ['NEXT', !isLastPage, this.onNext.bind(this)],
             ['DONE', true, this.onDone.bind(this)],

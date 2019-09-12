@@ -87,12 +87,6 @@ export function buildInputMatrix(
     let sampleIdx: number = 0;
     for (let frame = 0; frame < learningFrames; frame++) {
         const sampleIdx: number = frame * learningEveryNFrames;
-        try {
-            assertDoubleRange(0, sampleIdx, queue.length);
-        } catch (e) {
-            console.log('sampleIdx', sampleIdx, 'q', queue.length);
-            throw e;
-        }
         const sample: Float32Array = queue[sampleIdx];
         inputMatrix.buffer.set(sample, frame * nFeatures);
     }

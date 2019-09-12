@@ -4,6 +4,7 @@ import Topic from './observable';
 import { FeedForwardNetwork } from './math/net';
 import { WorkerResponse, WorkerRequest, ResponseType, ProgressResponse, ReadyResponse } from './worker_interface';
 import { SUPERVISED_GENERATIONS, UNSUPERVISED_GENERATIONS } from './constants';
+import { storeNetwork } from './game/storage';
 
 const ctx: Worker = self as any;
 
@@ -29,6 +30,7 @@ ctx.addEventListener('message', function(evt: MessageEvent) {
         let response: WorkerResponse;
         const generation = SUPERVISED_GENERATIONS + update.generation
         if (update.satisfactory) {
+            storeNetwork(update.bestSolution, generation);
             response = {
                 type: ResponseType.READY,
                 weights: update.bestSolution.weights,

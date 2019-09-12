@@ -6,6 +6,7 @@ import { RECORDING_TARGET_TIME } from '../constants';
 const page1: Page = [
     [N('You are in front of the '), S('AI'), N('.')],
     [N('But for how long?')],
+    [N('It works for '), S('free'), N('.')]
 ];
 
 export default class WonScreen extends TextScreen {

@@ -17,10 +17,6 @@ export class Matrix2D {
         }
     }
 
-    public get length() {
-        return this.buffer.length;
-    }
-
     public getAddress(row: number, column: number): number {
         assert(0 <= row && row <= this.rows);
         assert(0 <= column && column <= this.columns);
@@ -62,18 +58,6 @@ export class Matrix2D {
     public getColumn(column: number): Float32Array {
         return Float32Array.from(
             range(this.rows).map(row => this.buffer[row * this.columns + column])
-        );
-    }
-
-    public toString(): string {
-        return (
-            '[\n\t' +
-            range(this.rows).map(
-                rowIdx => this.getRow(rowIdx)
-            ).map(
-                row => `[${row.join(', ')}]`
-            ).join(',\n\t') +
-            '\n]'
         );
     }
 }

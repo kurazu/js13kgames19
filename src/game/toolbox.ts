@@ -4,6 +4,7 @@ import { generateForeground, generateBackground } from './backgroundGenerator';
 import { loadImage } from '../game/resources';
 import { WIDTH, HEIGHT } from '../constants';
 import { FeedForwardNetwork } from '../math/net';
+import { loadNetwork } from './storage';
 
 export interface Toolbox {
     readonly keyboard: Keyboard;
@@ -29,14 +30,13 @@ export async function loadToolbox(canvas: HTMLCanvasElement): Promise<Toolbox> {
     canvas.height = HEIGHT;
     const ctx = canvas.getContext('2d')!;
     keyboard.start();
-    const neuralNetwork = undefined;
-    const generation = 0;
+    const [neuralNetwork, generation] = loadNetwork();
     const toolbox: Toolbox = {
         canvas, ctx,
         workerCommunicator, keyboard,
         foregroundImage, backgroundImage, tilesImage,
-        neuralNetwork: undefined,
-        generation: 0,
+        neuralNetwork,
+        generation,
         step: 0,
         totalSteps: 0
     };

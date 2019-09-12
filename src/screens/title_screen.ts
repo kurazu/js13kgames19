@@ -11,12 +11,13 @@ const FONT_SIZE_PX = 64;
 export default class TitleScreen extends MenuScreen {
     protected getItems(): ItemType[] {
         return [
+            ['CONTINUE', this.toolbox.neuralNetwork !== undefined, this.onContinue.bind(this)],
             ['NEW GAME', true, this.onNewGame.bind(this)],
         ];
     }
 
     private onContinue(toolbox: Toolbox): ScreenType | undefined {
-        throw new Error('Not implemented');
+        return ScreenType.COMPETE;
     }
 
     private onNewGame(toolbox: Toolbox): ScreenType | undefined {
