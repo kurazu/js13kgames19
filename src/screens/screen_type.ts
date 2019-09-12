@@ -3,7 +3,8 @@ const enum ScreenType {
     INTRO,
     RECORDING,
     SUPERVISED,
-    UNSUPERVISED
+    UNSUPERVISED,
+    TIME_LIMIT_EXCEEDED
 }
 
 export default ScreenType;

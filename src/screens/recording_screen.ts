@@ -19,12 +19,12 @@ function store(inputMatrix: Matrix2D, labels: Uint8Array) {
 }
 
 export default class RecordingScreen extends GameScreen<RecordingShip> {
-    protected levelLength: number = ~~(DEFAULT_LEVEL_LENGTH * 5);
+    protected levelLength: number = ~~(DEFAULT_LEVEL_LENGTH * 0.2);
     protected targetTime: number = RECORDING_TARGET_TIME;
 
     protected onLevelFinished(): ScreenType {
         if (this.isTimeLimitExceeded()) {
-            // return new TimeLimitExceededScreen();
+            return ScreenType.TIME_LIMIT_EXCEEDED;
         }
         const { player: { records }, toolbox: { workerCommunicator } } = this;
         console.log(`Gathered ${records.length} records`);

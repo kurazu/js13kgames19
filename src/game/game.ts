@@ -6,6 +6,7 @@ import IntroScreen from '../screens/intro_screen';
 import RecordingScreen from '../screens/recording_screen';
 import SupervisedScreen from '../screens/supervised_screen';
 import UnsupervisedScreen from '../screens/unsupervised_screen';
+import TimeLimitExceededScreen from '../screens/time_limit_exceeded_screen';
 
 type ScreenClass = {new(toolbox: Toolbox): Screen};
 
@@ -15,7 +16,7 @@ screenConstructors.set(ScreenType.INTRO, IntroScreen);
 screenConstructors.set(ScreenType.RECORDING, RecordingScreen);
 screenConstructors.set(ScreenType.SUPERVISED, SupervisedScreen);
 screenConstructors.set(ScreenType.UNSUPERVISED, UnsupervisedScreen);
-
+screenConstructors.set(ScreenType.TIME_LIMIT_EXCEEDED, TimeLimitExceededScreen);
 
 export default async function start(canvas: HTMLCanvasElement, initialScreenType: ScreenType): Promise<void> {
     const toolbox: Toolbox = await loadToolbox(canvas);
