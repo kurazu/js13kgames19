@@ -3,14 +3,16 @@ import { Toolbox } from '../game/toolbox';
 import Vector from '../physics/vector';
 import Box from '../physics/box';
 import Tile from '../physics/tile';
-import World from '../physics/world';
+import World, { movedBox } from '../physics/world';
 import Ship from '../ships/ship';
 import PlayerShip from '../ships/player_ship';
 import ScreenType from '../screens/screen_type';
 import BackgroundScreen from '../screens/background_screen';
 import { normal as N, standout as S, emphasis as E, TextFormatter, formatTime } from './text';
+import { Queue } from '../math/queue';
 
 const PLAYER_X_AT = 1 / 3;
+export const RENDER_PAST_POSITIONS = 4;
 
 class Camera {
     public trackedShip: Box;
@@ -53,6 +55,7 @@ export default abstract class GameScreen<PlayerType extends PlayerShip> extends 
     protected world: World;
     protected player: PlayerType;
     protected targetTime: number | undefined;
+    protected shipPastPositions: Map<Ship, Queue<Vector>> = new Map();
 
     public constructor(toolbox: Toolbox) {
         super(toolbox);
@@ -61,6 +64,7 @@ export default abstract class GameScreen<PlayerType extends PlayerShip> extends 
 
         this.player = this.createPlayer();
         this.world.addShip(this.player);
+        this.shipPastPositions.set(this.player, new Queue(RENDER_PAST_POSITIONS));
 
         this.camera = new Camera(this.player, this.world.finishX);
     }
@@ -78,6 +82,9 @@ export default abstract class GameScreen<PlayerType extends PlayerShip> extends 
         if (sortedShips) {
             return this.onLevelFinished();
         } else {
+            for (const ship of this.world.ships) {
+                this.shipPastPositions.get(ship)!.push(ship.position.clone());
+            }
             return undefined;
         }
     }
@@ -130,13 +137,14 @@ export default abstract class GameScreen<PlayerType extends PlayerShip> extends 
     private drawShip(ship: Ship): void {
         const { toolbox, camera } = this;
         const { ctx, tilesImage } = toolbox;
-        // TODO: visual differentiation
-        // if (ship.touching) {
-        // const intensity = ~~(255 * ship.velocity.getLength() / MAX_VELOCITY);
-        const {x, y} = camera.getScreenPosition(ship);
-        ctx.drawImage(tilesImage, 320, 0, 64, 32, x, y, 64, 32);
-        // ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-        this.drawMarkers(ship);
+        const positions: Vector[] = [...this.shipPastPositions.get(ship)!, ship.position];
+        for (const [idx, position] of positions.entries()) {
+            ctx.globalAlpha = (idx + 1) / positions.length;
+            const moved = movedBox(ship, position);
+            const {x, y} = camera.getScreenPosition(moved);
+            ctx.drawImage(tilesImage, 320, 0, 64, 32, x, y, 64, 32);
+        }
+        // this.drawMarkers(ship);
         this.drawText(
             ship.name,
             12,

@@ -24,7 +24,7 @@ import { getSensors, Sensor } from './sensors';
 import generateLevel from './level_generator';
 
 
-function movedBox<T extends Box>(box: T, newPosition: Vector): T {
+export function movedBox<T extends Box>(box: T, newPosition: Vector): T {
     const movedObject = Object.create(box);
     movedObject.position = newPosition;
     return movedObject;

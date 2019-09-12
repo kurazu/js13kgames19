@@ -2,6 +2,7 @@ import { FeedForwardNetwork } from '../math/net';
 import { createNetwork } from '../learning/neural_genetic';
 
 const STORAGE_PREFIX = 'bckp_of_yo'
+const { localStorage } = window;
 
 export function storeNetwork(network: FeedForwardNetwork, generation: number): void {
     const serializedWeights = JSON.stringify({

@@ -3,7 +3,7 @@ import { range, randRange, randRange2 } from '../utils';
 
 type TileIterable = Iterable<[number, number, Tiles]>;
 
-const START_LENGTH = 10;
+const START_LENGTH = 20;
 const END_LENGTH = 10;
 
 function* generateLevelStart(levelLength: number): TileIterable {

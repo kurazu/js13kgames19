@@ -1,5 +1,6 @@
+import { Queue } from '../math/queue';
 import { Toolbox } from '../game/toolbox';
-import GameScreen from './game_screen';
+import GameScreen, { RENDER_PAST_POSITIONS } from './game_screen';
 import ScreenType from './screen_type';
 import Topic from '../observable';
 import { FeedForwardNetwork } from '../math/net';
@@ -16,6 +17,7 @@ export default class CompeteScreen extends GameScreen<PlayerShip> {
         super(toolbox);
         this.bot = new AIShip(toolbox.neuralNetwork!, toolbox.generation, 0.005, FPS * 1);
         this.world.addShip(this.bot);
+        this.shipPastPositions.set(this.bot, new Queue(RENDER_PAST_POSITIONS));
     }
 
     protected createPlayer(): PlayerShip {
