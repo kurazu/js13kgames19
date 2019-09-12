@@ -24,7 +24,11 @@ export default class WaitingScreen extends GameScreen<PlayerShip> {
     }
 
     protected onLevelFinished(): ScreenType {
-        return ScreenType.WAITING;
+        if (this.toolbox.neuralNetwork) {
+            return ScreenType.COMPETE;
+        } else {
+            return ScreenType.WAITING;
+        }
     }
 
     private drawAirmiles(): void {

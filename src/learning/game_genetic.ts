@@ -88,6 +88,6 @@ export default class GameNetworkGeneticOptimizer extends NeuralGeneticAlgorithm<
     }
 
     protected isSatisfactory(generation: number, bestSolution: FeedForwardNetwork, bestScore: PlayerScore): boolean {
-        return this.isReadyForEarlyStopping(generation);
+        return generation === this.maxGenerations - 1 || bestScore.score > 5000 || this.isReadyForEarlyStopping(generation);
     }
 }

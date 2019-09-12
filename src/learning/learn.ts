@@ -3,10 +3,10 @@ import SupervisedGeneticOptimizer from './supervised_genetic';
 import InitializedUnsupervisedGeneticOptimizer from './initialized_unsupervised_genetic';
 import { FeedForwardNetwork } from '../math/net';
 import { Matrix2D } from '../math/multiply';
-import { FEATURES, LEARNING_FRAMES } from '../constants';
+import { FEATURES, LEARNING_FRAMES, SUPERVISED_GENERATIONS, UNSUPERVISED_GENERATIONS } from '../constants';
 
 export function getUnsupervisedOptimizer(): GameNetworkGeneticOptimizer {
-    const maxGenerations = 50;
+    const maxGenerations = UNSUPERVISED_GENERATIONS;
     const populationSize = 100;
     const matingPoolSize = 10;
     const eliteSize = 3;
@@ -30,7 +30,7 @@ export function getUnsupervisedOptimizer(): GameNetworkGeneticOptimizer {
 }
 
 export function getInitializedUnsupervisedOptimizer(network: FeedForwardNetwork): InitializedUnsupervisedGeneticOptimizer {
-    const maxGenerations = 50;
+    const maxGenerations = UNSUPERVISED_GENERATIONS;
     const populationSize = 100;
     const matingPoolSize = 10;
     const eliteSize = 3;
@@ -55,7 +55,7 @@ export function getInitializedUnsupervisedOptimizer(network: FeedForwardNetwork)
 }
 
 export function getSupervisedOptimizer(inputs: Float32Array, labels: Uint8Array): SupervisedGeneticOptimizer {
-    const maxGenerations = 20;
+    const maxGenerations = UNSUPERVISED_GENERATIONS;
     const populationSize = 100;
     const matingPoolSize = 10;
     const eliteSize = 3;

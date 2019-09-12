@@ -41,7 +41,8 @@ export enum Tiles {
 }
 
 export const TARGET_AIRMILES = 100;
-export const RECORDING_LEVEL_LENGTH_FACTOR = 0.25;
+export const RECORDING_LEVEL_LENGTH_FACTOR = 1;
 export const RECORDING_TARGET_TIME = 60;
-export const SUPERVISED_GENERATIONS = 30;
-export const UNSUPERVISED_GENERATIONS = 100;
+
+export const SUPERVISED_GENERATIONS = 20;
+export const UNSUPERVISED_GENERATIONS = 30;

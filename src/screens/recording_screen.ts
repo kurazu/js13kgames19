@@ -33,7 +33,7 @@ export default class RecordingScreen extends GameScreen<RecordingShip> {
         console.log(`Gathered ${records.length} records`);
         const [inputMatrix, labels]: [Matrix2D, Uint8Array] = getStackedFeatures(records);
         store(inputMatrix, labels);
-        workerCommunicator.startSupervisedLearning(inputMatrix, labels);
+        workerCommunicator.startLearning(inputMatrix, labels);
         return ScreenType.RECORDED;
     }
 

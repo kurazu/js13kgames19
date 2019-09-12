@@ -18,7 +18,7 @@ export default class RecordedScreen extends TextScreen {
     }
 
     protected onDone(): ScreenType {
-        return ScreenType.TITLE;
+        return ScreenType.WAITING;
     }
 }
 

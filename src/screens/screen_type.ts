@@ -2,11 +2,10 @@ const enum ScreenType {
     TITLE,
     INTRO,
     RECORDING,
-    SUPERVISED,
-    UNSUPERVISED,
     TIME_LIMIT_EXCEEDED,
     RECORDED,
     WAITING,
+    COMPETE,
 }
 
 export default ScreenType;

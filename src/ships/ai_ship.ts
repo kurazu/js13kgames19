@@ -50,6 +50,6 @@ export default class AIShip extends Ship {
     }
 
     public get name() {
-        return `BOT-gen-${this.generation}`;
+        return `BACKUP-gen-${this.generation + 1}`;
     }
 }

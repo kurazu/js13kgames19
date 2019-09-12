@@ -4,11 +4,10 @@ import { Toolbox, loadToolbox } from './toolbox';
 import TitleScreen from '../screens/title_screen';
 import IntroScreen from '../screens/intro_screen';
 import RecordingScreen from '../screens/recording_screen';
-import SupervisedScreen from '../screens/supervised_screen';
-import UnsupervisedScreen from '../screens/unsupervised_screen';
 import TimeLimitExceededScreen from '../screens/time_limit_exceeded_screen';
 import RecordedScreen from '../screens/recorded_screen';
 import WaitingScreen from '../screens/waiting_screen';
+import CompeteScreen from '../screens/compete_screen';
 
 type ScreenClass = {new(toolbox: Toolbox): Screen};
 
@@ -16,11 +15,10 @@ const screenConstructors: Map<ScreenType, ScreenClass> = new Map();
 screenConstructors.set(ScreenType.TITLE, TitleScreen);
 screenConstructors.set(ScreenType.INTRO, IntroScreen);
 screenConstructors.set(ScreenType.RECORDING, RecordingScreen);
-screenConstructors.set(ScreenType.SUPERVISED, SupervisedScreen);
-screenConstructors.set(ScreenType.UNSUPERVISED, UnsupervisedScreen);
 screenConstructors.set(ScreenType.TIME_LIMIT_EXCEEDED, TimeLimitExceededScreen);
 screenConstructors.set(ScreenType.RECORDED, RecordedScreen);
 screenConstructors.set(ScreenType.WAITING, WaitingScreen);
+screenConstructors.set(ScreenType.COMPETE, CompeteScreen);
 
 export default async function start(canvas: HTMLCanvasElement, initialScreenType: ScreenType): Promise<void> {
     const toolbox: Toolbox = await loadToolbox(canvas);
