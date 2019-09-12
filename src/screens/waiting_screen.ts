@@ -25,7 +25,7 @@ export default class WaitingScreen extends GameScreen<PlayerShip> {
 
     protected onLevelFinished(): ScreenType {
         if (this.toolbox.neuralNetwork) {
-            return ScreenType.COMPETE;
+            return ScreenType.TRAINED;
         } else {
             return ScreenType.WAITING;
         }

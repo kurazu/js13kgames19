@@ -8,6 +8,7 @@ import TimeLimitExceededScreen from '../screens/time_limit_exceeded_screen';
 import RecordedScreen from '../screens/recorded_screen';
 import WaitingScreen from '../screens/waiting_screen';
 import CompeteScreen from '../screens/compete_screen';
+import TrainedScreen from '../screens/trained_screen';
 
 type ScreenClass = {new(toolbox: Toolbox): Screen};
 
@@ -19,6 +20,7 @@ screenConstructors.set(ScreenType.TIME_LIMIT_EXCEEDED, TimeLimitExceededScreen);
 screenConstructors.set(ScreenType.RECORDED, RecordedScreen);
 screenConstructors.set(ScreenType.WAITING, WaitingScreen);
 screenConstructors.set(ScreenType.COMPETE, CompeteScreen);
+screenConstructors.set(ScreenType.TRAINED, TrainedScreen);
 
 export default async function start(canvas: HTMLCanvasElement, initialScreenType: ScreenType): Promise<void> {
     const toolbox: Toolbox = await loadToolbox(canvas);

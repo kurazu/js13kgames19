@@ -5,6 +5,7 @@ const enum ScreenType {
     TIME_LIMIT_EXCEEDED,
     RECORDED,
     WAITING,
+    TRAINED,
     COMPETE,
 }
 
