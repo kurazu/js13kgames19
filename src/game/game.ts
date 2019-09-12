@@ -1,19 +1,38 @@
 import Screen from '../screens/screen';
+import ScreenType from '../screens/screen_type';
 import { Toolbox, loadToolbox } from './toolbox';
+import TitleScreen from '../screens/title_screen';
+import IntroScreen from '../screens/intro_screen';
+import RecordingScreen from '../screens/recording_screen';
+import SupervisedScreen from '../screens/supervised_screen';
+import UnsupervisedScreen from '../screens/unsupervised_screen';
 
-export default async function start(canvas: HTMLCanvasElement, initialScreen: Screen<any>): Promise<void> {
+type ScreenClass = {new(toolbox: Toolbox): Screen};
+
+const screenConstructors: Map<ScreenType, ScreenClass> = new Map();
+screenConstructors.set(ScreenType.TITLE, TitleScreen);
+screenConstructors.set(ScreenType.INTRO, IntroScreen);
+screenConstructors.set(ScreenType.RECORDING, RecordingScreen);
+screenConstructors.set(ScreenType.SUPERVISED, SupervisedScreen);
+screenConstructors.set(ScreenType.UNSUPERVISED, UnsupervisedScreen);
+
+
+export default async function start(canvas: HTMLCanvasElement, initialScreenType: ScreenType): Promise<void> {
     const toolbox: Toolbox = await loadToolbox(canvas);
-    let screen: Screen<any> = initialScreen;
-    screen.init(toolbox);
+    let screen: Screen = loadScreen(initialScreenType);
 
     requestAnimationFrame(loop);
 
     function loop(): void {
-        const nextScreen: Screen<any> | undefined = screen.loop(toolbox);
-        if (nextScreen) {
-            screen = nextScreen;
-            screen.init(toolbox);
+        const nextScreenType: ScreenType | undefined = screen.loop();
+        if (nextScreenType) {
+            screen = loadScreen(nextScreenType);
         }
         requestAnimationFrame(loop);
+    }
+
+    function loadScreen(screenType: ScreenType): Screen {
+        const constructor = screenConstructors.get(screenType)!;
+        return new constructor(toolbox);
     }
 }

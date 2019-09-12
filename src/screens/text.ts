@@ -1,27 +1,31 @@
-export type TextFormatter = (text: string) => [string, string];
+export type Entry = [string, string];
+export type Line = Entry[];
+export type Page = Line[];
 
-export function normal(text: string): [string, string] {
+export type TextFormatter = (text: string) => Entry;
+
+export function normal(text: string): Entry {
     return [text, 'white'];
 }
 
-export function emphasis(text: string): [string, string] {
+export function emphasis(text: string): Entry {
     return [text, 'red'];
 }
 
-export function standout(text: string): [string, string] {
+export function standout(text: string): Entry {
     return [text, 'orange'];
 }
 
-export function inactive(text: string): [string, string] {
+export function inactive(text: string): Entry {
     return [text, 'gray'];
 }
 
-export function transparent(text: string): [string, string] {
+export function transparent(text: string): Entry {
     return [text, 'transparent'];
 }
 
 
-export function formatTime(totalSeconds: number, formatter: TextFormatter): [string, string][] {
+export function formatTime(totalSeconds: number, formatter: TextFormatter): Line {
     const seconds = ~~(totalSeconds % 60);
     const minutes = ~~(totalSeconds / 60);
     return [

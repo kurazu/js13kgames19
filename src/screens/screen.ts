@@ -3,38 +3,38 @@ import Keyboard from '../game/keyboard';
 import WorkerCommunicator from '../worker_communication';
 import { sum } from '../utils';
 import { Toolbox } from '../game/toolbox';
+import ScreenType from './screen_type';
+import { Line, Page } from './text';
 
-export default abstract class Screen<Options> {
-    protected options: Options;
+export default abstract class Screen {
+    protected toolbox: Toolbox;
     protected frames: number = 0;
 
-    public constructor(options: Options) {
-        this.options = options;
+    public constructor(toolbox: Toolbox) {
+        this.toolbox = toolbox;
     }
 
-    public abstract init(toolbox: Toolbox): void;
-    public abstract update(toolbox: Toolbox): Screen<any> | undefined;
+    protected abstract update(): ScreenType | undefined;
 
-    public loop(toolbox: Toolbox): Screen<any> | undefined {
+    public loop(): ScreenType | undefined {
         try {
-            return this.update(toolbox);
+            return this.update();
         } finally {
             this.frames++;
         }
     }
 
-    protected clear(toolbox: Toolbox): void {
-        toolbox.ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    protected clear(): void {
+        this.toolbox.ctx.clearRect(0, 0, WIDTH, HEIGHT);
     }
 
     protected drawText(
-        toolbox: Toolbox,
         text: string, fontSize: number,
         x: number, y: number,
         textAlign: CanvasTextAlign = 'left',
         textColor: string = 'white', bgColor: string = 'black'
     ): void{
-        const { ctx } = toolbox;
+        const { ctx } = this.toolbox;
         ctx.font = `${fontSize}px monospace`;
         ctx.textAlign = textAlign;
         ctx.fillStyle = bgColor;
@@ -48,8 +48,8 @@ export default abstract class Screen<Options> {
         ctx.fillText(text, x, y);
     }
 
-    protected drawColoredText(toolbox: Toolbox, texts: [string, string][], fontSize: number, x: number, y: number, textAlign: CanvasTextAlign = 'center'): void {
-        const { ctx } = toolbox;
+    protected drawColoredText(texts: Line, fontSize: number, x: number, y: number, textAlign: CanvasTextAlign = 'center'): void {
+        const { ctx } = this.toolbox;
         ctx.font = `${fontSize}px monospace`;
         const measures = texts.map(([text, color]) => ctx.measureText(text).width);
         const totalMeasure = sum(measures);
@@ -63,15 +63,15 @@ export default abstract class Screen<Options> {
         }
         for (const [idx, [text, color]] of texts.entries()) {
             if (color !== 'transparent') {
-                this.drawText(toolbox, text, fontSize, currentX, y, 'left', color);
+                this.drawText(text, fontSize, currentX, y, 'left', color);
             }
             currentX += measures[idx];
         }
     }
 
-    protected drawColoredTexts(toolbox: Toolbox, page: [string, string][][], fontSize: number, padding: number, x: number, y: number, textAlign: CanvasTextAlign = 'center'): void {
+    protected drawColoredTexts(page: Page, fontSize: number, padding: number, x: number, y: number, textAlign: CanvasTextAlign = 'center'): void {
         for (const [idx, line] of page.entries()) {
-            this.drawColoredText(toolbox, line, fontSize, x, (idx + 1) * (fontSize + padding) - padding, textAlign);
+            this.drawColoredText(line, fontSize, x, (idx + 1) * (fontSize + padding) - padding, textAlign);
         }
     }
 }

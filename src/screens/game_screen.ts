@@ -1,13 +1,13 @@
 import { WIDTH, HEIGHT, MAX_VELOCITY, BLOCK_SIZE, FPS } from '../constants';
+import { Toolbox } from '../game/toolbox';
 import Vector from '../physics/vector';
 import Box from '../physics/box';
 import Tile from '../physics/tile';
 import World from '../physics/world';
 import Ship from '../ships/ship';
 import PlayerShip from '../ships/player_ship';
-import Screen from '../screens/screen';
+import ScreenType from '../screens/screen_type';
 import BackgroundScreen from '../screens/background_screen';
-import { Toolbox } from '../game/toolbox';
 import { normal as N, standout as S, emphasis as E, TextFormatter, formatTime } from './text';
 
 const PLAYER_X_AT = 1 / 3;
@@ -48,59 +48,58 @@ class Camera {
 
 const fontSizePx: number = 24;
 
-export default abstract class GameScreen<Options, PlayerType extends PlayerShip> extends BackgroundScreen<Options> {
-    protected camera: Camera | undefined;
-    protected world: World | undefined;
-    protected player: PlayerType | undefined;
+export default abstract class GameScreen<PlayerType extends PlayerShip> extends BackgroundScreen {
+    protected camera: Camera;
+    protected world: World;
+    protected player: PlayerType;
     protected levelLength: number | undefined = undefined;
     protected targetTime: number | undefined;
 
-    public init(toolbox: Toolbox): void {
+    public constructor(toolbox: Toolbox) {
+        super(toolbox);
         this.world = new World(this.levelLength);
 
-        this.player = this.createPlayer(toolbox);
+        this.player = this.createPlayer();
         this.world.addShip(this.player);
 
         this.camera = new Camera(this.player, this.world.finishX);
     }
 
-    protected abstract createPlayer(toolbox: Toolbox): PlayerType;
-    protected abstract getNextScreen(toolbox: Toolbox): Screen<any>;
+    protected abstract createPlayer(): PlayerType;
+    protected abstract onLevelFinished(): ScreenType;
 
-    public update(toolbox: Toolbox): Screen<any> | undefined {
-        const sortedShips = this.world!.update();
-        this.render(toolbox);
+    protected update(): ScreenType | undefined {
+        const sortedShips = this.world.update();
+        this.render();
 
         if (sortedShips) {
-            return this.getNextScreen(toolbox);
+            return this.onLevelFinished();
         } else {
             return undefined;
         }
     }
 
-    private render(toolbox: Toolbox): void {
-        this.clear(toolbox);
-        const camera = this.camera!;
+    private render(): void {
+        this.clear();
+        const { camera, world } = this;
 
         const screenLeft = camera.getScreenLeft();
         const screenRight = camera.getScreenRight();
 
-        this.drawBackground(toolbox, screenLeft);
+        this.drawBackground(screenLeft);
 
-        const world = this.world!;
         for (const box of world.getBoxes(screenLeft, screenRight)) {
-            this.drawBox(toolbox, box);
+            this.drawBox(box);
         }
         for (const ship of world.ships) {
-            this.drawShip(toolbox, ship);
+            this.drawShip(ship);
         }
-        this.drawHUD(toolbox);
+        this.drawHUD();
     }
 
-    private drawMarkers(toolbox: Toolbox, ship: Ship): void {
+    private drawMarkers(ship: Ship): void {
+        const { toolbox, world, camera } = this;
         const { ctx } = toolbox;
-        const world = this.world!;
-        const camera = this.camera!;
         for (const sensors of world.sensors) {
             for (const sensor of sensors) {
                 const markerPosition = sensor.getCurrentPosition(ship);
@@ -109,7 +108,7 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
                 ctx.beginPath();
                 ctx.arc(
                     camera.getScreenX(markerPosition.x),
-                    camera!.getScreenY(markerPosition.y),
+                    camera.getScreenY(markerPosition.y),
                     2, 0, Math.PI * 2
                 );
                 ctx.fill();
@@ -117,24 +116,24 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         }
     }
 
-    private drawBox(toolbox: Toolbox, box: Tile): void {
-        const { ctx } = toolbox;
-        const {x, y} = this.camera!.getScreenPosition(box);
-        const {x: w, y: h} = box.size;
-        ctx.drawImage(toolbox.tilesImage, box.tile * w, 0, w, h, x, y, w, h);
+    private drawBox(box: Tile): void {
+        const { toolbox, camera } = this;
+        const { ctx, tilesImage } = toolbox;
+        const { x, y } = camera.getScreenPosition(box);
+        const { x: w, y: h } = box.size;
+        ctx.drawImage(tilesImage, box.tile * w, 0, w, h, x, y, w, h);
     }
 
-    private drawShip(toolbox: Toolbox, ship: Ship): void {
-        const { ctx } = toolbox;
-        const camera = this.camera!;
+    private drawShip(ship: Ship): void {
+        const { toolbox, camera } = this;
+        const { ctx, shipImage } = toolbox;
         // TODO: visual differentiation
         // if (ship.touching) {
         // const intensity = ~~(255 * ship.velocity.getLength() / MAX_VELOCITY);
         const {x, y} = camera.getScreenPosition(ship);
-        ctx.drawImage(toolbox.shipImage, x, y);
-        this.drawMarkers(toolbox, ship);
+        ctx.drawImage(shipImage, x, y);
+        this.drawMarkers(ship);
         this.drawText(
-            toolbox,
             ship.name,
             12,
             camera.getScreenX(ship.position.x),
@@ -144,33 +143,41 @@ export default abstract class GameScreen<Options, PlayerType extends PlayerShip>
         );
     }
 
-    private drawHUD(toolbox: Toolbox): void {
-        this.drawPlayerNames(toolbox);
-        this.drawTime(toolbox);
+    private drawHUD(): void {
+        this.drawPlayerNames();
+        this.drawTime();
     }
 
-    private drawPlayerNames(toolbox: Toolbox): void {
+    private drawPlayerNames(): void {
         // RISKY - sort mutates data we don't own
-        const ships = this.world!.ships.sort((aShip, bShip) => bShip.position.x - aShip.position.x);
+        const { world } = this;
+        const ships = world.ships.sort((aShip, bShip) => bShip.position.x - aShip.position.x);
         const page: [string, string][][] = ships.map(ship => {
             const initialOffset = BLOCK_SIZE + ship.halfWidth;
             const progression = (ship.position.x - initialOffset) / (this.world!.finishX - initialOffset) * 100;
             return [S(ship.name), N(' 🏁 '), S(progression.toFixed(0)), N('%')];
         })
-        this.drawColoredTexts(toolbox, page, fontSizePx, 4, 2, 0, 'left');
+        this.drawColoredTexts(page, fontSizePx, 4, 2, 0, 'left');
     }
 
-    private drawTime(toolbox: Toolbox): void {
-        const totalSeconds = this.frames / FPS;
+    protected get totalSeconds(): number {
+        return this.frames / FPS;
+    }
 
-        let isTimeFine = this.targetTime === undefined ? true : totalSeconds < this.targetTime;
+    protected isTimeLimitExceeded(): boolean {
+        if (this.targetTime === undefined) {
+            return false;
+        } else {
+            return this.totalSeconds >= this.targetTime;
+        }
+    }
 
-        const texts = formatTime(totalSeconds, isTimeFine ? S : E);
+    private drawTime(): void {
+        const texts = formatTime(this.totalSeconds, this.isTimeLimitExceeded() ? E : S);
         if (this.targetTime !== undefined) {
             texts.push(N('/'), ...formatTime(this.targetTime, N));
         }
         this.drawColoredText(
-            toolbox,
             texts,
             fontSizePx, WIDTH - 2, fontSizePx, 'right'
         );

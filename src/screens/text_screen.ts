@@ -1,23 +1,24 @@
 import MenuScreen, { ItemType } from './menu_screen';
 import { Toolbox } from '../game/toolbox';
-import Screen from './screen';
+import ScreenType from './screen_type';
 import { WIDTH, HEIGHT } from '../constants';
-
-interface TextScreenOptions {
-    page: number
-}
-
-type Line = [string, string][];
-export type Page = Line[];
+import { Line, Page } from './text';
 
 const FONT_SIZE_PX: number = 32;
 
-export default abstract class TextScreen extends MenuScreen<TextScreenOptions> {
-    protected pages: Page[] = [];
+export default abstract class TextScreen extends MenuScreen {
+    protected pages: Page[];
+    protected page: number = 0;
 
-    protected getItems(toolbox: Toolbox): ItemType[] {
-        const isLastPage = this.options.page === this.pages.length - 1;
-        const isFirstPage = this.options.page === 0;
+    public constructor(toolbox: Toolbox) {
+        super(toolbox);
+        this.pages = this.getPages();
+    }
+
+    protected getItems(): ItemType[] {
+        const pages = this.getPages();
+        const isLastPage = this.page === pages.length - 1;
+        const isFirstPage = this.page === 0;
         return [
             ['NEXT', !isLastPage, this.onNext.bind(this)],
             ['DONE', true, this.onDone.bind(this)],
@@ -25,40 +26,34 @@ export default abstract class TextScreen extends MenuScreen<TextScreenOptions> {
         ];
     }
 
-    protected onNext(toolbox: Toolbox): Screen<any> | undefined {
-        this.options.page++;
-        this.refreshOptions(toolbox);
+    protected onNext(): ScreenType | undefined {
+        this.page++;
+        this.refreshOptions();
         return undefined;
     }
 
-    protected onPrevious(toolbox: Toolbox): Screen<any> | undefined {
-        this.options.page--;
-        this.refreshOptions(toolbox);
+    protected onPrevious(): ScreenType | undefined {
+        this.page--;
+        this.refreshOptions();
         return undefined;
     }
 
-    protected abstract onDone(toolbox: Toolbox): Screen<any> | undefined;
+    protected abstract onDone(): ScreenType;
+    protected abstract getPages(): Page[];
 
-    protected abstract getPages(toolbox: Toolbox): Page[];
-
-    public init(toolbox: Toolbox): void {
-        this.pages = this.getPages(toolbox);
-        super.init(toolbox);
-    }
-
-    public update(toolbox: Toolbox): Screen<any> | undefined {
-        const nextScreen = super.update(toolbox);
-        this.render(toolbox);
+    protected update(): ScreenType | undefined {
+        const nextScreen = super.update();
+        this.render();
         return nextScreen;
     }
 
-    protected render(toolbox: Toolbox) {
-        this.clear(toolbox);
-        this.drawBackground(toolbox, this.frames * 10);
-        const page = this.pages[this.options.page];
+    protected render() {
+        this.clear();
+        this.drawBackground(this.frames * 10);
+        const page = this.pages[this.page];
         const padding = 10;
-        this.drawColoredTexts(toolbox, page, FONT_SIZE_PX, padding, WIDTH / 2, FONT_SIZE_PX + padding);
-        this.renderItems(toolbox, ~~(FONT_SIZE_PX) / 2, 10, HEIGHT - 150);
-        this.renderHelp(toolbox, ~~(FONT_SIZE_PX / 2), HEIGHT - 50);
+        this.drawColoredTexts(page, FONT_SIZE_PX, padding, WIDTH / 2, FONT_SIZE_PX + padding);
+        this.renderItems(~~(FONT_SIZE_PX) / 2, 10, HEIGHT - 150);
+        this.renderHelp(~~(FONT_SIZE_PX / 2), HEIGHT - 50);
     }
 }

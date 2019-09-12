@@ -4,7 +4,7 @@ import Topic from '../observable';
 import { FeedForwardNetwork } from '../math/net';
 import AIShip from '../ships/ai_ship';
 import Keyboard from '../game/keyboard';
-import Screen from './screen';
+import ScreenType from './screen_type';
 import PlayerShip from '../ships/player_ship';
 import WorkerCommunicator from '../worker_communication';
 
@@ -12,17 +12,20 @@ interface UnsupervidedLearningScreenOptions {
     neuralNetwork: FeedForwardNetwork,
 }
 
-export default class UnsupervisedLearningScreen extends GameScreen<UnsupervidedLearningScreenOptions, PlayerShip> {
-    private bot: AIShip | undefined;
+export default class UnsupervisedLearningScreen extends GameScreen<PlayerShip> {
+    private bot: AIShip;
     private networkUpdateListener: ([value, generation]: [FeedForwardNetwork, number]) => void;
 
-    public constructor(options: UnsupervidedLearningScreenOptions) {
-        super(options);
+    public constructor(toolbox: Toolbox) {
+        super(toolbox);
         this.networkUpdateListener = this.onNetworkUpdated.bind(this);
+        this.bot = new AIShip(this.toolbox.neuralNetwork!, 1, 0.005, 60);
+        this.world.addShip(this.bot);
+        toolbox.workerCommunicator.unsupervisedTopic.subscribe(this.networkUpdateListener);
     }
 
-    protected createPlayer(toolbox: Toolbox): PlayerShip {
-        return new PlayerShip(toolbox.keyboard);
+    protected createPlayer(): PlayerShip {
+        return new PlayerShip(this.toolbox.keyboard);
     }
 
     public onNetworkUpdated([network, generation]: [FeedForwardNetwork, number]): void {
@@ -31,17 +34,8 @@ export default class UnsupervisedLearningScreen extends GameScreen<UnsupervidedL
         this.bot!.generation = generation + 1;
     }
 
-    public init(toolbox: Toolbox): void {
-        super.init(toolbox);
-        this.bot = new AIShip(this.options.neuralNetwork, 1, 0.005, 60);
-        this.world!.addShip(this.bot);
-        toolbox.workerCommunicator.unsupervisedTopic.subscribe(this.networkUpdateListener);
-    }
-
-    protected getNextScreen(toolbox: Toolbox): Screen<any> {
-        toolbox.workerCommunicator.unsupervisedTopic.unsubscribe(this.networkUpdateListener);
-        return new UnsupervisedLearningScreen({
-            neuralNetwork: this.bot!.neuralNetwork,
-        });
+    protected onLevelFinished(): ScreenType {
+        this.toolbox.workerCommunicator.unsupervisedTopic.unsubscribe(this.networkUpdateListener);
+        return ScreenType.UNSUPERVISED;
     }
 }
