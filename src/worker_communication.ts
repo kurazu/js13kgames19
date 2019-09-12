@@ -5,6 +5,7 @@ import { createNetwork } from './learning/neural_genetic';
 import { WorkerResponse, ResponseType, WorkerRequest, ProgressResponse, ReadyResponse } from './worker_interface';
 import { SensorsState } from './physics/collision';
 import { getStackedFeatures } from './learning/features';
+import { storeNetwork } from './game/storage';
 
 export default class WorkerCommunicator {
     private worker: Worker;
@@ -32,6 +33,7 @@ export default class WorkerCommunicator {
 
     private onReadyMessage(response: ReadyResponse): void {
         const network: FeedForwardNetwork = createNetwork(response.weights);
+        storeNetwork(network, response.generation);
         this.readyTopic.next([network, response.generation]);
     }
 
