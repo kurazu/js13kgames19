@@ -4,7 +4,8 @@ import ScreenType from './screen_type';
 import { RECORDING_TARGET_TIME } from '../constants';
 
 const page1: Page = [
-    [N('WON')],
+    [N('You are in front of the '), S('AI'), N('.')],
+    [N('But for how long?')],
 ];
 
 export default class WonScreen extends TextScreen {

@@ -27,7 +27,7 @@ export const LEARNING_FRAMES: number = 6;
 export const LEARNING_EVERY_N_FRAMES: number = 40;
 export const DENSE_LAYERS: number[] = [64];
 
-export enum Tiles {
+export const enum Tiles {
     MIDDLE_WALL = 0,
     BOTTOM_WALL = 1,
     TOP_WALL = 2,

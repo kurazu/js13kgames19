@@ -11,7 +11,6 @@ const FONT_SIZE_PX = 64;
 export default class TitleScreen extends MenuScreen {
     protected getItems(): ItemType[] {
         return [
-            ['CONTINUE', false, this.onContinue.bind(this)],
             ['NEW GAME', true, this.onNewGame.bind(this)],
         ];
     }
