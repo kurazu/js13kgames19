@@ -3,7 +3,7 @@ import ScreenType from './screen_type';
 import GameScreen from './game_screen';
 import RecordingShip from '../ships/recording_ship';
 import { getStackedFeatures } from '../learning/features';
-import { DEFAULT_LEVEL_LENGTH, RECORDING_TARGET_TIME } from '../constants';
+import { DEFAULT_LEVEL_LENGTH, RECORDING_TARGET_TIME, RECORDING_LEVEL_LENGTH_FACTOR } from '../constants';
 
 function store(inputMatrix: Matrix2D, labels: Uint8Array) {
     const blob = new Blob([inputMatrix.buffer.buffer, labels.buffer], {type: 'application/octet-stream'});
@@ -19,8 +19,11 @@ function store(inputMatrix: Matrix2D, labels: Uint8Array) {
 }
 
 export default class RecordingScreen extends GameScreen<RecordingShip> {
-    protected levelLength: number = ~~(DEFAULT_LEVEL_LENGTH * 0.2);
     protected targetTime: number = RECORDING_TARGET_TIME;
+
+    protected getLevelLength(): number | undefined {
+        return ~~(DEFAULT_LEVEL_LENGTH * RECORDING_LEVEL_LENGTH_FACTOR);
+    }
 
     protected onLevelFinished(): ScreenType {
         if (this.isTimeLimitExceeded()) {
@@ -31,7 +34,7 @@ export default class RecordingScreen extends GameScreen<RecordingShip> {
         const [inputMatrix, labels]: [Matrix2D, Uint8Array] = getStackedFeatures(records);
         store(inputMatrix, labels);
         workerCommunicator.startSupervisedLearning(inputMatrix, labels);
-        return ScreenType.SUPERVISED;
+        return ScreenType.RECORDED;
     }
 
     protected createPlayer(): RecordingShip {

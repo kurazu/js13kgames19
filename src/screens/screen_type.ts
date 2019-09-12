@@ -4,7 +4,9 @@ const enum ScreenType {
     RECORDING,
     SUPERVISED,
     UNSUPERVISED,
-    TIME_LIMIT_EXCEEDED
+    TIME_LIMIT_EXCEEDED,
+    RECORDED,
+    WAITING,
 }
 
 export default ScreenType;

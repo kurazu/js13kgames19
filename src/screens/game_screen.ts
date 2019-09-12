@@ -52,12 +52,12 @@ export default abstract class GameScreen<PlayerType extends PlayerShip> extends 
     protected camera: Camera;
     protected world: World;
     protected player: PlayerType;
-    protected levelLength: number | undefined = undefined;
     protected targetTime: number | undefined;
 
     public constructor(toolbox: Toolbox) {
         super(toolbox);
-        this.world = new World(this.levelLength);
+        const levelLength = this.getLevelLength();
+        this.world = new World(levelLength);
 
         this.player = this.createPlayer();
         this.world.addShip(this.player);
@@ -67,6 +67,9 @@ export default abstract class GameScreen<PlayerType extends PlayerShip> extends 
 
     protected abstract createPlayer(): PlayerType;
     protected abstract onLevelFinished(): ScreenType;
+    protected getLevelLength(): number | undefined {
+        return undefined;
+    }
 
     protected update(): ScreenType | undefined {
         const sortedShips = this.world.update();

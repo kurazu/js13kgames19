@@ -40,4 +40,5 @@ export enum Tiles {
     BROWN_CAP_RIGHT = 9
 }
 
-export const RECORDING_TARGET_TIME = 30;
+export const RECORDING_LEVEL_LENGTH_FACTOR = 0.25;
+export const RECORDING_TARGET_TIME = 60;
