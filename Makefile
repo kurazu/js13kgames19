@@ -62,9 +62,7 @@ clean:
 	rm -vf game.zip
 
 zip: min
-	advzip -4 -i 20 -a game.zip dist/index.min.html dist/bundle.min.js dist/worker.min.js img/tiles.png dist/styles.min.css
-	ls -lh game.zip
-	ls -l game.zip
+	cd dist && advzip -4 -i 20 -a game.zip index.html b.js w.js t.png s.css && ls -lh game.zip && ls -l game.zip
 
 serve:
 	cd python2.7 -m SimpleHTTPServer

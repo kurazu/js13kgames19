@@ -3,8 +3,9 @@ import { FEATURES, LEARNING_FRAMES } from './constants';
 import { readFileSync } from 'fs';
 import { Matrix2D } from './math/multiply';
 
-const path = '/home/kurazu/Downloads/samples.1568211892615.14995.bin';
-const rows = 14995;
+
+const path = '/home/kurazu/Downloads/samples.1568359600797.3697.bin';
+const rows = 3697;
 
 const buffer: ArrayBuffer = readFileSync(path).buffer;
 const featuresSize = FEATURES * LEARNING_FRAMES * rows * 4;

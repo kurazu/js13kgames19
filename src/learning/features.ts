@@ -1,4 +1,4 @@
-import { SENSORS_RANGE, MAX_VELOCITY, LEARNING_FRAMES, FEATURES, LEARNING_EVERY_N_FRAMES } from '../constants';
+import { SENSORS_RANGE, MAX_VELOCITY, LEARNING_FRAMES, FEATURES, LEARNING_EVERY_N_FRAMES, HEIGHT } from '../constants';
 import { Action, ACTIONS, Actions } from '../physics/actions';
 import { SensorsState } from '../physics/collision';
 import Vector from '../physics/vector';
@@ -7,8 +7,8 @@ import { Queue } from '../math/queue';
 
 const MAX_VALUE: number = SENSORS_RANGE;
 
-export function getFeatures(velocity: Vector, sensorsState: SensorsState, nFeatures: number = FEATURES): Float32Array {
-    const result = new Float32Array(nFeatures);
+export function getFeatures(velocity: Vector, position: Vector, sensorsState: SensorsState): Float32Array {
+    const result = new Float32Array(FEATURES);
     let idx = 0;
     for (const sensorState of sensorsState) {
         const sensorValue: number = sensorState === null ? MAX_VALUE : sensorState;
@@ -17,6 +17,7 @@ export function getFeatures(velocity: Vector, sensorsState: SensorsState, nFeatu
     }
     result[idx++] = velocity.x / MAX_VELOCITY; // <0, 1> distribution
     result[idx++] = velocity.y / MAX_VELOCITY; // <0, 1> distribution
+    result[idx++] = position.y / HEIGHT;
     return result;
 }
 
@@ -38,22 +39,21 @@ export function getStackedFeaturesRowCount(
 }
 
 export function getStackedFeatures(
-    samples: [SensorsState, Vector, Action][],
-    nFeatures: number = FEATURES,
+    samples: [SensorsState, Vector, Vector, Action][],
     learningFrames: number = LEARNING_FRAMES,
     learningEveryNFrames: number = LEARNING_EVERY_N_FRAMES
 ): [Matrix2D, Uint8Array] {
     const featureSamples: [Float32Array, Actions][] = samples.map(
-        ([sensors, velocity, action]: [SensorsState, Vector, Action]) => [getFeatures(velocity, sensors, nFeatures), getLabel(action)]
+        ([sensors, velocity, position, action]: [SensorsState, Vector, Vector, Action]) => [getFeatures(velocity, position, sensors), getLabel(action)]
     );
     const rows = getStackedFeaturesRowCount(samples.length, learningFrames, learningEveryNFrames);
-    const inputs: Matrix2D = new Matrix2D(rows, learningFrames * nFeatures);
+    const inputs: Matrix2D = new Matrix2D(rows, learningFrames * FEATURES);
     const labels: Uint8Array = new Uint8Array(rows);
     for (let row = 0; row < rows; row++) {
         for (let frame = 0; frame < learningFrames; frame++) {
             const sampleIdx = row + frame * learningEveryNFrames;
             const [features, ]: [Float32Array, Actions] = featureSamples[sampleIdx];
-            inputs.buffer.set(features, row * inputs.columns + nFeatures * frame);
+            inputs.buffer.set(features, row * inputs.columns + FEATURES * frame);
         }
 
         const [, label]: [Float32Array, Actions] = featureSamples[row + (learningFrames - 1) * learningEveryNFrames];

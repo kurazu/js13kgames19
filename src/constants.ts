@@ -22,9 +22,9 @@ export const SENSORS_COUNT: number = 20;
 export const SENSORS_RANGE: number = 15;
 export const DEFAULT_PLAYER_POSITION = new Vector(BLOCK_SIZE * 4, BLOCK_SIZE * ROWS / 2);
 
-export const FEATURES: number = SENSORS_COUNT + 2;
+export const FEATURES: number = SENSORS_COUNT + 3;
 export const LEARNING_FRAMES: number = 6;
-export const LEARNING_EVERY_N_FRAMES: number = 40;
+export const LEARNING_EVERY_N_FRAMES: number = FPS;
 export const DENSE_LAYERS: number[] = [64];
 
 export const enum Tiles {
@@ -41,13 +41,13 @@ export const enum Tiles {
 }
 
 export const TARGET_AIRMILES = 100;
-export const RECORDING_LEVEL_LENGTH_FACTOR = 1;
-export const RECORDING_TARGET_TIME = 60;
+export const RECORDING_LEVEL_LENGTH_FACTOR = 1.75;
+export const RECORDING_TARGET_TIME = 80;
 
 export const SUPERVISED_GENERATIONS = 20;
 export const UNSUPERVISED_GENERATIONS = 100;
 
-export const POPULATION_SIZE = 100;
+export const POPULATION_SIZE = 50;
 export const MATING_POOL_SIZE = 10;
 export const ELITE_SIZE = 3;
 export const ASEXUAL_REPRODUCTION_SIZE = 3;
