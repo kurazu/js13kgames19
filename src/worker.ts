@@ -17,9 +17,9 @@ ctx.addEventListener('message', function(evt: MessageEvent) {
     const supervisedOptimizer = getSupervisedOptimizer(inputs, labels);
     supervisedOptimizer.topic.subscribe(update => {
         const response: ProgressResponse = {
-            type: ResponseType.PROGRESS,
-            step: update.generation,
-            totalSteps,
+            "type": ResponseType.PROGRESS,
+            "step": update.generation,
+            "totalSteps": totalSteps,
         };
         ctx.postMessage(response);
     });
@@ -30,15 +30,15 @@ ctx.addEventListener('message', function(evt: MessageEvent) {
         const generation = SUPERVISED_GENERATIONS + update.generation
         if (update.satisfactory) {
             response = {
-                type: ResponseType.READY,
-                weights: update.bestSolution.weights,
-                generation
+                "type": ResponseType.READY,
+                "weights": update.bestSolution.weights,
+                "generation": generation
             } as ReadyResponse;
         } else {
             response = {
-                type: ResponseType.PROGRESS,
-                step: generation,
-                totalSteps
+                "type": ResponseType.PROGRESS,
+                "step": generation,
+                "totalSteps": totalSteps
             } as ProgressResponse;
         }
         ctx.postMessage(response);

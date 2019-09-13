@@ -20,7 +20,7 @@ export default class WorkerCommunicator {
     private onMessage(event: MessageEvent): void {
         const response: WorkerResponse = event.data;
         console.log(`Got ${response.type} message from worker`);
-        if (response.type === ResponseType.PROGRESS) {
+        if (response["type"] === ResponseType.PROGRESS) {
             this.onProgressMessage(response as ProgressResponse);
         } else {
             this.onReadyMessage(response as ReadyResponse);
@@ -28,13 +28,13 @@ export default class WorkerCommunicator {
     }
 
     private onProgressMessage(response: ProgressResponse): void {
-        this.progressTopic.next([response.step, response.totalSteps]);
+        this.progressTopic.next([response["step"], response["totalSteps"]]);
     }
 
     private onReadyMessage(response: ReadyResponse): void {
-        const network: FeedForwardNetwork = createNetwork(response.weights);
-        storeNetwork(network, response.generation);
-        this.readyTopic.next([network, response.generation]);
+        const network: FeedForwardNetwork = createNetwork(response["weights"]);
+        storeNetwork(network, response["generation"]);
+        this.readyTopic.next([network, response["generation"]]);
     }
 
     public startLearning(inputMatrix: Matrix2D, labelsArray: Uint8Array): void {
@@ -42,7 +42,7 @@ export default class WorkerCommunicator {
         const inputs: ArrayBuffer = inputsArray.buffer;
         const labels: ArrayBuffer = labelsArray.buffer;
         const request: WorkerRequest = {
-            inputs, labels
+            "inputs": inputs, "labels": labels
         };
         this.worker.postMessage(request, [inputs, labels]);
     }

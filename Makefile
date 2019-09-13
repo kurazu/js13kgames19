@@ -9,10 +9,14 @@ all: styles dev
 styles:
 	$(NODE_PATH)/npx lessc styles.less build/styles.css
 
+images:
+	cp img/tiles.png dist/t.png
+
 min-styles: styles
 	$(NODE_PATH)/node --experimental-modules min-css.js
 
 min-html:
+	cat index.html | sed -e 's/type="module"//g' -e 's/build\/main\.js/b\.js/g' -e 's/build\/styles\.css/s\.css/g' > build/index.html
 	$(NODE_PATH)/node --experimental-modules min-html.js
 
 compile:
@@ -22,10 +26,12 @@ dev: compile
 	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_DEV) --entry_point build/main.js --js_output_file=dist/bundle.js
 	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_DEV) --entry_point build/worker.js --js_output_file=dist/worker.js
 
-min: compile min-styles min-html
-	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_PROD) --entry_point build/main.js --js_output_file=dist/bundle.min.js
-	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_PROD) --entry_point build/worker.js --js_output_file=dist/worker.min.js
-	ls -lh dist/*.js
+min: compile min-styles min-html images
+	sed -e 's/dist\/worker\.js/w\.js/g' -i build/worker_communication.js
+	sed -e 's/img\/tiles\.png/t\.png/g' -i build/game/toolbox.js
+	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_PROD) --entry_point build/main.js --js_output_file=dist/b.js
+	$(COMPILER) $(COMPILER_FLAGS) $(COMPILER_FLAGS_PROD) --entry_point build/worker.js --js_output_file=dist/w.js
+	ls -lh dist/*
 
 sup: compile
 	$(NODE_PATH)/node --experimental-modules build/sup.js
@@ -61,7 +67,7 @@ zip: min
 	ls -l game.zip
 
 serve:
-	python2.7 -m SimpleHTTPServer
+	cd python2.7 -m SimpleHTTPServer
 
 test:
 	${NODE_PATH}/npx jest
