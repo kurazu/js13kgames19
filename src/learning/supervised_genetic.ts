@@ -38,16 +38,11 @@ export default class SupervisedGeneticOptimizer extends NeuralGeneticAlgorithm<S
 
     public constructor(
         maxGenerations: number,
-        populationSize: number,
-        matingPoolSize: number,
-        eliteSize: number,
-        asexualReproductionSize: number,
-        mutationFactor: number,
         inputs: Matrix2D,
         labels: Uint8Array,
         batchSize: number | undefined = undefined,
     ) {
-        super(maxGenerations, populationSize, matingPoolSize, eliteSize, asexualReproductionSize, mutationFactor);
+        super(maxGenerations);
         this.inputs = inputs;
         this.labels = oneHotEncode(labels, ACTIONS.length);
         this.batchSize = batchSize;

@@ -1,5 +1,6 @@
 import { range, randomSample, uniformRandom, randRange, maxBy, chain, iterableMap } from '../utils';
 import Topic from '../observable';
+import { POPULATION_SIZE, MATING_POOL_SIZE, ELITE_SIZE, ASEXUAL_REPRODUCTION_SIZE, MUTATION_FACTOR } from '../constants';
 
 export interface ProgressInfo<Solution> {
     bestSolution: Solution;
@@ -9,32 +10,17 @@ export interface ProgressInfo<Solution> {
 
 export default abstract  class GeneticAlgorithm<Solution, Score> {
     public readonly maxGenerations: number;
-    protected populationSize: number;
-    protected matingPoolSize: number;
-    protected eliteSize: number;
-    protected asexualReproductionSize: number;
     protected get sexualReproductionSize(): number {
-        return this.populationSize - this.eliteSize - this.asexualReproductionSize;
+        return POPULATION_SIZE - ELITE_SIZE - ASEXUAL_REPRODUCTION_SIZE;
     }
-    protected mutationFactor: number;
     protected generationStartTS: number = +new Date;
     public readonly topic: Topic<ProgressInfo<Solution>>;
     private previousBestScore: number = -Infinity;
 
     protected constructor(
         maxGenerations: number,
-        populationSize: number,
-        matingPoolSize: number,
-        eliteSize: number,
-        asexualReproductionSize: number,
-        mutationFactor: number
     ) {
         this.maxGenerations = maxGenerations;
-        this.populationSize = populationSize;
-        this.matingPoolSize = matingPoolSize;
-        this.eliteSize = eliteSize;
-        this.asexualReproductionSize = asexualReproductionSize;
-        this.mutationFactor = mutationFactor;
         this.topic = new Topic();
     }
 
@@ -69,16 +55,16 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
         return scoredPopulation.map(
             ([solution, score]: [Solution, Score]) => solution
         ).slice(
-            0, this.matingPoolSize
+            0, MATING_POOL_SIZE
         );
     }
 
     protected reproduce(matingPool: Solution[]): Solution[] {
         const genePool: Float32Array[] = matingPool.map(this.getGenes.bind(this));
 
-        const elite = genePool.slice(0, this.eliteSize); // umodified elite
+        const elite = genePool.slice(0, ELITE_SIZE); // umodified elite
         const asexualReproductionOffspring = genePool.slice(
-            0, this.asexualReproductionSize
+            0, ASEXUAL_REPRODUCTION_SIZE
         ).map(
             (genes: Float32Array) => new Float32Array(genes) // copied because muation is applied in-place
         );
@@ -103,7 +89,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
     }
 
     protected applyMutation(genes: Float32Array): void {
-        const numberOfMutations = ~~(genes.length * this.mutationFactor);
+        const numberOfMutations = ~~(genes.length * MUTATION_FACTOR);
         const mutationIndices = randomSample(genes.length, numberOfMutations);
         for (const idx of mutationIndices) {
             genes[idx] = this.mutateGene(genes[idx]);
@@ -120,7 +106,7 @@ export default abstract  class GeneticAlgorithm<Solution, Score> {
     }
 
     public evolve(): Solution[] {
-        let population: Solution[] = range(this.populationSize).map(idx => this.createInitialSolution(idx));
+        let population: Solution[] = range(POPULATION_SIZE).map(idx => this.createInitialSolution(idx));
         for (let generation = 0; generation < this.maxGenerations; generation++) {
             this.onGenerationStart(generation);
             const scoredPopulation: [Solution, Score][] = this.evaluateFitness(population, generation);

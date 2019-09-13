@@ -3,6 +3,7 @@ import { FeedForwardNetwork } from '../math/net';
 import { range } from '../utils';
 import World, { ShipAndPosition } from '../physics/world';
 import AIShip from '../ships/ai_ship';
+import { UNSUPERVISED_MIN_FRAMES, UNSUPERVISED_MAX_FRAMES } from '../constants';
 
 
 class PlayerScore {
@@ -21,25 +22,14 @@ class PlayerScore {
 
 export default class UnsupervisedGameGeneticOptimizer extends NeuralGeneticAlgorithm<PlayerScore> {
     private world: World;
-    private minFrames: number;
-    private maxFrames: number;
     private initialNetwork: FeedForwardNetwork;
 
     public constructor(
         maxGenerations: number,
-        populationSize: number,
-        matingPoolSize: number,
-        eliteSize: number,
-        asexualReproductionSize: number,
-        mutationFactor: number,
-        minFrames: number,
-        maxFrames: number,
         initialNetwork: FeedForwardNetwork
     ) {
-        super(maxGenerations, populationSize, matingPoolSize, eliteSize, asexualReproductionSize, mutationFactor);
+        super(maxGenerations);
         this.world = new World();
-        this.minFrames = minFrames;
-        this.maxFrames = maxFrames;
         this.initialNetwork = initialNetwork;
     }
 
@@ -49,7 +39,7 @@ export default class UnsupervisedGameGeneticOptimizer extends NeuralGeneticAlgor
             this.world.addShip(player);
         }
 
-        const maxFrames = this.minFrames + (this.maxFrames - this.minFrames) * generation / (this.maxGenerations - 1);
+        const maxFrames = UNSUPERVISED_MIN_FRAMES + (UNSUPERVISED_MAX_FRAMES - UNSUPERVISED_MIN_FRAMES) * generation / (this.maxGenerations - 1);
         for (let frame = 0; frame < maxFrames; frame++) {
             const result: (ShipAndPosition[] | null) = this.world.update();
             if (result === null) { // nobody won yet

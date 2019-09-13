@@ -45,4 +45,12 @@ export const RECORDING_LEVEL_LENGTH_FACTOR = 1;
 export const RECORDING_TARGET_TIME = 60;
 
 export const SUPERVISED_GENERATIONS = 20;
-export const UNSUPERVISED_GENERATIONS = 50;
+export const UNSUPERVISED_GENERATIONS = 100;
+
+export const POPULATION_SIZE = 100;
+export const MATING_POOL_SIZE = 10;
+export const ELITE_SIZE = 3;
+export const ASEXUAL_REPRODUCTION_SIZE = 3;
+export const MUTATION_FACTOR = 0.05;
+export const UNSUPERVISED_MIN_FRAMES = 60 * 10;
+export const UNSUPERVISED_MAX_FRAMES = 60 * 60;
