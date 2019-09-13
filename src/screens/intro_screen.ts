@@ -1,20 +1,20 @@
-import { normal as N, emphasis as E, formatTime, Page } from './text';
+import { normal as N, standout as S, formatTime, Page } from './text';
 import TextScreen from './text_screen';
 import ScreenType from './screen_type';
 import { RECORDING_TARGET_TIME } from '../constants';
 
 const page1: Page = [
-    [N('So '), E('ROOKIE '), N('...')],
+    [N('So '), S('ROOKIE '), N('...')],
     [N('You want to work for the')],
-    [E('METRO PACKAGE SERVICE'), N('?')],
+    [S('METRO PACKAGE SERVICE'), N('?')],
 ];
 const page2: Page = [
-    [E('Before '), N('you can get this job,')],
-    [N('you need to '), E('prove '), N('your '), E('efficiency ')],
-    [N('with one of our '), E('hoverloaders'), N('.')]
+    [S('Before '), N('you can get this job,')],
+    [N('you need to '), S('prove '), N('your '), S('efficiency ')],
+    [N('with one of our '), S('hoverloaders'), N('.')]
 ];
 const page3: Page = [
-    [N('Finish a delivery round under '), ...formatTime(RECORDING_TARGET_TIME, E), N('!')]
+    [N('Finish a delivery round under '), ...formatTime(RECORDING_TARGET_TIME, S), N('!')]
 ];
 
 export default class IntroScreen extends TextScreen {

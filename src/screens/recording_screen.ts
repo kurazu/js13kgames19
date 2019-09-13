@@ -5,7 +5,7 @@ import RecordingShip from '../ships/recording_ship';
 import { getStackedFeatures } from '../learning/features';
 import { DEFAULT_LEVEL_LENGTH, RECORDING_TARGET_TIME, RECORDING_LEVEL_LENGTH_FACTOR } from '../constants';
 
-function store(inputMatrix: Matrix2D, labels: Uint8Array) {
+function download(inputMatrix: Matrix2D, labels: Uint8Array) {
     const blob = new Blob([inputMatrix.buffer.buffer, labels.buffer], {type: 'application/octet-stream'});
     const url = URL.createObjectURL(blob);
 
@@ -32,7 +32,7 @@ export default class RecordingScreen extends GameScreen<RecordingShip> {
         const { player: { records }, toolbox: { workerCommunicator } } = this;
         console.log(`Gathered ${records.length} records`);
         const [inputMatrix, labels]: [Matrix2D, Uint8Array] = getStackedFeatures(records);
-        store(inputMatrix, labels);
+        // download(inputMatrix, labels);
         workerCommunicator.startLearning(inputMatrix, labels);
         return ScreenType.RECORDED;
     }

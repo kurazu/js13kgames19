@@ -1,5 +1,6 @@
 const enum ScreenType {
     TITLE,
+    CREDITS,
     INTRO,
     RECORDING,
     TIME_LIMIT_EXCEEDED,

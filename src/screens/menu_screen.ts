@@ -6,7 +6,7 @@ import { WIDTH } from '../constants';
 import { normal as N, emphasis as E, standout as S, inactive as I, transparent as T, TextFormatter } from './text';
 
 
-export type ItemCallback = (toolbox: Toolbox) => (ScreenType | undefined);
+export type ItemCallback = () => (ScreenType | undefined);
 export type ItemType = [string, boolean, ItemCallback];
 
 export default abstract class MenuScreen extends BackgroundScreen {
@@ -31,11 +31,10 @@ export default abstract class MenuScreen extends BackgroundScreen {
     protected abstract getItems(): ItemType[];
 
     protected update(): ScreenType | undefined {
-        const { toolbox } = this;
-        const { keyboard } = toolbox;
+        const { toolbox: { keyboard } } = this;
         if (keyboard.wasPressed(Key.RIGHT)) {
             const [,, callback] = this.items[this.selectedIdx];
-            return callback(toolbox);
+            return callback();
         } else if (keyboard.wasPressed(Key.UP)) {
             let isActive: boolean;
             do {

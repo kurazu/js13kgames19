@@ -13,15 +13,20 @@ export default class TitleScreen extends MenuScreen {
         return [
             ['CONTINUE', this.toolbox.neuralNetwork !== undefined, this.onContinue.bind(this)],
             ['NEW GAME', true, this.onNewGame.bind(this)],
+            ['CREDITS', true, this.onCredits.bind(this)],
         ];
     }
 
-    private onContinue(toolbox: Toolbox): ScreenType | undefined {
+    private onContinue(): ScreenType | undefined {
         return ScreenType.COMPETE;
     }
 
-    private onNewGame(toolbox: Toolbox): ScreenType | undefined {
+    private onNewGame(): ScreenType | undefined {
         return ScreenType.INTRO;
+    }
+
+    private onCredits(): ScreenType | undefined {
+        return ScreenType.CREDITS;
     }
 
     protected update(): ScreenType | undefined {

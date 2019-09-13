@@ -11,6 +11,7 @@ import CompeteScreen from '../screens/compete_screen';
 import TrainedScreen from '../screens/trained_screen';
 import LostScreen from '../screens/lost_screen';
 import WonScreen from '../screens/won_screen';
+import CreditsScreen from '../screens/credits_screen';
 
 type ScreenClass = {new(toolbox: Toolbox): Screen};
 
@@ -25,6 +26,7 @@ screenConstructors.set(ScreenType.COMPETE, CompeteScreen);
 screenConstructors.set(ScreenType.TRAINED, TrainedScreen);
 screenConstructors.set(ScreenType.LOST, LostScreen);
 screenConstructors.set(ScreenType.WON, WonScreen);
+screenConstructors.set(ScreenType.CREDITS, CreditsScreen);
 
 export default async function start(canvas: HTMLCanvasElement, initialScreenType: ScreenType): Promise<void> {
     const toolbox: Toolbox = await loadToolbox(canvas);
