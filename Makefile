@@ -58,7 +58,7 @@ install:
 # 	$(NODE_PATH)/node --experimental-modules build/test.js
 
 clean:
-	rm -vf build/**/*.js build/*.js build/*.css
+	rm -vf build/**/*.js build/*.js build/*.css dist/*
 	rm -vf game.zip
 
 zip: min
