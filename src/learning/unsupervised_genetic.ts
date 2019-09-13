@@ -57,16 +57,16 @@ export default class UnsupervisedGameGeneticOptimizer extends NeuralGeneticAlgor
 
     protected onGenerationEnd(generation: number, bestSolution: FeedForwardNetwork, bestScore: PlayerScore): void {
         super.onGenerationEnd(generation, bestSolution, bestScore);
-        console.log('Creating a new level');
-        this.world = new World();
-        // if (bestScore.finished) {
-        // } else {
-        //     this.world.reset();
-        // }
+        if (bestScore.finished) {
+            console.log('Creating a new level');
+            this.world = new World();
+        } else {
+            this.world.reset();
+        }
     }
 
     protected isSatisfactory(generation: number, bestSolution: FeedForwardNetwork, bestScore: PlayerScore): boolean {
-        return generation === this.maxGenerations - 1 || bestScore.finished;
+        return generation === this.maxGenerations - 1 || bestScore.finished || bestScore.score > 5000;
     }
 
     protected createInitialSolution(idx: number): FeedForwardNetwork {

@@ -16,13 +16,13 @@ const page2: Page = [
 ];
 const page3: Page = [
     [N('Then we let an '), S('unsupervised genetic algorithm')],
-    [N('improve on those skills '), S('beyond '), N('your level. ')]
+    [N('improve on those skills '), S('beyond '), N('the initial level. ')]
 ];
 const page4: Page = [
     [N('Now we have an '), S('autonomic driving algorithm ')],
     [N('for the other hoverloader.')],
     [N('We are going to keep you for now,')],
-    [N('while we evaluate the '), S('AI'), N('.')],
+    [N('while we debug the '), S('AI'), N('.')],
 ];
 const page5: Page = [
     [N('But once it bests you, you\'re '), S('OUT'), N('!')],
