@@ -1,6 +1,6 @@
 black
 mypy
-tensorflow==2.0.0-beta1
+tensorflow==2.5.0rc0
 flake8
 flake8-blind-except
 flake8-bugbear
